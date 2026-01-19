@@ -294,6 +294,7 @@ When this skill uncovers useful **generic** queries or workflows, add them as sc
 - Keep pending changes in `<migrations_path>/prerelease.sql` (or ordered `1_prerelease.sql`, `2_prerelease.sql` if splitting is needed).
 - Never touch any file or folder whose name ends with `released` (case-insensitive) inside the chosen migrations folder.
 - Maintain `<migrations_path>/CHANGELOG.md` with dated entries; create it if missing and remove entries for released migrations.
+- Whenever you modify prerelease migration file(s), update `<migrations_path>/CHANGELOG.md` with a dated entry for that change (every time).
 
 ## Important rule for DB structure changes
 After the change is approved and completed, ask where to save the migration SQL. Resolve `<migrations_path>` in this order: `[database.<profile>].migrations_path`, then `[migrations].path` from `postgres.toml`, then `AGENTS.md` (`DB_MIGRATIONS_PATH`), then the default `<migrations_path>` at the project root.
