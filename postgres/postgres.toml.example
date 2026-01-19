@@ -1,0 +1,11 @@
+[database]
+sslmode = "disable"
+
+[database.local]
+project = "app"
+description = "local dev"
+host = "localhost"
+port = 5432
+database = "app_local"
+user = "postgres"
+password = "postgres"

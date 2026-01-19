@@ -5,7 +5,7 @@ This directory contains reusable Codex skills. Each skill has a `SKILL.md` entry
 ## Skills
 - `questions/` — Ask clarifying questions when a request is underspecified.
 - `learn/` — Capture durable preferences and write them into AGENTS guidance.
-- `postgres/` — Connect to Postgres and run queries or checks.
+- `postgres/` — Postgres connection workflows and helper scripts for local development.
 
 ## Developer Mode
 Use `bootstrap.sh` on macOS to create a symlink at `~/Developer/Skills` pointing to this repo for quick access.
