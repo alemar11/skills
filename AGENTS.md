@@ -6,7 +6,7 @@ This repository hosts reusable Codex skills. Each skill lives in its own top-lev
 ## How to Create a Skill
 - Create a dedicated directory per skill with a clear, stable name.
 - Add a `SKILL.md` that defines purpose, triggers, and the workflow to follow.
-- Use the specification at `https://agentskills.io/specification` when creating new skills.
+- Use the specification at `https://agentskills.io/specification` and `https://developers.openai.com/codex/skills/` when creating new skills.
 - Keep `README.md` updated with the current skill list and a one-line description for each.
 
 ## Git Commits
