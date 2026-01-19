@@ -1,6 +1,6 @@
-# Custom Codex Skills
+# Codex Skills
 
-This directory contains reusable Codex skills. Each skill has a `SKILL.md` entrypoint and may include helper scripts.
+This directory contains reusable Codex skills—task-specific packages of instructions, resources, and optional scripts that help Codex follow workflows reliably.
 
 ## Skills
 - `questions/` — Ask clarifying questions when a request is underspecified.
