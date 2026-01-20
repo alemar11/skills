@@ -1,0 +1,4 @@
+[interface]
+display_name = "Learn"
+short_description = "Capture durable corrections or preferences and write them to AGENTS.md."
+brand_color = "#2F9E44"
