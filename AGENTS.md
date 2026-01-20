@@ -12,3 +12,6 @@ This repository hosts reusable Codex skills. Each skill lives in its own top-lev
 
 ## Git Commits
 - If changes affect multiple skills, split them into separate, meaningful commits.
+
+## Codex Learnings
+- Keep README skill descriptions in sync with each skill's `SKILL.toml` `interface.short_description`.
