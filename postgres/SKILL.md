@@ -56,7 +56,9 @@ password = "postgres"
 - If `postgres.toml` is missing or the requested profile is missing, ask for **host**, **port**, **database**, **user**, **password** (only ask for **sslmode** if needed).
 - If the user provides a connection URL, infer missing fields from it.
 - Ask whether to save the profile into `postgres.toml` or use the values as a one-off (temporary) connection.
-- During bootstrap, ask to confirm the migrations path (per profile). If `AGENTS.md` is missing, ask whether it should be created to store `DB_MIGRATIONS_PATH`.
+- During bootstrap, confirm the migrations path (per profile). Default to `db/migrations` relative to the project root unless overridden by `[migrations].path` or `DB_MIGRATIONS_PATH` (relative overrides resolve from the project root).
+- For custom migrations paths, resolve relative paths from the project root; if missing, offer to search under the project root for matches, then offer to create the directory.
+- If the default path is relative and missing, offer to create it. If `AGENTS.md` is missing, ask whether it should be created to store `DB_MIGRATIONS_PATH`.
 - All scripts should support one-off connections via `DB_URL` (and `DB_URL_A`/`DB_URL_B` for compare scripts) without requiring `postgres.toml`.
 
 ## Install psql

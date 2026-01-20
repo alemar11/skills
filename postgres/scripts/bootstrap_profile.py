@@ -8,6 +8,24 @@ import urllib.parse
 
 TOML_PATH = sys.argv[1]
 PROJECT_ROOT = sys.argv[2] if len(sys.argv) > 2 else os.getcwd()
+IGNORE_DIRS = {
+    ".git",
+    "node_modules",
+    "dist",
+    "build",
+    "target",
+    "vendor",
+    ".venv",
+    "venv",
+    "Pods",
+    "DerivedData",
+    "coverage",
+    ".next",
+    ".turbo",
+    ".cache",
+    ".idea",
+    ".vscode",
+}
 
 
 def prompt(text: str, default: str | None = None) -> str:
@@ -137,24 +155,6 @@ def should_scan_file(path: str) -> bool:
 
 
 def scan_project(root: str) -> list[dict]:
-    ignore_dirs = {
-        ".git",
-        "node_modules",
-        "dist",
-        "build",
-        "target",
-        "vendor",
-        ".venv",
-        "venv",
-        "Pods",
-        "DerivedData",
-        "coverage",
-        ".next",
-        ".turbo",
-        ".cache",
-        ".idea",
-        ".vscode",
-    }
     url_re = re.compile(r"postgres(?:ql)?://[^\\s\"'`<>]+", re.IGNORECASE)
     key_re = re.compile(
         r"(?P<key>PGHOST|PGPORT|PGDATABASE|PGUSER|PGPASSWORD|PGSSLMODE|"
@@ -168,7 +168,7 @@ def scan_project(root: str) -> list[dict]:
     is_monorepo = detect_monorepo_root(root)
 
     for base, dirs, files in os.walk(root):
-        dirs[:] = [d for d in dirs if d not in ignore_dirs]
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
         for name in files:
             path = os.path.join(base, name)
             if not should_scan_file(path):
@@ -428,6 +428,83 @@ def infer_project(root: str, relpath: str, is_monorepo: bool) -> str:
     return base
 
 
+def normalize_migrations_path(value: str) -> str:
+    value = value.strip()
+    if not value:
+        return value
+    return os.path.normpath(value)
+
+
+def find_migrations_matches(root: str, rel_path: str) -> list[str]:
+    rel_norm = normalize_migrations_path(rel_path).strip(os.sep)
+    if not rel_norm:
+        return []
+    matches: list[str] = []
+    for base, dirs, _ in os.walk(root):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        if base == root:
+            continue
+        rel = os.path.normpath(os.path.relpath(base, root))
+        if rel == rel_norm or rel.endswith(os.sep + rel_norm):
+            matches.append(base)
+    matches.sort()
+    return matches
+
+
+def choose_migrations_match(matches: list[str], project_root: str) -> str | None:
+    if not matches:
+        return None
+    rel_matches = [
+        os.path.normpath(os.path.relpath(match, project_root)) for match in matches
+    ]
+    rel_matches = list(dict.fromkeys(rel_matches))
+    if len(rel_matches) == 1:
+        if prompt_yes_no(f"Use existing migrations path '{rel_matches[0]}'?", True):
+            return rel_matches[0]
+        return None
+    print("\nFound matching migrations directories:\n")
+    for idx, rel in enumerate(rel_matches, 1):
+        print(f"{idx}) {rel}")
+    selection = input("\nPick a number to use (or press Enter to skip): ").strip()
+    if not selection:
+        return None
+    try:
+        idx = int(selection)
+    except ValueError:
+        return None
+    if idx < 1 or idx > len(rel_matches):
+        return None
+    return rel_matches[idx - 1]
+
+
+def resolve_custom_migrations_path(path: str, project_root: str) -> str:
+    migrations_path = normalize_migrations_path(path)
+    if not migrations_path:
+        return migrations_path
+    abs_path = (
+        migrations_path
+        if os.path.isabs(migrations_path)
+        else os.path.join(project_root, migrations_path)
+    )
+    abs_path = os.path.normpath(abs_path)
+    if os.path.isdir(abs_path):
+        return migrations_path
+    if not os.path.isabs(migrations_path):
+        if prompt_yes_no(
+            f"Search for '{migrations_path}' under '{project_root}'?", True
+        ):
+            matches = find_migrations_matches(project_root, migrations_path)
+            if matches:
+                chosen = choose_migrations_match(matches, project_root)
+                if chosen:
+                    return chosen
+            else:
+                print("No matching directories found.")
+    if prompt_yes_no(f"Create migrations directory at '{abs_path}'?", True):
+        os.makedirs(abs_path, exist_ok=True)
+    return migrations_path
+
+
 def read_agents_migrations_path(agents_path: str) -> str | None:
     if not os.path.exists(agents_path):
         return None
@@ -524,7 +601,7 @@ def main() -> None:
     agents_path = os.path.join(project_root, "AGENTS.md")
     agents_migrations_path = read_agents_migrations_path(agents_path)
     toml_migrations_path = read_toml_migrations_path(TOML_PATH)
-    default_migrations_path = toml_migrations_path or agents_migrations_path or "/db/migrations"
+    default_migrations_path = toml_migrations_path or agents_migrations_path or "db/migrations"
 
     use_default = prompt_yes_no(
         (
@@ -535,15 +612,21 @@ def main() -> None:
     )
     if use_default:
         cfg["migrations_path"] = ""
+        # Ensure the default path exists when it's relative to the project root.
+        if not os.path.isabs(default_migrations_path):
+            default_path = os.path.join(project_root, default_migrations_path)
+            if not os.path.isdir(default_path):
+                if prompt_yes_no(
+                    f"Create migrations directory at '{default_path}'?", True
+                ):
+                    os.makedirs(default_path, exist_ok=True)
     else:
-        cfg["migrations_path"] = prompt_required("Migrations path")
+        cfg["migrations_path"] = resolve_custom_migrations_path(
+            prompt_required("Migrations path"),
+            project_root,
+        )
 
-    if cfg["migrations_path"]:
-        if cfg["migrations_path"] != agents_migrations_path:
-            if prompt_yes_no(
-                f"Update {agents_path} with DB_MIGRATIONS_PATH={cfg['migrations_path']}?", True
-            ):
-                update_agents_migrations_path(agents_path, cfg["migrations_path"])
+    migrations_path_before_mods = cfg.get("migrations_path", "")
 
     cfg = prompt_missing_fields(cfg)
 
@@ -551,6 +634,22 @@ def main() -> None:
     print(format_profile_toml(profile, cfg))
 
     cfg = prompt_modifications(cfg)
+
+    if cfg.get("migrations_path"):
+        cfg["migrations_path"] = normalize_migrations_path(cfg["migrations_path"])
+        if cfg["migrations_path"] != migrations_path_before_mods:
+            cfg["migrations_path"] = resolve_custom_migrations_path(
+                cfg["migrations_path"],
+                project_root,
+            )
+
+    if cfg.get("migrations_path"):
+        if cfg["migrations_path"] != agents_migrations_path:
+            if prompt_yes_no(
+                f"Update {agents_path} with DB_MIGRATIONS_PATH={cfg['migrations_path']}?",
+                True,
+            ):
+                update_agents_migrations_path(agents_path, cfg["migrations_path"])
 
     save = prompt_yes_no(f"Save profile '{profile}' to postgres.toml?", True)
     if not save:
