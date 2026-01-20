@@ -1,6 +1,6 @@
 ---
 name: postgres
-description: Connect to Postgres and run queries or checks. Use when asked to access a DB or execute SQL.
+description: Connect to Postgres databases and run queries or checks. Use when asked to access a DB or execute SQL.
 ---
 
 # Postgres

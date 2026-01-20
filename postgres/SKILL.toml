@@ -1,0 +1,4 @@
+[interface]
+display_name = "Postgres"
+short_description = "Connect to Postgres databases and run queries or checks."
+brand_color = "#336791"
