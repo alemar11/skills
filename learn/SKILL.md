@@ -7,7 +7,10 @@ description: Capture durable corrections or preferences and write confirmed lear
 
 ## Quick flow
 - Find the most recent **durable** correction/avoidance/preference in the current conversation.
-- Target **global** by default unless the user explicitly says "project", "project-root", or "workspace". Do not pick local just because it exists.
+- Determine scope before proposing a target:
+  - If the rule is clearly **project-specific** (e.g., tied to repo structure, tooling, or workflows), suggest **project** AGENTS.md first.
+  - Otherwise, default to **global** unless the user explicitly says "project", "project-root", or "workspace".
+  - Do not pick local just because it exists.
 - If the learning is new (not already in AGENTS.md), propose:
   - Short summary (1 line)
   - Detailed instruction (1–3 bullets)
@@ -20,6 +23,9 @@ description: Capture durable corrections or preferences and write confirmed lear
 ## Durability filter
 - Keep long-lived preferences and permanent mistake corrections.
 - Exclude one-off or context-specific instructions tied only to the current task/files.
+- Examples:
+  - Project-specific: “Use `pnpm` in this repo,” “Update `docs/ARCHITECTURE.md` when changing auth.”
+  - Global: “Always use `rg` for file search,” “Ask before writing to AGENTS.md.”
 
 ## AGENTS.md write
 - Use section `## Codex Learnings` (create if missing).
@@ -30,6 +36,10 @@ description: Capture durable corrections or preferences and write confirmed lear
 - **global** (default): `~/.codex/AGENTS.md`
 - **project**: `AGENTS.md` at repo root (or cwd if no repo)
 - If both repo root and cwd have AGENTS.md, label them **project-root** and **workspace**.
+- If multiple AGENTS.md exist in subfolders, consider whether the rule is better scoped to a sub-area:
+  - If the rule is likely relevant to the current project but scoped to a specific subfolder, suggest the closest existing sub-AGENTS.md first.
+  - If no sub-AGENTS.md exists, propose the repo AGENTS.md first.
+  - Always leave the final choice to the user.
 - If the chosen target does not exist, ask to create it (still default to global unless user says otherwise).
 
 ## Script output
