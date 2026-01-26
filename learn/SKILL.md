@@ -39,6 +39,7 @@ description: Capture durable corrections or preferences and write confirmed lear
 - If multiple AGENTS.md exist in subfolders, consider whether the rule is better scoped to a sub-area:
   - If the rule is likely relevant to the current project but scoped to a specific subfolder, suggest the closest existing sub-AGENTS.md first.
   - If no sub-AGENTS.md exists, propose the repo AGENTS.md first.
+  - Always show the full path when suggesting a sub-AGENTS.md so the user can evaluate the scope.
   - Always leave the final choice to the user.
 - If the chosen target does not exist, ask to create it (still default to global unless user says otherwise).
 
