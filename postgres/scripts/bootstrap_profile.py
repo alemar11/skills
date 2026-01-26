@@ -26,6 +26,21 @@ IGNORE_DIRS = {
     ".idea",
     ".vscode",
 }
+SSL_TRUE = {
+    "true",
+    "t",
+    "1",
+    "yes",
+    "y",
+    "on",
+    "enable",
+    "enabled",
+    "require",
+    "required",
+    "verify-ca",
+    "verify-full",
+}
+SSL_FALSE = {"false", "f", "0", "no", "n", "off", "disable", "disabled"}
 
 
 def prompt(text: str, default: str | None = None) -> str:
@@ -49,6 +64,17 @@ def prompt_password(text: str, default_present: bool = False) -> str:
     return value
 
 
+def prompt_sslmode(current: bool | None) -> bool:
+    default_value = "true" if current else "false"
+    while True:
+        value = prompt("sslmode (true/false)", default_value).strip().lower()
+        if value in SSL_TRUE:
+            return True
+        if value in SSL_FALSE:
+            return False
+        print("Enter true or false.")
+
+
 def clean_value(value: str) -> str:
     value = value.strip().strip(",;")
     if (value.startswith('"') and value.endswith('"')) or (
@@ -62,10 +88,30 @@ def looks_dynamic(value: str) -> bool:
     return any(token in value for token in ("${", "process.env", "$", "ENV[", "ENV.fetch"))
 
 
+def normalize_sslmode(value, default: bool | None = None) -> bool | None:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    text = str(value).strip()
+    if not text:
+        return default
+    lowered = text.lower()
+    if lowered in SSL_TRUE:
+        return True
+    if lowered in SSL_FALSE:
+        return False
+    return default
+
+
+def sslmode_to_string(value: bool | None) -> str:
+    return "require" if value else "disable"
+
+
 def parse_url(url: str) -> dict:
     parsed = urllib.parse.urlparse(url)
     query = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
-    sslmode = query.get("sslmode", [None])[0]
+    sslmode = normalize_sslmode(query.get("sslmode", [None])[0])
     username = urllib.parse.unquote(parsed.username or "") if parsed.username else ""
     password = urllib.parse.unquote(parsed.password or "") if parsed.password else ""
     database = urllib.parse.unquote(parsed.path.lstrip("/")) if parsed.path else ""
@@ -75,7 +121,7 @@ def parse_url(url: str) -> dict:
         "database": database,
         "user": username,
         "password": password,
-        "sslmode": sslmode or "",
+        "sslmode": sslmode,
     }
 
 
@@ -87,7 +133,7 @@ def build_url(cfg: dict) -> str:
     database = urllib.parse.quote(str(cfg["database"]))
     netloc = f"{user}:{password}@{host}:{port}"
     path = f"/{database}"
-    query = urllib.parse.urlencode({"sslmode": str(cfg.get("sslmode") or "disable")})
+    query = urllib.parse.urlencode({"sslmode": sslmode_to_string(cfg.get("sslmode"))})
     return urllib.parse.urlunparse(("postgresql", netloc, path, "", query, ""))
 
 
@@ -232,7 +278,7 @@ def scan_project(root: str) -> list[dict]:
                 or env.get("DB_DATABASE", ""),
                 "user": env.get("PGUSER") or env.get("DB_USER", ""),
                 "password": env.get("PGPASSWORD") or env.get("DB_PASSWORD", ""),
-                "sslmode": env.get("PGSSLMODE", ""),
+                "sslmode": normalize_sslmode(env.get("PGSSLMODE", "")),
             }
 
             if any(mapping.values()):
@@ -273,7 +319,7 @@ def write_toml(path: str, data: dict, profile_order: list[str]) -> None:
     profiles = {k: v for k, v in db.items() if isinstance(v, dict)}
 
     if "sslmode" not in defaults:
-        defaults["sslmode"] = "disable"
+        defaults["sslmode"] = False
 
     lines: list[str] = []
     lines.append("[database]")
@@ -362,8 +408,7 @@ def prompt_modifications(cfg: dict) -> dict:
     password = prompt_password("Password", default_present=bool(cfg.get("password")))
     if password:
         cfg["password"] = password
-    sslmode = prompt("sslmode", cfg.get("sslmode") or "disable")
-    cfg["sslmode"] = sslmode or "disable"
+    cfg["sslmode"] = prompt_sslmode(normalize_sslmode(cfg.get("sslmode"), False))
     return cfg
 
 
@@ -378,8 +423,8 @@ def format_profile_toml(profile: str, cfg: dict) -> str:
     for key in ["host", "port", "database", "user", "password"]:
         if key in cfg and cfg[key] != "":
             lines.append(f'{key} = "{cfg[key]}"')
-    if cfg.get("sslmode"):
-        lines.append(f'sslmode = "{cfg["sslmode"]}"')
+    if "sslmode" in cfg and cfg["sslmode"] is not None:
+        lines.append(f'sslmode = {format_value(cfg["sslmode"])}')
     return "\n".join(lines)
 
 
@@ -589,7 +634,7 @@ def main() -> None:
 
     default_profile = candidate["profile"] if candidate else "local"
     profile = prompt_profile_name(default_profile)
-    cfg = {"sslmode": "disable"}
+    cfg = {"sslmode": False}
 
     if candidate:
         cfg.update(candidate["data"])
@@ -597,6 +642,8 @@ def main() -> None:
             cfg["project"] = candidate["project"]
     else:
         cfg["project"] = os.path.basename(scan_root.rstrip(os.sep)) or "project"
+
+    cfg["sslmode"] = normalize_sslmode(cfg.get("sslmode"), False)
 
     agents_path = os.path.join(project_root, "AGENTS.md")
     agents_migrations_path = read_agents_migrations_path(agents_path)
@@ -653,7 +700,7 @@ def main() -> None:
 
     save = prompt_yes_no(f"Save profile '{profile}' to postgres.toml?", True)
     if not save:
-        cfg["sslmode"] = cfg.get("sslmode") or "disable"
+        cfg["sslmode"] = normalize_sslmode(cfg.get("sslmode"), False)
         url = build_url(cfg)
         print("\nTemporary connection (no TOML write):")
         print(f'DB_URL="{url}" \\\n  ./scripts/test_connection.sh')
@@ -666,10 +713,10 @@ def main() -> None:
     defaults = {k: v for k, v in db.items() if not isinstance(v, dict)}
     profiles = {k: v for k, v in db.items() if isinstance(v, dict)}
 
-    defaults.setdefault("sslmode", "disable")
+    defaults["sslmode"] = normalize_sslmode(defaults.get("sslmode"), False)
 
     cfg["port"] = coerce_port(cfg.get("port", "5432"))
-    cfg["sslmode"] = cfg.get("sslmode") or defaults["sslmode"]
+    cfg["sslmode"] = normalize_sslmode(cfg.get("sslmode"), defaults["sslmode"])
 
     profiles[profile] = {
         "host": cfg["host"],

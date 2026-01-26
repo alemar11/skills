@@ -17,7 +17,7 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
 3) Execute and report:
    - Run the requested action and summarize results or errors.
 4) Persist only if asked:
-   - Update TOML only with explicit user approval.
+   - Update TOML only with explicit user approval, except `[configuration].pg_bin_path` which may be auto-written when missing. `schema_version` is written by the migration helper. Prompt before changing an existing value.
 
 ## Default Local Example
 The canonical source is `postgres.toml`. The values below are just a minimal reference.
@@ -26,28 +26,22 @@ The canonical source is `postgres.toml`. The values below are just a minimal ref
 - **Config file:** `<project-root>/.skills/postgres/postgres.toml`
 - **Gitignore:** add `<project-root>/.skills/postgres/postgres.toml` to your repo `.gitignore`
 - **Template:** copy `postgres.toml.example` to `<project-root>/.skills/postgres/postgres.toml` to get started
+- **Schema reference:** `references/postgres_skill_schema.md` (all schema versions and migration rules)
 - **Profile sections:** `[database.<profile>]` (e.g. `[database.local]`, `[database.db_test_1]`)
 - **Profile name rule:** lowercase letters, digits, underscores only (`^[a-z0-9_]+$`)
 - **Default profile:** `local` (set via `DB_PROFILE`)
-- **Default sslmode:** `disable` (if a connection fails and `sslmode=require` succeeds, ask before updating the TOML)
+- **Default sslmode:** `false` under `[database]`. Each `[database.<profile>]` can override `sslmode` (if a connection fails and SSL retry succeeds, ask before updating the TOML to `true`).
 - **Optional fields:** `project`, `description`, `migrations_path` (per-profile override)
 - **Optional section:** `[migrations] path = "<migrations_path>"` (per-user default)
+- **Required section:** `[configuration] schema_version = 1` (TOML schema version; missing implies pre-1 and must be migrated)
+- **Required section:** `[configuration] pg_bin_path = "<bin_dir>"` (prepends to PATH; auto-set when missing; migration fails if it cannot be determined)
 
-Example TOML:
+Example TOML lives in `postgres.toml.example`.
 
-```toml
-[database]
-sslmode = "disable"
-
-[database.local]
-project = "app"
-description = "local dev"
-host = "localhost"
-port = 5432
-database = "app_local"
-user = "postgres"
-password = "postgres"
-```
+## Schema summary (current)
+- `schema_version` is required; missing implies pre-1 and must be migrated.
+- For full version history and migration rules, see `references/postgres_skill_schema.md`.
+- Run `./scripts/migrate_toml_schema.sh` to upgrade legacy TOMLs (rewrites file and may drop comments).
 
 ## When the skill is triggered
 - If `<project-root>/.skills/postgres/postgres.toml` exists, **do not** prompt to scan by default; assume the project is already configured. Only offer a scan if the user explicitly asks for it or if the TOML is missing.
@@ -94,14 +88,14 @@ Windows:
 ## Optional safety defaults (recommended)
 - `DB_APPLICATION_NAME` (default: `codex-postgres-skill`) sets a consistent `application_name`.
 - `DB_STATEMENT_TIMEOUT_MS` and `DB_LOCK_TIMEOUT_MS` apply session timeouts via `PGOPTIONS`.
-- `DB_AUTO_UPDATE_SSLMODE=1` auto-persists `sslmode=require` after a successful retry (otherwise ask and print the command).
+- `DB_AUTO_UPDATE_SSLMODE=1` auto-persists `sslmode=true` after a successful retry (otherwise ask and print the command).
 - `DB_CONFIRM=YES` skips confirmation prompts for cancel/terminate scripts.
 - `DB_VIEW_DEF_TRUNC` and `DB_FUNC_DEF_TRUNC` truncate view/function definitions in schema introspection output.
 
 ## psql usage
 Run these from your project root (the directory that contains `.skills/postgres/postgres.toml`).
 If you need to run from the skill directory, set `DB_PROJECT_ROOT` (or `PROJECT_ROOT`) to your project root first.
-1. Ensure `psql` is on your PATH (only if `psql` is not found):
+1. Ensure `psql` is on your PATH (only if `psql` is not found). If `[configuration].pg_bin_path` is set, it is prepended automatically. If the key is missing, scripts will try to locate `psql` and persist `pg_bin_path`. If `pg_bin_path` is set but invalid, you will be prompted before updating it.
 
 macOS (Homebrew):
 ```sh
@@ -144,7 +138,7 @@ eval "$(./scripts/resolve_db_url.sh)"
 psql "$DB_URL"
 ```
 
-Note: use `./scripts/psql_with_ssl_fallback.sh` (or scripts that wrap it) if you want automatic `sslmode=require` retry. If the retry succeeds, ask before updating `postgres.toml` unless `DB_AUTO_UPDATE_SSLMODE=1` is set.
+Note: use `./scripts/psql_with_ssl_fallback.sh` (or scripts that wrap it) if you want automatic SSL retry. If the retry succeeds, ask before updating `postgres.toml` unless `DB_AUTO_UPDATE_SSLMODE=1` is set.
 
 ## Bootstrap a profile (interactive)
 This helper will optionally scan a project for existing config, recap candidates in TOML format, and let you save or use a one-off connection. It prompts for the project root to scan.
@@ -260,7 +254,7 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 ## Script index (keep current)
 - `resolve_db_url.sh` — Resolves `DB_URL` from `postgres.toml` or `DB_URL` env for one-off use.
   - Example: `eval "$(./scripts/resolve_db_url.sh)"`
-- `psql_with_ssl_fallback.sh` — Runs `psql` with automatic `sslmode=require` retry when needed.
+- `psql_with_ssl_fallback.sh` — Runs `psql` with automatic SSL retry when needed.
   - Example: `./scripts/psql_with_ssl_fallback.sh -v ON_ERROR_STOP=1 -c "select 1;"`
 - `bootstrap_profile.sh` — Interactive profile setup with optional project scan.
 - `check_deps.sh` — Verifies required CLI tools and prints install hints.
@@ -283,6 +277,7 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 - `terminate_backend.sh` — Terminates a backend (prompts for confirmation).
 - `query_action.sh` — Lists matching active queries, then cancels or terminates selected PIDs.
 - `update_sslmode.sh` — Updates `sslmode` for a profile in `postgres.toml` (used by the fallback flow).
+- `migrate_toml_schema.sh` — Migrates `postgres.toml` to the latest schema version (adds `schema_version`, normalizes `sslmode`).
 - `bootstrap_profile.py` — Helper for interactive profile setup (used by `bootstrap_profile.sh`).
 
 ## Skill maintenance (keep this list current)

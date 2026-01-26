@@ -56,6 +56,35 @@ def add_or_replace_sslmode(url: str, sslmode: str) -> str:
     return urllib.parse.urlunparse(parsed._replace(query=new_query))
 
 
+def normalize_sslmode(value) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return "require" if value else "disable"
+    text = str(value).strip()
+    if not text:
+        return None
+    lower = text.lower()
+    if lower in {
+        "true",
+        "t",
+        "1",
+        "yes",
+        "y",
+        "on",
+        "enable",
+        "enabled",
+        "require",
+        "required",
+        "verify-ca",
+        "verify-full",
+    }:
+        return "require"
+    if lower in {"false", "f", "0", "no", "n", "off", "disable", "disabled"}:
+        return "disable"
+    return text
+
+
 def die(message: str) -> None:
     print(message, file=sys.stderr)
     sys.exit(1)
@@ -72,7 +101,7 @@ if not re.match(r"^[a-z0-9_]+$", profile):
 
 env_url = os.environ.get("DB_URL")
 if env_url:
-    sslmode = sslmode_from_url(env_url) or "disable"
+    sslmode = normalize_sslmode(sslmode_from_url(env_url)) or "disable"
     shell_print("DB_URL", env_url)
     shell_print("DB_SSLMODE", sslmode)
     shell_print("DB_PROFILE", profile)
@@ -104,15 +133,15 @@ if not isinstance(profile_data, dict):
 cfg = {**defaults, **profile_data}
 
 url = cfg.get("url")
-sslmode = cfg.get("sslmode")
+sslmode = normalize_sslmode(cfg.get("sslmode"))
 
 if url:
     url = str(url)
     if sslmode is None:
-        sslmode = sslmode_from_url(url)
+        sslmode = normalize_sslmode(sslmode_from_url(url))
     if sslmode is None:
         sslmode = "disable"
-    url = add_or_replace_sslmode(url, str(sslmode))
+    url = add_or_replace_sslmode(url, sslmode)
 else:
     required = ["host", "port", "database", "user", "password"]
     missing = [key for key in required if not cfg.get(key)]
@@ -131,7 +160,7 @@ else:
 
     netloc = f"{user}:{password}@{host}:{port}"
     path = f"/{database}"
-    query = urllib.parse.urlencode({"sslmode": str(sslmode)})
+    query = urllib.parse.urlencode({"sslmode": sslmode})
     url = urllib.parse.urlunparse(("postgresql", netloc, path, "", query, ""))
 
 shell_print("DB_URL", url)

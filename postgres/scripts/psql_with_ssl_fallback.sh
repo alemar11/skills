@@ -39,11 +39,11 @@ PY
 
   if [[ $retry_status -eq 0 && "$DB_URL_SOURCE" == "toml" ]]; then
     if [[ "${DB_AUTO_UPDATE_SSLMODE:-}" == "1" ]]; then
-      "$SCRIPT_DIR/update_sslmode.sh" "$DB_PROFILE" "require" || true
-      echo "Updated postgres.toml: [database.$DB_PROFILE] sslmode = \"require\"" >&2
+      "$SCRIPT_DIR/update_sslmode.sh" "$DB_PROFILE" "true" || true
+      echo "Updated postgres.toml: [database.$DB_PROFILE] sslmode = true" >&2
     else
       echo "sslmode=require succeeded. To persist for profile '$DB_PROFILE', run:" >&2
-      echo "  $SCRIPT_DIR/update_sslmode.sh \"$DB_PROFILE\" require" >&2
+      echo "  $SCRIPT_DIR/update_sslmode.sh \"$DB_PROFILE\" true" >&2
       echo "(Set DB_AUTO_UPDATE_SSLMODE=1 to auto-update.)" >&2
     fi
     exit 0

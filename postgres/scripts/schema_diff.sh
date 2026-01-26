@@ -33,7 +33,14 @@ import urllib.parse
 url = sys.argv[1]
 parsed = urllib.parse.urlparse(url)
 query = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
-print(query.get("sslmode", ["disable"])[0] or "disable")
+raw = query.get("sslmode", ["disable"])[0] or "disable"
+lower = str(raw).strip().lower()
+if lower in {"true", "t", "1", "yes", "y", "on", "enable", "enabled", "require", "required", "verify-ca", "verify-full"}:
+    print("require")
+elif lower in {"false", "f", "0", "no", "n", "off", "disable", "disabled"}:
+    print("disable")
+else:
+    print(raw)
 PY
 }
 
@@ -98,11 +105,11 @@ dump_schema() {
     if pg_dump --schema-only --no-owner --no-acl --no-comments "$retry_url" >"$out_file"; then
       if [[ "$source" == "toml" ]]; then
         if [[ "${DB_AUTO_UPDATE_SSLMODE:-}" == "1" ]]; then
-          "$SCRIPT_DIR/update_sslmode.sh" "$profile" "require" || true
-          echo "Updated postgres.toml: [database.$profile] sslmode = \"require\"" >&2
+          "$SCRIPT_DIR/update_sslmode.sh" "$profile" "true" || true
+          echo "Updated postgres.toml: [database.$profile] sslmode = true" >&2
         else
           echo "sslmode=require succeeded for profile '$profile'. To persist, run:" >&2
-          echo "  $SCRIPT_DIR/update_sslmode.sh \"$profile\" require" >&2
+          echo "  $SCRIPT_DIR/update_sslmode.sh \"$profile\" true" >&2
           echo "(Set DB_AUTO_UPDATE_SSLMODE=1 to auto-update.)" >&2
         fi
       fi

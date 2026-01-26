@@ -1,5 +1,9 @@
+[configuration]
+schema_version = 1
+pg_bin_path = "/path/to/postgres/bin"
+
 [database]
-sslmode = "disable"
+sslmode = false
 
 [database.local]
 project = "app"
