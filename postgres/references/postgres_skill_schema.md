@@ -53,6 +53,7 @@ path = "db/migrations"
 - `sslmode = false` maps to `sslmode=disable` in connection URLs.
 - `sslmode = true` maps to `sslmode=require` in connection URLs.
 - `pg_bin_path` must point to a directory containing a `psql` binary.
+- `project` (per-profile) is used for auto-selecting a profile when `DB_PROFILE` is unset; profiles without `project` are treated as shared/global.
 
 ## Version 0 (legacy, pre-`schema_version`)
 **Status:** legacy; must be migrated to v1.

@@ -22,9 +22,10 @@ if [[ -z "$ROOT_OVERRIDE" ]]; then
 fi
 
 TOML_PATH="$PROJECT_ROOT/.skills/postgres/postgres.toml"
-PROFILE="${DB_PROFILE:-local}"
+PROFILE="${DB_PROFILE:-}"
+DEFAULT_PROFILE="local"
 
-python3 - "$TOML_PATH" "$PROFILE" <<'PY'
+python3 - "$TOML_PATH" "$PROFILE" "$DEFAULT_PROFILE" "$PROJECT_ROOT" "$PWD" <<'PY'
 import os
 import re
 import shlex
@@ -91,9 +92,13 @@ def die(message: str) -> None:
 
 
 toml_path = sys.argv[1]
-profile = sys.argv[2]
+profile_arg = sys.argv[2]
+default_profile = sys.argv[3]
+project_root = sys.argv[4]
+cwd = sys.argv[5]
 
-if not re.match(r"^[a-z0-9_]+$", profile):
+explicit_profile = profile_arg or None
+if explicit_profile and not re.match(r"^[a-z0-9_]+$", explicit_profile):
     die(
         "Invalid DB_PROFILE. Use lowercase letters, digits, and underscores only "
         "(e.g. local, db_test_1)."
@@ -104,7 +109,7 @@ if env_url:
     sslmode = normalize_sslmode(sslmode_from_url(env_url)) or "disable"
     shell_print("DB_URL", env_url)
     shell_print("DB_SSLMODE", sslmode)
-    shell_print("DB_PROFILE", profile)
+    shell_print("DB_PROFILE", explicit_profile or default_profile)
     shell_print("DB_URL_SOURCE", "env")
     shell_print("DB_TOML_PATH", toml_path)
     sys.exit(0)
@@ -123,6 +128,96 @@ if not isinstance(db, dict):
     die("postgres.toml is missing a [database] table.")
 
 defaults = {k: v for k, v in db.items() if not isinstance(v, dict)}
+profiles = {k: v for k, v in db.items() if isinstance(v, dict)}
+
+
+def infer_project(root: str, path: str) -> str:
+    try:
+        rel = os.path.relpath(path, root)
+    except ValueError:
+        return ""
+    if rel == ".":
+        return os.path.basename(root.rstrip(os.sep)) or "project"
+    if rel.startswith(".."):
+        return ""
+    parts = [p for p in rel.split(os.sep) if p]
+    if not parts:
+        return ""
+    markers = {"apps", "packages", "services", "modules", "projects"}
+    is_monorepo = any(os.path.isdir(os.path.join(root, m)) for m in markers)
+    if not is_monorepo:
+        return os.path.basename(root.rstrip(os.sep)) or "project"
+    if parts[0] in markers and len(parts) >= 2:
+        return parts[1]
+    return parts[0]
+
+
+def pick_profile(
+    profile_hint: str | None, profiles: dict, project_root: str, cwd: str
+) -> str:
+    if profile_hint:
+        return profile_hint
+    if not profiles:
+        die("postgres.toml has no [database.<profile>] entries.")
+    projects_present = any(
+        isinstance(v.get("project"), str) and v.get("project").strip()
+        for v in profiles.values()
+    )
+    if not projects_present:
+        if default_profile in profiles:
+            return default_profile
+        if len(profiles) == 1:
+            return next(iter(profiles.keys()))
+        die(
+            "Multiple profiles found but DB_PROFILE is not set. "
+            "Set DB_PROFILE to choose one."
+        )
+
+    project_slug = infer_project(project_root, cwd)
+    if project_slug:
+        matches = [
+            name
+            for name, data in profiles.items()
+            if isinstance(data.get("project"), str)
+            and data.get("project").strip() == project_slug
+        ]
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1:
+            die(
+                f"Multiple profiles match project '{project_slug}'. "
+                "Set DB_PROFILE or make project values unique."
+            )
+
+    global_profiles = [
+        name
+        for name, data in profiles.items()
+        if not (isinstance(data.get("project"), str) and data.get("project").strip())
+    ]
+    if len(global_profiles) == 1:
+        return global_profiles[0]
+    if len(global_profiles) > 1:
+        die(
+            "Multiple global profiles (no project) found but DB_PROFILE is not set. "
+            "Set DB_PROFILE to choose one."
+        )
+    if default_profile in profiles:
+        return default_profile
+    if len(profiles) == 1:
+        return next(iter(profiles.keys()))
+    die(
+        "No profile matched the current project. "
+        "Set DB_PROFILE or add a profile without project for shared use."
+    )
+
+
+profile = pick_profile(explicit_profile, profiles, project_root, cwd)
+if not re.match(r"^[a-z0-9_]+$", profile):
+    die(
+        "Invalid DB_PROFILE. Use lowercase letters, digits, and underscores only "
+        "(e.g. local, db_test_1)."
+    )
+
 profile_data = db.get(profile)
 if not isinstance(profile_data, dict):
     die(

@@ -32,6 +32,7 @@ The canonical source is `postgres.toml`. The values below are just a minimal ref
 - **Profile sections:** `[database.<profile>]` (e.g. `[database.local]`, `[database.db_test_1]`)
 - **Profile name rule:** lowercase letters, digits, underscores only (`^[a-z0-9_]+$`)
 - **Default profile:** `local` (set via `DB_PROFILE`)
+- **Project metadata:** optional `project` per profile. When `DB_PROFILE` is unset and any profiles define `project`, the skill will try to auto-pick a profile based on the current working directory (monorepo-aware). Profiles without `project` are treated as shared/global.
 - **Default sslmode:** `false` under `[database]`. Each `[database.<profile>]` can override `sslmode` (if a connection fails and SSL retry succeeds, ask before updating the TOML to `true`).
 - **Optional fields:** `project`, `description`, `migrations_path` (per-profile override)
 - **Optional section:** `[migrations] path = "<migrations_path>"` (per-user default)
@@ -47,6 +48,7 @@ Example TOML lives in `postgres.toml.example`.
 
 ## When the skill is triggered
 - If `<project-root>/.skills/postgres/postgres.toml` exists, **do not** prompt to scan by default; assume the project is already configured. Only offer a scan if the user explicitly asks for it or if the TOML is missing.
+- If `DB_PROFILE` is unset and any profiles define `project`, auto-select the profile matching the current subproject (based on cwd). If no match, fall back to a single global profile (no `project`) or ask the user to set `DB_PROFILE`.
 - Ask whether to scan the project for existing DB configs (env/code/config files) **only** when the TOML is missing or the user requests it.
 - If scan is approved, recap found configs in TOML format and ask whether to modify them. The `project` field is inferred from the scan root (monorepo-aware: `apps/`, `packages/`, `services/`, `modules/`, `projects/`).
 - If `postgres.toml` is missing or the requested profile is missing, ask for **host**, **port**, **database**, **user**, **password** (only ask for **sslmode** if needed).
