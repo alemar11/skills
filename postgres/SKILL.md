@@ -27,6 +27,7 @@ The canonical source is `postgres.toml`. The values below are just a minimal ref
 - **Gitignore:** add `<project-root>/.skills/postgres/postgres.toml` to your repo `.gitignore`
 - **Template:** copy `postgres.toml.example` to `<project-root>/.skills/postgres/postgres.toml` to get started
 - **Schema reference:** `references/postgres_skill_schema.md` (all schema versions and migration rules)
+- **Best practices index:** `references/postgres_best_practices/README.md` (general Postgres best practices)
 - **Profile sections:** `[database.<profile>]` (e.g. `[database.local]`, `[database.db_test_1]`)
 - **Profile name rule:** lowercase letters, digits, underscores only (`^[a-z0-9_]+$`)
 - **Default profile:** `local` (set via `DB_PROFILE`)
