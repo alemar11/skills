@@ -12,6 +12,7 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
 ## Workflow
 1) Confirm connection source:
    - Use `postgres.toml` when present; otherwise ask the user for a `DB_PROFILE` or a `DB_URL`.
+   - If `postgres.toml` exists, **first** check whether a schema migration is required (missing or outdated `schema_version`); run `./scripts/migrate_toml_schema.sh` before any other bootstrap step.
 2) Choose action:
    - Connect/run a query, inspect schema, or run a helper script.
 3) Execute and report:
