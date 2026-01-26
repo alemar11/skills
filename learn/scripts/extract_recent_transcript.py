@@ -56,7 +56,13 @@ def is_codex_command(cmd: str) -> bool:
     if not parts:
         return False
     exe = os.path.basename(parts[0])
-    return exe == "codex"
+    if exe == "codex":
+        return True
+    if "codex" in parts or any(os.path.basename(p) == "codex" for p in parts):
+        return True
+    if len(parts) >= 3 and parts[1] == "-m" and parts[2] == "codex":
+        return True
+    return False
 
 
 def find_candidate_pids(self_pid: str, self_tty: str) -> list[str]:
@@ -116,13 +122,13 @@ def lsof_paths(pid: str) -> list[str]:
 
 
 def lsof_cwd(pid: str) -> str:
-    rc, out, _ = run(["lsof", "-a", "-p", pid, "-d", "cwd"])
+    rc, out, _ = run(["lsof", "-a", "-p", pid, "-d", "cwd", "-F", "n"])
     if rc != 0:
         return ""
-    lines = out.splitlines()
-    if len(lines) < 2:
-        return ""
-    return lines[1].split()[-1]
+    for line in out.splitlines():
+        if line.startswith("n"):
+            return line[1:]
+    return ""
 
 
 def resolve_rollout_path(session_id: str | None, rollout_path: str | None) -> tuple[str, str]:
@@ -223,6 +229,10 @@ def find_agents_candidates(cwd: Path) -> tuple[list[str], list[str]]:
     if home_agents.is_file():
         candidates.append(str(home_agents))
 
+    if repo_root:
+        for agents_path in find_sub_agents(repo_root):
+            candidates.append(str(agents_path))
+
     suggestions.append(str(cwd / "AGENTS.md"))
     if repo_root:
         suggestions.append(str(repo_root / "AGENTS.md"))
@@ -235,6 +245,30 @@ def find_agents_candidates(cwd: Path) -> tuple[list[str], list[str]]:
     suggestions = [p for p in suggestions if not (p in seen or seen.add(p))]
 
     return candidates, suggestions
+
+
+def find_sub_agents(repo_root: Path) -> list[Path]:
+    skip_dirs = {
+        ".git",
+        ".hg",
+        ".sl",
+        ".svn",
+        ".venv",
+        ".mypy_cache",
+        "__pycache__",
+        "build",
+        "dist",
+        "node_modules",
+        "venv",
+    }
+    matches: list[Path] = []
+    for root, dirs, files in os.walk(repo_root):
+        dirs[:] = [d for d in dirs if d not in skip_dirs]
+        if "AGENTS.md" in files:
+            path = Path(root) / "AGENTS.md"
+            if path != repo_root / "AGENTS.md":
+                matches.append(path)
+    return matches
 
 
 def main() -> int:
