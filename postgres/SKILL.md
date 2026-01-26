@@ -262,6 +262,7 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
   - Example: `./scripts/psql_with_ssl_fallback.sh -v ON_ERROR_STOP=1 -c "select 1;"`
 - `bootstrap_profile.sh` — Interactive profile setup with optional project scan.
 - `check_deps.sh` — Verifies required CLI tools and prints install hints.
+- `check_psql.sh` — Lightweight check for `psql` presence (uses `pg_env.sh`), prints version if available.
 - `test_connection.sh` — Quick connection check (profile-aware).
 - `pg_version.sh` — Prints server version (profile-aware).
 - `roles_overview.sh` — Lists roles and memberships (profile-aware).
