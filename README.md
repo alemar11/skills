@@ -10,12 +10,12 @@ This directory contains reusable Codex skills—task-specific packages of instru
 ## Install With skill-installer
 Copy/paste one of these prompts:
 
-- `Use $skill-installer to install skills from <owner>/<repo> --path skills/ask-questions-if-underspecified skills/learn skills/postgres`
-- `Use $skill-installer to install skills from <owner>/<repo> --path skills/ask-questions-if-underspecified`
-- `Use $skill-installer to install skills from <owner>/<repo> --path skills/learn`
-- `Use $skill-installer to install skills from <owner>/<repo> --path skills/postgres`
+- `Use $skill-installer to install skills from alemar11/skills --path skills/ask-questions-if-underspecified skills/learn skills/postgres`
+- `Use $skill-installer to install skills from alemar11/skills --path skills/ask-questions-if-underspecified`
+- `Use $skill-installer to install skills from alemar11/skills --path skills/learn`
+- `Use $skill-installer to install skills from alemar11/skills --path skills/postgres`
 
-Replace `<owner>/<repo>` with your repo location. Restart Codex to pick up new skills.
+Restart Codex to pick up new skills.
 
 ## Developer Mode
 Use `bootstrap.sh` on macOS to create a symlink at `~/Developer/Skills` pointing to this repo for quick access.
