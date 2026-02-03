@@ -17,6 +17,3 @@ Copy/paste one of these prompts:
 - `Use $skill-installer to install skills from alemar11/skills --path postgres`
 
 Restart Codex to pick up new skills.
-
-## Developer Mode
-Use `bootstrap.sh` on macOS to create a symlink at `~/Developer/Skills` pointing to this repo for quick access.
