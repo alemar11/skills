@@ -19,6 +19,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 ### Global
 - Keep README skill descriptions in sync with each skill's `agents/openai.yaml` `interface.short_description`.
 - When new durable rules are discovered while creating or updating skills, add them to this AGENTS.md under the appropriate skill section.
+- In `references/` folders, keep `.md` filenames lowercase except for `README.md` and `AGENTS.md`.
 
 ### Postgres skill
 - Keep TOML schemas versioned: bump `[configuration].schema_version` in `postgres.toml.example`, update `postgres/references/postgres_skill_schema.md`, and add migrations for every prior version in `postgres/scripts/migrate_toml_schema.sh`.
