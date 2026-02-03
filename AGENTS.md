@@ -17,8 +17,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
 ## Codex Learnings
 ### Global
-- Keep README skill descriptions in sync with each skill's `agents/openai.yaml` `interface.short_description`.
-- Keep README.md skills list and install prompts up to date when skills are added, removed, or renamed.
+- Keep README.md skill descriptions, list, and install prompts in sync with `agents/openai.yaml` and any skill adds/removes/renames.
 - When new durable rules are discovered while creating or updating skills, add them to this AGENTS.md under the appropriate skill section.
 - In `references/` folders, keep `.md` filenames lowercase except for `README.md` and `AGENTS.md`.
 - If `brand_color` isn’t provided, pick a random hex color not already used by other skills in this repo and set it in `agents/openai.yaml`.
