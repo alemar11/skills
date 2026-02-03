@@ -8,9 +8,12 @@ This directory contains reusable Codex skills—task-specific packages of instru
 - `postgres/` — Connect to Postgres databases and run queries or checks.
 
 ## Install With skill-installer
-Use `$skill-installer` to install these skills from a GitHub repo path:
+Copy/paste one of these prompts:
 
-- Example: `Use $skill-installer to install skills from <owner>/<repo> --path skills/ask-questions-if-underspecified skills/learn skills/postgres`
+- `Use $skill-installer to install skills from <owner>/<repo> --path skills/ask-questions-if-underspecified skills/learn skills/postgres`
+- `Use $skill-installer to install skills from <owner>/<repo> --path skills/ask-questions-if-underspecified`
+- `Use $skill-installer to install skills from <owner>/<repo> --path skills/learn`
+- `Use $skill-installer to install skills from <owner>/<repo> --path skills/postgres`
 
 Replace `<owner>/<repo>` with your repo location. Restart Codex to pick up new skills.
 
