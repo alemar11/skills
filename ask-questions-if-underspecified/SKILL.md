@@ -1,6 +1,6 @@
 ---
 name: ask-questions-if-underspecified
-description: Clarify requirements before implementing. Do not use automatically, only when invoked explicitly.
+description: Clarify requirements before implementing when a request is underspecified or the user asks for clarification.
 ---
 
 # Ask Questions If Underspecified
@@ -8,6 +8,8 @@ description: Clarify requirements before implementing. Do not use automatically,
 ## Goal
 
 Ask the minimum set of clarifying questions needed to avoid wrong work; do not start implementing until the must-have questions are answered (or the user explicitly approves proceeding with stated assumptions).
+
+Only use this skill when explicitly invoked.
 
 ## Workflow
 
