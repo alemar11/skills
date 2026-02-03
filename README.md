@@ -8,6 +8,7 @@ This directory contains reusable Codex skills—task-specific packages of instru
 - `postgres/` — Connect to Postgres databases and run queries or checks.
 
 ## Install With skill-installer
+These prompts are for use inside Codex.
 Copy/paste one of these prompts:
 
 - `Use $skill-installer to install skills from alemar11/skills --path skills/ask-questions-if-underspecified skills/learn skills/postgres`
