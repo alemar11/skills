@@ -10,8 +10,8 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
 
 ## Workflow
 1) Confirm connection source:
-   - Use `postgres.toml` when present; otherwise ask the user for a `DB_PROFILE` or a `DB_URL`.
-   - If `postgres.toml` exists, **first** check whether a schema migration is required (missing or outdated `schema_version`). Run `./scripts/migrate_toml_schema.sh` only when an older schema is found, and run it from the skill dir only if `DB_PROJECT_ROOT`/`PROJECT_ROOT` is set.
+   - Use `postgres.toml` when present; otherwise ask the user for the data required to create a profile.
+   - If `postgres.toml` exists, **first** ensure it is at the latest schema version. Run `./scripts/migrate_toml_schema.sh` only when an older schema is found, and run it from the skill dir only if `DB_PROJECT_ROOT`/`PROJECT_ROOT` is set.
 2) Choose action:
    - Connect/run a query, inspect schema, or run a helper script.
 3) Execute and report:
@@ -28,7 +28,8 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
 ## Trigger rules (summary)
 - If `<project-root>/.skills/postgres/postgres.toml` exists, do not scan by default; only scan when asked or missing.
 - If `DB_PROFILE` is unset and any profiles define `project`, auto-select the profile matching the current subproject (based on cwd); otherwise ask for `DB_PROFILE`.
-- If `postgres.toml` is missing or the requested profile is missing, ask for host/port/database/user/password (ask for `sslmode` only if needed).
+- If `postgres.toml` is missing, ask for host/port/database/user/password to create a profile (ask for `sslmode` only if needed).
+- If the requested profile is missing, ask for the profile details to add it.
 - If the user provides a connection URL, infer missing fields from it.
 - Ask whether to save the profile into `postgres.toml` or use a one-off (temporary) connection.
 - For migrations path resolution and schema-change workflow, follow the guardrails reference.
