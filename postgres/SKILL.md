@@ -6,7 +6,6 @@ description: Connect to Postgres databases and run queries or checks. Use when a
 # Postgres
 
 ## Goal
-
 Use this skill to connect to Postgres and run user-requested queries or checks.
 
 ## Workflow
@@ -19,9 +18,6 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
    - Run the requested action and summarize results or errors.
 4) Persist only if asked:
    - Update TOML only with explicit user approval, except `[configuration].pg_bin_path` which may be auto-written when missing. `schema_version` is written by the migration helper. Prompt before changing an existing value.
-
-## Default Local Example
-The canonical source is `postgres.toml`. The values below are just a minimal reference.
 
 ## Connection profiles (primary)
 - **Config file:** `<project-root>/.skills/postgres/postgres.toml`
@@ -49,217 +45,23 @@ Example TOML lives in `postgres.toml.example`.
 ## When the skill is triggered
 - If `<project-root>/.skills/postgres/postgres.toml` exists, **do not** prompt to scan by default; assume the project is already configured. Only offer a scan if the user explicitly asks for it or if the TOML is missing.
 - If `DB_PROFILE` is unset and any profiles define `project`, auto-select the profile matching the current subproject (based on cwd). If no match, fall back to a single global profile (no `project`) or ask the user to set `DB_PROFILE`.
-- Ask whether to scan the project for existing DB configs (env/code/config files) **only** when the TOML is missing or the user requests it.
-- If scan is approved, recap found configs in TOML format and ask whether to modify them. The `project` field is inferred from the scan root (monorepo-aware: `apps/`, `packages/`, `services/`, `modules/`, `projects/`).
 - If `postgres.toml` is missing or the requested profile is missing, ask for **host**, **port**, **database**, **user**, **password** (only ask for **sslmode** if needed).
 - If the user provides a connection URL, infer missing fields from it.
 - Ask whether to save the profile into `postgres.toml` or use the values as a one-off (temporary) connection.
-- During bootstrap, confirm the migrations path (per profile). Default to `db/migrations` relative to the project root unless overridden by `[migrations].path` or `DB_MIGRATIONS_PATH` (relative overrides resolve from the project root).
+- During bootstrap, confirm the migrations path. Default to `db/migrations` relative to the project root unless overridden by `[migrations].path` or `DB_MIGRATIONS_PATH`.
 - For custom migrations paths, resolve relative paths from the project root; if missing, offer to search under the project root for matches, then offer to create the directory.
-- If the default path is relative and missing, offer to create it. If `AGENTS.md` is missing, ask whether it should be created to store `DB_MIGRATIONS_PATH`.
 - All scripts should support one-off connections via `DB_URL` (and `DB_URL_A`/`DB_URL_B` for compare scripts) without requiring `postgres.toml`.
 
-## Install psql
-macOS (Homebrew, latest):
-```sh
-brew update
-latest="$(brew search postgresql@ | awk '/^postgresql@/ {print $1}' | sort -V | tail -n 1)"
-brew install "${latest:-postgresql}"
-```
-
-Ubuntu/Debian:
-- `sudo apt update && sudo apt install -y postgresql-client`
-
-Fedora:
-- `sudo dnf install -y postgresql`
-
-Arch:
-- `sudo pacman -S postgresql`
-
-Windows:
-- `winget install PostgreSQL.PostgreSQL`
-- or `choco install postgresql`
-
-## Dependencies
-- `python3` (3.11+ for `tomllib`) is required by `resolve_db_url.sh` and the SSL fallback flow.
-  - macOS: prefer Homebrew `python3` (3.11+) to avoid the older system Python. Example:
-    ```sh
-    export PATH="$(brew --prefix python)/bin:$PATH"
-    python3 --version
-    ```
-- `pg_dump`/`pg_restore` are required for schema diff and dump/restore helpers.
-
-## Optional safety defaults (recommended)
-- `DB_APPLICATION_NAME` (default: `codex-postgres-skill`) sets a consistent `application_name`.
-- `DB_STATEMENT_TIMEOUT_MS` and `DB_LOCK_TIMEOUT_MS` apply session timeouts via `PGOPTIONS`.
-- `DB_AUTO_UPDATE_SSLMODE=1` auto-persists `sslmode=true` after a successful retry (otherwise ask and print the command).
-- `DB_CONFIRM=YES` skips confirmation prompts for cancel/terminate scripts.
-- `DB_VIEW_DEF_TRUNC` and `DB_FUNC_DEF_TRUNC` truncate view/function definitions in schema introspection output.
-
-## psql usage
-Run these from your project root (the directory that contains `.skills/postgres/postgres.toml`).
-If you need to run from the skill directory, set `DB_PROJECT_ROOT` (or `PROJECT_ROOT`) to your project root first.
-1. Ensure `psql` is on your PATH (only if `psql` is not found). If `[configuration].pg_bin_path` is set, it is prepended automatically. If the key is missing, scripts will try to locate `psql` and persist `pg_bin_path`. If `pg_bin_path` is set but invalid, you will be prompted before updating it.
-
-macOS (Homebrew):
-```sh
-formula="$(brew list --versions | awk '/^postgresql(@[0-9]+)? / {print $1}' | sort -V | tail -n 1)"
-export PATH="$(brew --prefix "${formula:-postgresql}")/bin:$PATH"
-```
-```sh
-which psql && psql --version
-```
-
-Ubuntu/Debian (default location):
-```sh
-export PATH="/usr/lib/postgresql/$(ls /usr/lib/postgresql | sort -V | tail -n 1)/bin:$PATH"
-```
-```sh
-which psql && psql --version
-```
-
-Fedora/Arch (usually already on PATH):
-```sh
-export PATH="/usr/bin:$PATH"
-```
-```sh
-which psql && psql --version
-```
-
-Windows (PowerShell):
-```powershell
-$env:Path = "C:\\Program Files\\PostgreSQL\\bin;" + $env:Path
-```
-```powershell
-Get-Command psql; psql --version
-```
-
-2. Connect:
-
-```sh
-export DB_PROFILE=local
-eval "$(./scripts/resolve_db_url.sh)"
-psql "$DB_URL"
-```
-
-Note: use `./scripts/psql_with_ssl_fallback.sh` (or scripts that wrap it) if you want automatic SSL retry. If the retry succeeds, ask before updating `postgres.toml` unless `DB_AUTO_UPDATE_SSLMODE=1` is set.
-
-## Bootstrap a profile (interactive)
-This helper will optionally scan a project for existing config, recap candidates in TOML format, and let you save or use a one-off connection. It prompts for the project root to scan.
-
-```sh
-./scripts/bootstrap_profile.sh
-```
-
-## Temporary connection (no TOML write)
-Use `DB_URL` for a one-off connection without updating `postgres.toml`:
-
-```sh
-DB_URL="postgresql://user:pass@host:5432/dbname" \
-  ./scripts/test_connection.sh
-```
-
-## Connection test (use this to ensure the connection is doable)
-Run this script to verify the DB connection quickly (uses `postgres.toml`, default profile `local`):
-
-```sh
-DB_PROFILE=local ./scripts/test_connection.sh
-```
-
-## Postgres version
-Print the server version quickly (uses `postgres.toml`, default profile `local`):
-
-```sh
-DB_PROFILE=local ./scripts/pg_version.sh
-```
-
-## Roles and users overview
-List roles, login capability, key privileges, and role memberships (uses `postgres.toml`, default profile `local`):
-
-```sh
-DB_PROFILE=local ./scripts/roles_overview.sh
-```
-
-Or run just the SQL directly:
-
-```sh
-eval "$(./scripts/resolve_db_url.sh)"
-psql "$DB_URL" \\
-  -v ON_ERROR_STOP=1 \\
-  -f ./scripts/roles_overview.sql
-```
-
-## Schema introspection (tables, columns, relationships, indexes, constraints, views, functions, extensions)
-Reusable scripts live in `./scripts`:
-
-- SQL: `./scripts/schema_introspect.sql`
-- Runner: `./scripts/schema_introspect.sh`
-
-Run the introspection script (uses `postgres.toml`, default profile `local`):
-
-```sh
-DB_PROFILE=local ./scripts/schema_introspect.sh
-```
-
-Truncate view/function definitions:
-
-```sh
-DB_VIEW_DEF_TRUNC=200 DB_FUNC_DEF_TRUNC=200 ./scripts/schema_introspect.sh
-```
-
-Or run just the SQL directly:
-
-```sh
-eval "$(./scripts/resolve_db_url.sh)"
-psql "$DB_URL" \\
-  -v ON_ERROR_STOP=1 \\
-  -f ./scripts/schema_introspect.sql
-```
-
-## Schema diff (compare two connections)
-Compare schema-only diffs between two profiles:
-
-```sh
-./scripts/schema_diff.sh local staging
-```
-
-Or via env:
-
-```sh
-DB_PROFILE_A=local DB_PROFILE_B=staging ./scripts/schema_diff.sh
-```
-
-## Quick diagnostics (examples)
-```sh
-./scripts/check_deps.sh
-./scripts/connection_info.sh
-./scripts/table_sizes.sh 20
-./scripts/locks_overview.sh
-./scripts/slow_queries.sh 20
-./scripts/index_health.sh 20
-./scripts/activity_overview.sh 20
-./scripts/long_running_queries.sh 5 20
-```
-
-## Backup and restore (examples)
-```sh
-./scripts/schema_dump.sh
-./scripts/data_dump.sh
-./scripts/restore_dump.sh ./schema_local_20240101_120000.dump
-```
-
-## Activity control (use with care)
-```sh
-./scripts/cancel_backend.sh 12345
-DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
-./scripts/query_action.sh cancel --query "select * from events"
-```
+## Quick entrypoints
+- Bootstrap: `./scripts/bootstrap_profile.sh`
+- Check `psql`: `./scripts/check_psql.sh`
+- Check dependencies: `./scripts/check_deps.sh`
+- Test connection (uses TOML): `DB_PROFILE=local ./scripts/test_connection.sh`
+- One-off connection: `DB_URL="postgresql://user:pass@host:5432/dbname" ./scripts/test_connection.sh`
 
 ## Script index (keep current)
 - `resolve_db_url.sh` — Resolves `DB_URL` from `postgres.toml` or `DB_URL` env for one-off use.
-  - Example: `eval "$(./scripts/resolve_db_url.sh)"`
 - `psql_with_ssl_fallback.sh` — Runs `psql` with automatic SSL retry when needed.
-  - Example: `./scripts/psql_with_ssl_fallback.sh -v ON_ERROR_STOP=1 -c "select 1;"`
 - `bootstrap_profile.sh` — Interactive profile setup with optional project scan.
 - `check_deps.sh` — Verifies required CLI tools and prints install hints.
 - `check_psql.sh` — Lightweight check for `psql` presence (uses `pg_env.sh`), prints version if available.
@@ -267,21 +69,21 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 - `pg_version.sh` — Prints server version (profile-aware).
 - `roles_overview.sh` — Lists roles and memberships (profile-aware).
 - `schema_introspect.sh` — Schema introspection (profile-aware).
-- `schema_diff.sh` — Compares schema-only diffs between two connections.
+- `schema_diff.sh` — Compares schema-only diffs between two connections (example: `./scripts/schema_diff.sh local staging`).
 - `schema_dump.sh` — Schema-only dump (custom or SQL based on file extension).
 - `data_dump.sh` — Data-only dump (custom or SQL based on file extension).
 - `restore_dump.sh` — Restores a dump file (custom or SQL).
 - `connection_info.sh` — Prints connection details and key settings.
-- `table_sizes.sh` — Lists largest tables (total/table/index sizes).
+- `table_sizes.sh` — Lists largest tables (total/table/index sizes) (example: `./scripts/table_sizes.sh 20`).
 - `locks_overview.sh` — Shows blocked/blocking sessions and queries.
-- `slow_queries.sh` — Lists slowest queries from `pg_stat_statements` (if enabled).
-- `index_health.sh` — Highlights missing/unused index candidates.
-- `activity_overview.sh` — Lists active sessions and queries.
-- `long_running_queries.sh` — Shows active queries exceeding a duration threshold.
-- `cancel_backend.sh` — Cancels a running query (prompts for confirmation).
-- `terminate_backend.sh` — Terminates a backend (prompts for confirmation).
-- `query_action.sh` — Lists matching active queries, then cancels or terminates selected PIDs.
-- `explain_analyze.sh` — Runs `EXPLAIN (ANALYZE, BUFFERS)` for a provided SQL statement (use `--no-analyze` to avoid executing the query).
+- `slow_queries.sh` — Lists slowest queries from `pg_stat_statements` (if enabled) (example: `./scripts/slow_queries.sh 20`).
+- `index_health.sh` — Highlights missing/unused index candidates (example: `./scripts/index_health.sh 20`).
+- `activity_overview.sh` — Lists active sessions and queries (example: `./scripts/activity_overview.sh 20`).
+- `long_running_queries.sh` — Shows active queries exceeding a duration threshold (example: `./scripts/long_running_queries.sh 5 20`).
+- `cancel_backend.sh` — Cancels a running query (prompts for confirmation) (example: `./scripts/cancel_backend.sh 12345`).
+- `terminate_backend.sh` — Terminates a backend (prompts for confirmation) (example: `DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345`).
+- `query_action.sh` — Lists matching active queries, then cancels or terminates selected PIDs (example: `./scripts/query_action.sh cancel --query \"select * from events\"`).
+- `explain_analyze.sh` — Runs `EXPLAIN (ANALYZE, BUFFERS)` for a provided SQL statement (example: `./scripts/explain_analyze.sh \"select * from users\"`; use `--no-analyze` to avoid executing the query).
 - `pg_stat_statements_top.sh` — Shows top queries by total/mean execution time.
 - `vacuum_analyze_status.sh` — Summarizes VACUUM/ANALYZE recency and dead tuples.
 - `missing_fk_indexes.sh` — Lists foreign keys without supporting indexes.
@@ -290,7 +92,7 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 - `bootstrap_profile.py` — Helper for interactive profile setup (used by `bootstrap_profile.sh`).
 
 ## Skill maintenance (keep this list current)
-If you discover or add meaningful scripts under `./scripts`, update this file to list them with a short purpose and example usage so they are easy to find and reuse.
+If you discover or add meaningful scripts under `./scripts`, update this file to list them with a short purpose and example usage (especially when arguments are required) so they are easy to find and reuse.
 
 ## Learn (skill evolution)
 When this skill uncovers useful **generic** queries or workflows, add them as scripts under `./scripts` and document them here. If new **critical** reusable rules emerge, update the Guardrails section too. The skill should continuously evolve and improve.
