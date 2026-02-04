@@ -1,0 +1,5 @@
+interface:
+  display_name: "Codex Changelog"
+  short_description: "Show release notes for installed Codex CLI"
+  brand_color: "#D1495B"
+  default_prompt: "Use $codex-changelog to print the release notes for my installed Codex CLI version."

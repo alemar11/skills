@@ -8,7 +8,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 ## How to Create a Skill
 - Create a dedicated directory per skill with a clear, stable name.
 - Add a `SKILL.md` that defines purpose, triggers, and the workflow to follow.
-- Add a `SKILL.toml` with UI metadata for the skill.
+- Add `agents/openai.yaml` with UI metadata for the skill.
 - Use the specification at `https://agentskills.io/specification` and `https://developers.openai.com/codex/skills/` when creating new skills.
 - Keep `README.md` updated with the current skill list and a one-line description for each.
 
@@ -17,8 +17,11 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
 ## Codex Learnings
 ### Global
-- Keep README skill descriptions in sync with each skill's `SKILL.toml` `interface.short_description`.
+- Keep README.md skill descriptions, list, and install prompts in sync with `agents/openai.yaml` and any skill adds/removes/renames.
 - When new durable rules are discovered while creating or updating skills, add them to this AGENTS.md under the appropriate skill section.
+- Use `## Codex Learnings` only as a fallback when no more appropriate section exists in AGENTS.md.
+- In `references/` folders, keep `.md` filenames lowercase except for `README.md` and `AGENTS.md`.
+- If `brand_color` isn’t provided, pick a random hex color not already used by other skills in this repo and set it in `agents/openai.yaml`.
 
 ### Postgres skill
 - Keep TOML schemas versioned: bump `[configuration].schema_version` in `postgres.toml.example`, update `postgres/references/postgres_skill_schema.md`, and add migrations for every prior version in `postgres/scripts/migrate_toml_schema.sh`.

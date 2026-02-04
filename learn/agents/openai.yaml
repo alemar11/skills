@@ -1,0 +1,5 @@
+interface:
+  display_name: "Learn"
+  short_description: "Capture durable corrections or preferences and write them to AGENTS.md."
+  brand_color: "#2F9E44"
+  default_prompt: "Capture the durable correction or preference from this conversation and confirm where to write it in AGENTS.md."
