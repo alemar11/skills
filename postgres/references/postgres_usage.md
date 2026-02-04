@@ -40,8 +40,14 @@ Windows:
 - `DB_VIEW_DEF_TRUNC` and `DB_FUNC_DEF_TRUNC` truncate view/function definitions in schema introspection output.
 
 ## psql usage
-Run these from your project root (the directory that contains `.skills/postgres/postgres.toml`).
-If you need to run from the skill directory, set `DB_PROJECT_ROOT` (or `PROJECT_ROOT`) to your project root first.
+Run these from the skill directory (the one that contains `scripts/`).
+Set `DB_PROJECT_ROOT` (or `PROJECT_ROOT`) to the target project root (the directory that contains `.skills/postgres/postgres.toml`).
+
+Example:
+```sh
+export DB_PROJECT_ROOT="/path/to/project"
+DB_PROFILE=local ./scripts/test_connection.sh
+```
 
 1) Ensure `psql` is on your PATH (only if `psql` is not found). If `[configuration].pg_bin_path` is set, it is prepended automatically. If the key is missing, scripts will try to locate `psql` and persist `pg_bin_path`. If `pg_bin_path` is set but invalid, you will be prompted before updating it.
 

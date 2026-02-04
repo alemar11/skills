@@ -15,7 +15,7 @@ if [[ -z "$ROOT_OVERRIDE" ]]; then
   case "$PROJECT_ROOT" in
     "$SKILL_ROOT"|"$SKILL_ROOT"/*)
       echo "Project root resolved to the postgres skill directory: $SKILL_ROOT" >&2
-      echo "Run this from your project root or set DB_PROJECT_ROOT/PROJECT_ROOT." >&2
+      echo "Run this from the postgres skill directory with DB_PROJECT_ROOT/PROJECT_ROOT set (or run from your project root)." >&2
       exit 1
       ;;
   esac
