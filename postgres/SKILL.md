@@ -21,7 +21,7 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
 
 ## Config and schema (brief)
 - Config file: `<project-root>/.skills/postgres/postgres.toml`
-- Template (canonical schema): `postgres.toml.example`
+- Template (canonical schema): `assets/postgres.toml.example`
 - Schema history/migrations: `references/postgres_skill_schema.md`
 - Best practices index: `references/postgres_best_practices/README.md`
 

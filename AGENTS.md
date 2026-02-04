@@ -24,6 +24,6 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - If `brand_color` isn’t provided, pick a random hex color not already used by other skills in this repo and set it in `agents/openai.yaml`.
 
 ### Postgres skill
-- Keep TOML schemas versioned: bump `[configuration].schema_version` in `postgres.toml.example`, update `postgres/references/postgres_skill_schema.md`, and add migrations for every prior version in `postgres/scripts/migrate_toml_schema.sh`.
+- Keep TOML schemas versioned: bump `[configuration].schema_version` in `postgres/assets/postgres.toml.example`, update `postgres/references/postgres_skill_schema.md`, and add migrations for every prior version in `postgres/scripts/migrate_toml_schema.sh`.
 - Treat missing `schema_version` as pre-1 and require migration; `pg_bin_path` is required and must point to a directory containing `psql` (migration fails if it cannot be determined).
-- Keep `postgres.toml.example` as the canonical current schema; keep `postgres/SKILL.md` brief and link to the example + schema reference.
+- Keep `postgres/assets/postgres.toml.example` as the canonical current schema; keep `postgres/SKILL.md` brief and link to the example + schema reference.

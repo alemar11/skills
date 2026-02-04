@@ -6,7 +6,7 @@ This document describes all known `postgres.toml` schema versions for the postgr
 - `schema_version` is required in all new TOMLs.
 - Missing `schema_version` is treated as pre-1 (version 0) and must be migrated.
 - Any schema change must:
-  - Bump `schema_version` in `postgres.toml.example`.
+  - Bump `schema_version` in `assets/postgres.toml.example`.
   - Add a migration step for every prior version in `scripts/migrate_toml_schema.sh`.
   - Update this document with the new version details.
 
