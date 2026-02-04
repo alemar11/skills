@@ -43,4 +43,3 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
 
 ## Usage references
 - Setup, env defaults, and script catalog: `references/postgres_usage.md`
-- Guardrails and migration workflow: `references/postgres_guardrails.md`
