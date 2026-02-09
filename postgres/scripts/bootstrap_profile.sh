@@ -23,4 +23,10 @@ fi
 
 TOML_PATH="$PROJECT_ROOT/.skills/postgres/postgres.toml"
 
+if command -v git >/dev/null 2>&1 \
+  && git -C "$PROJECT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+  && ! git -C "$PROJECT_ROOT" check-ignore -q ".skills/postgres/postgres.toml" 2>/dev/null; then
+  echo "Warning: .skills/postgres/postgres.toml is not ignored by git. Add it to .gitignore to avoid committing credentials." >&2
+fi
+
 python3 "$SCRIPT_DIR/bootstrap_profile.py" "$TOML_PATH" "$PROJECT_ROOT"

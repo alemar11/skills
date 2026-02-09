@@ -17,6 +17,7 @@ After the change is approved and completed, ask where to save the migration SQL.
 4) Default `<migrations_path>` at the project root
 
 Prefer creating or updating the **latest pending** migration file when possible (the most recent migration that has not yet been released/applied), even if it touches multiple schema objects.
+When a pending migration file already contains the object definition you are changing (e.g. a view/function/trigger), prefer updating that existing creation logic (e.g. `CREATE OR REPLACE ...`) instead of appending a second change later in the same file, unless the user asks otherwise.
 If a single migration file becomes too complex, propose splitting it into meaningful, ordered files.
 If the same view/table is changed multiple times on the same day across different migration files, check whether they should be compacted into a single file and ask the user. If approved, consolidate and remove the superseded migration files.
 

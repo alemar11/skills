@@ -14,6 +14,7 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
    - Use `postgres.toml` when present; otherwise ask the user for the data required to create a profile.
    - If a `postgres.toml` is already present under the current repo/root at `.skills/postgres/postgres.toml`, treat that repo/root as the project root and proceed without prompting for `DB_PROJECT_ROOT`.
    - If not in a git repo, or if running outside the target project, set `DB_PROJECT_ROOT`/`PROJECT_ROOT` explicitly.
+   - When creating or loading `postgres.toml` and the target project is a git repo, verify `.skills/postgres/postgres.toml` is gitignored to avoid committing credentials.
    - If `postgres.toml` exists, **first** ensure it is at the latest schema version. Run `./scripts/migrate_toml_schema.sh` only when an older schema is found, and run it from the skill dir only if `DB_PROJECT_ROOT`/`PROJECT_ROOT` is set.
 2) Choose action:
    - Connect/run a query, inspect schema, or run a helper script.
