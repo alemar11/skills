@@ -89,8 +89,42 @@ def sslmode_to_bool(value: Any) -> bool:
         return True
     if lower in {"false", "f", "0", "no", "n", "off", "disable", "disabled"}:
         return False
-    die(f"Unrecognized sslmode value: {value!r}")
+    die(
+        "Unrecognized sslmode value while migrating to schema v1: "
+        f"{value!r}. In schema v1, sslmode in postgres.toml is strictly boolean "
+        "(true/false). Set a boolean value (or remove sslmode and rely on a one-off DB_URL) and re-run."
+    )
     return False
+
+
+def normalize_sslmode_fields(data: dict) -> bool:
+    """
+    Enforce boolean sslmode values in TOML by converting legacy representations.
+    Returns True if any changes were made.
+    """
+    changed = False
+    db = data.get("database")
+    if not isinstance(db, dict):
+        return False
+
+    if "sslmode" in db and not isinstance(db.get("sslmode"), bool):
+        old = db.get("sslmode")
+        db["sslmode"] = sslmode_to_bool(old)
+        changed = True
+
+    for _, value in list(db.items()):
+        if not isinstance(value, dict):
+            continue
+        if "sslmode" in value and not isinstance(value.get("sslmode"), bool):
+            old = value.get("sslmode")
+            value["sslmode"] = sslmode_to_bool(old)
+            changed = True
+
+    if "sslmode" not in db:
+        db["sslmode"] = False
+        changed = True
+
+    return changed
 
 
 def normalize_pg_bin_path(value: Any) -> str:
@@ -127,10 +161,11 @@ def require_pg_bin_path(config: dict) -> None:
             f"Got: {value}"
         )
     psql_path = os.path.join(value, "psql")
-    if not os.path.isfile(psql_path):
+    psql_exe_path = os.path.join(value, "psql.exe")
+    if not (os.path.isfile(psql_path) or os.path.isfile(psql_exe_path)):
         die(
             "pg_bin_path must contain a psql binary. "
-            f"Expected: {psql_path}"
+            f"Expected: {psql_path} (or {psql_exe_path} on Windows)"
         )
     config["pg_bin_path"] = value
 
@@ -140,17 +175,7 @@ def migrate_0_to_1(data: dict) -> dict:
     config["schema_version"] = 1
     require_pg_bin_path(config)
 
-    db = data.get("database")
-    if isinstance(db, dict):
-        for key, value in list(db.items()):
-            if isinstance(value, dict):
-                if "sslmode" in value:
-                    value["sslmode"] = sslmode_to_bool(value["sslmode"])
-                continue
-            if key == "sslmode":
-                db[key] = sslmode_to_bool(value)
-        if "sslmode" not in db:
-            db["sslmode"] = False
+    normalize_sslmode_fields(data)
     return data
 
 
@@ -229,12 +254,14 @@ if current > LATEST_SCHEMA:
 existing_pg_bin = normalize_pg_bin_path(config.get("pg_bin_path"))
 if current == LATEST_SCHEMA:
     require_pg_bin_path(data.setdefault("configuration", {}))
+    ssl_changed = normalize_sslmode_fields(data)
     if normalize_pg_bin_path(data["configuration"].get("pg_bin_path")) == existing_pg_bin:
-        print(f"postgres.toml already at schema_version {LATEST_SCHEMA}.")
-        sys.exit(0)
+        if not ssl_changed:
+            print(f"postgres.toml already at schema_version {LATEST_SCHEMA}.")
+            sys.exit(0)
     with open(toml_path, "w", encoding="utf-8") as fh:
         fh.write(render_toml(data))
-    print(f"Updated postgres.toml pg_bin_path for schema_version {LATEST_SCHEMA}.")
+    print(f"Updated postgres.toml for schema_version {LATEST_SCHEMA}.")
     sys.exit(0)
 
 version = current
@@ -247,6 +274,7 @@ while version < LATEST_SCHEMA:
 
 data.setdefault("configuration", {})["schema_version"] = LATEST_SCHEMA
 require_pg_bin_path(data.setdefault("configuration", {}))
+normalize_sslmode_fields(data)
 
 with open(toml_path, "w", encoding="utf-8") as fh:
     fh.write(render_toml(data))

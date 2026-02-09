@@ -109,7 +109,7 @@ pg_env_write_pg_bin_path() {
   fi
   local tmp_file
   tmp_file="$(mktemp)" || return 1
-  if ! awk -v new="$new_dir" '
+  awk -v new="$new_dir" '
     BEGIN { in_config=0; found=0; seen_config=0 }
     /^[[:space:]]*\[configuration\][[:space:]]*$/ {
       seen_config=1
@@ -141,13 +141,18 @@ pg_env_write_pg_bin_path() {
         found=1
       }
       if (!seen_config) {
-        print ""
-        print "[configuration]"
-        print "pg_bin_path = \"" new "\""
-        print ""
+        # Don't auto-create [configuration] for legacy TOMLs; require explicit migration.
+        exit 3
       }
     }
   ' "$toml_path" > "$tmp_file"; then
+  status=$?
+  if [[ $status -eq 3 ]]; then
+    rm -f "$tmp_file"
+    echo "postgres.toml is missing [configuration]. Run ./scripts/migrate_toml_schema.sh before persisting pg_bin_path." >&2
+    return 1
+  fi
+  if [[ $status -ne 0 ]]; then
     rm -f "$tmp_file"
     return 1
   fi

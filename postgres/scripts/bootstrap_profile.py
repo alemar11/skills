@@ -1,6 +1,7 @@
 import getpass
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tomllib
@@ -199,6 +200,49 @@ def build_url(cfg: dict) -> str:
     return urllib.parse.urlunparse(("postgresql", netloc, path, "", query, ""))
 
 
+def normalize_pg_bin_path(value: str) -> str:
+    value = str(value).strip().rstrip("/\\")
+    if not value:
+        return ""
+    base = os.path.basename(value)
+    if base in {"psql", "psql.exe"}:
+        return os.path.dirname(value)
+    return value
+
+
+def is_pg_bin_path_valid(path: str) -> bool:
+    if not path:
+        return False
+    if not os.path.isdir(path):
+        return False
+    return os.path.isfile(os.path.join(path, "psql")) or os.path.isfile(
+        os.path.join(path, "psql.exe")
+    )
+
+
+def ensure_pg_bin_path(config: dict) -> dict:
+    current = normalize_pg_bin_path(config.get("pg_bin_path", ""))
+    if current and is_pg_bin_path_valid(current):
+        config["pg_bin_path"] = current
+        return config
+
+    detected = shutil.which("psql")
+    if detected:
+        config["pg_bin_path"] = os.path.dirname(detected)
+        return config
+
+    while True:
+        entered = normalize_pg_bin_path(
+            prompt_required("pg_bin_path (directory containing psql)")
+        )
+        if is_pg_bin_path_valid(entered):
+            config["pg_bin_path"] = entered
+            return config
+        print(
+            "Invalid pg_bin_path. Provide the directory that contains psql (or psql.exe)."
+        )
+
+
 def validate_profile(name: str) -> bool:
     return bool(re.match(r"^[a-z0-9_]+$", name))
 
@@ -376,6 +420,12 @@ def read_toml_migrations_path(path: str) -> str | None:
 
 
 def write_toml(path: str, data: dict, profile_order: list[str]) -> None:
+    config = data.get("configuration")
+    if not isinstance(config, dict):
+        config = {}
+    config.setdefault("schema_version", 1)
+    config.setdefault("pg_bin_path", "")
+
     db = data.get("database", {})
     defaults = {k: v for k, v in db.items() if not isinstance(v, dict)}
     profiles = {k: v for k, v in db.items() if isinstance(v, dict)}
@@ -384,6 +434,14 @@ def write_toml(path: str, data: dict, profile_order: list[str]) -> None:
         defaults["sslmode"] = False
 
     lines: list[str] = []
+    lines.append("[configuration]")
+    # Keep schema_version first for readability/greppability.
+    lines.append(f"schema_version = {format_value(config.get('schema_version', 1))}")
+    lines.append(f'pg_bin_path = {format_value(config.get("pg_bin_path", ""))}')
+    for key in sorted(k for k in config.keys() if k not in {"schema_version", "pg_bin_path"}):
+        lines.append(f"{key} = {format_value(config[key])}")
+
+    lines.append("")
     lines.append("[database]")
     for key, value in defaults.items():
         lines.append(f"{key} = {format_value(value)}")
@@ -396,6 +454,15 @@ def write_toml(path: str, data: dict, profile_order: list[str]) -> None:
         lines.append(f"[database.{profile}]")
         for key in ordered_profile_keys(cfg):
             lines.append(f"{key} = {format_value(cfg[key])}")
+
+    # Preserve any additional top-level tables (e.g. [migrations]).
+    extras = [(k, v) for k, v in data.items() if k not in {"configuration", "database"}]
+    for key, value in extras:
+        if isinstance(value, dict):
+            lines.append("")
+            lines.append(f"[{key}]")
+            for k2, v2 in value.items():
+                lines.append(f"{k2} = {format_value(v2)}")
 
     content = "\n".join(lines).rstrip() + "\n"
     with open(path, "w", encoding="utf-8") as f:
@@ -771,6 +838,13 @@ def main() -> None:
     ensure_skills_gitignored(project_root)
 
     data = load_toml(TOML_PATH)
+    config = data.get("configuration")
+    if not isinstance(config, dict):
+        config = {}
+    config["schema_version"] = 1
+    config = ensure_pg_bin_path(config)
+    data["configuration"] = config
+
     db = data.get("database")
     if not isinstance(db, dict):
         db = {}

@@ -62,6 +62,8 @@ def add_or_replace_sslmode(url: str, sslmode: str) -> str:
 
 
 def normalize_sslmode(value) -> str | None:
+    # For URL query parsing (env DB_URL or [database.<profile>].url), preserve
+    # explicit sslmode strings; only normalize common bool-ish values.
     if value is None:
         return None
     if isinstance(value, bool):
@@ -79,15 +81,27 @@ def normalize_sslmode(value) -> str | None:
         "on",
         "enable",
         "enabled",
-        "require",
-        "required",
-        "verify-ca",
-        "verify-full",
     }:
         return "require"
-    if lower in {"false", "f", "0", "no", "n", "off", "disable", "disabled"}:
+    if lower in {"false", "f", "0", "no", "n", "off"}:
         return "disable"
     return text
+
+
+def normalize_sslmode_from_toml(value) -> str | None:
+    # Strict: sslmode in postgres.toml must be boolean only.
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return "require" if value else "disable"
+    if isinstance(value, int) and value in (0, 1):
+        return "require" if bool(value) else "disable"
+    die(
+        "Invalid sslmode type in postgres.toml. "
+        "In schema v1, [database].sslmode and [database.<profile>].sslmode must be boolean (true/false). "
+        "Run ./scripts/migrate_toml_schema.sh or fix the value manually."
+    )
+    return None
 
 
 def die(message: str) -> None:
@@ -232,7 +246,7 @@ if not isinstance(profile_data, dict):
 cfg = {**defaults, **profile_data}
 
 url = cfg.get("url")
-sslmode = normalize_sslmode(cfg.get("sslmode"))
+sslmode = normalize_sslmode_from_toml(cfg.get("sslmode"))
 
 if url:
     url = str(url)

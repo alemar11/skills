@@ -1,1 +1,3 @@
 .skills/
+__pycache__/
+*.pyc

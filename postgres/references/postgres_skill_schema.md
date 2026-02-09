@@ -61,12 +61,13 @@ path = "db/migrations"
 ### Notes
 - No `[configuration]` table.
 - `sslmode` values may appear as strings (e.g., `"disable"`, `"require"`, `"verify-full"`)
-  or booleans depending on historical usage.
+  or booleans depending on historical usage. In v1, `sslmode` in TOML is strictly boolean.
 
 ### Migration to v1
 - Add `[configuration].schema_version = 1`.
 - Normalize `sslmode` to boolean:
   - `"disable"` → `false`
   - `"require"`, `"verify-ca"`, `"verify-full"`, `"true"`, `"enable"` → `true`
-  - If `sslmode` is unrecognized (e.g., `prefer`, `allow`), move it to the `DB_URL` query instead.
+- If `sslmode` is unrecognized (e.g., `prefer`, `allow`), migration fails and requires a manual fix
+  (set `sslmode` to `true|false`, or remove it and rely on a one-off `DB_URL` with the desired `sslmode`).
 - Add `[configuration].pg_bin_path` (detected from `psql` or set explicitly).
