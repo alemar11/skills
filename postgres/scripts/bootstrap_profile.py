@@ -1,6 +1,7 @@
 import getpass
 import os
 import re
+import subprocess
 import sys
 import tomllib
 import urllib.parse
@@ -56,6 +57,67 @@ def prompt_yes_no(text: str, default: bool = False) -> bool:
     if not value:
         return default
     return value in {"y", "yes"}
+
+
+def is_git_repo(path: str) -> bool:
+    try:
+        res = subprocess.run(
+            ["git", "-C", path, "rev-parse", "--is-inside-work-tree"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        return res.returncode == 0
+    except OSError:
+        return False
+
+
+def is_toml_gitignored(project_root: str) -> bool:
+    if not is_git_repo(project_root):
+        return True
+    try:
+        res = subprocess.run(
+            ["git", "-C", project_root, "check-ignore", "-q", ".skills/postgres/postgres.toml"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        return res.returncode == 0
+    except OSError:
+        return True
+
+
+def ensure_skills_gitignored(project_root: str) -> None:
+    if not is_git_repo(project_root):
+        return
+    if is_toml_gitignored(project_root):
+        return
+
+    gitignore_path = os.path.join(project_root, ".gitignore")
+    entry = ".skills/"
+
+    print(
+        "\nWarning: .skills/postgres/postgres.toml is not ignored by git. "
+        "It may contain credentials."
+    )
+    if not prompt_yes_no(f"Add '{entry}' to {gitignore_path}?", True):
+        return
+
+    existing = ""
+    if os.path.exists(gitignore_path):
+        with open(gitignore_path, "r", encoding="utf-8") as f:
+            existing = f.read()
+
+    lines = [ln.rstrip("\n") for ln in existing.splitlines()]
+    if entry.rstrip("/") in {ln.rstrip("/").strip() for ln in lines if ln.strip()}:
+        return
+
+    with open(gitignore_path, "a", encoding="utf-8") as f:
+        if existing and not existing.endswith("\n"):
+            f.write("\n")
+        if existing and existing.strip():
+            f.write("\n")
+        f.write(entry + "\n")
 
 
 def prompt_password(text: str, default_present: bool = False) -> str:
@@ -705,6 +767,8 @@ def main() -> None:
         print("\nTemporary connection (no TOML write):")
         print(f'DB_URL="{url}" \\\n  ./scripts/test_connection.sh')
         return
+
+    ensure_skills_gitignored(project_root)
 
     data = load_toml(TOML_PATH)
     db = data.get("database")

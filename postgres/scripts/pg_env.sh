@@ -101,27 +101,6 @@ if not isinstance(conf, dict) or conf.get("schema_version") in (None, ""):
 PY
 }
 
-pg_env_warn_if_toml_not_ignored() {
-  local project_root="$1"
-  local toml_rel_path=".skills/postgres/postgres.toml"
-
-  if [[ -z "$project_root" ]]; then
-    return 0
-  fi
-  if ! command -v git >/dev/null 2>&1; then
-    return 0
-  fi
-  if ! git -C "$project_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    return 0
-  fi
-
-  if git -C "$project_root" check-ignore -q "$toml_rel_path" 2>/dev/null; then
-    return 0
-  fi
-
-  echo "Warning: $toml_rel_path is not ignored by git. Add it to .gitignore to avoid committing credentials." >&2
-}
-
 pg_env_write_pg_bin_path() {
   local toml_path="$1"
   local new_dir="$2"
@@ -216,7 +195,9 @@ fi
 pg_env_config_bin=""
 if [[ -n "$pg_env_toml_path" && -f "$pg_env_toml_path" ]]; then
   pg_env_check_schema_version "$pg_env_toml_path"
-  pg_env_warn_if_toml_not_ignored "$pg_env_project_root"
+  if [[ -x "$SCRIPT_DIR/check_toml_gitignored.sh" ]]; then
+    "$SCRIPT_DIR/check_toml_gitignored.sh" "$pg_env_project_root" || true
+  fi
   pg_env_config_bin="$(pg_env_read_pg_bin_path "$pg_env_toml_path")"
 fi
 

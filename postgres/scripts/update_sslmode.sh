@@ -55,10 +55,8 @@ if [[ ! -f "$TOML_PATH" ]]; then
   exit 1
 fi
 
-if command -v git >/dev/null 2>&1 \
-  && git -C "$PROJECT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
-  && ! git -C "$PROJECT_ROOT" check-ignore -q ".skills/postgres/postgres.toml" 2>/dev/null; then
-  echo "Warning: .skills/postgres/postgres.toml is not ignored by git. Add it to .gitignore to avoid committing credentials." >&2
+if [[ -x "$SCRIPT_DIR/check_toml_gitignored.sh" ]]; then
+  "$SCRIPT_DIR/check_toml_gitignored.sh" "$PROJECT_ROOT" || true
 fi
 
 tmp_file="$(mktemp)"
