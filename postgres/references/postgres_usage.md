@@ -190,6 +190,13 @@ DB_PROFILE_A=local DB_PROFILE_B=staging ./scripts/schema_diff.sh
 ./scripts/long_running_queries.sh 5 20
 ```
 
+## Fast object search (by name)
+Search tables, views, columns, functions/procedures, triggers, enums/types, indexes, and sequences:
+
+```sh
+DB_PROFILE=local ./scripts/find_objects.sh users
+```
+
 ## Backup and restore (examples)
 ```sh
 ./scripts/schema_dump.sh

@@ -52,6 +52,7 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
 - Check connection: `DB_PROFILE=local ./scripts/test_connection.sh`
 - Postgres version: `DB_PROFILE=local ./scripts/pg_version.sh`
 - Connection details: `DB_PROFILE=local ./scripts/connection_info.sh`
+- Find objects by name: `DB_PROFILE=local ./scripts/find_objects.sh users`
 
 ## Usage references
 - Setup, env defaults, and script catalog: `references/postgres_usage.md`
