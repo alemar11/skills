@@ -18,6 +18,7 @@ This runbook describes how to refresh and maintain the Postgres best-practices r
 - Prefer vendor-neutral SQL and operational patterns that apply broadly to PostgreSQL deployments.
 - When a recommendation can be validated against official PostgreSQL documentation, do it and prefer that source.
 - Official reference for checks: https://www.postgresql.org/docs/current/
+- Do not rewrite all category files by default. Update only the specific best-practices files that have meaningful content changes.
 
 ## Tooling
 - Snapshot script: `./_tools/postgres_best_practices_snapshot.sh`
@@ -27,7 +28,7 @@ This runbook describes how to refresh and maintain the Postgres best-practices r
 1. From repo root, regenerate the source snapshot:
    - `./_tools/postgres_best_practices_snapshot.sh 5`
 2. Review the updated `/_tools/postgres_best_practices/top-postgres-skills.md`.
-3. Re-evaluate and update category docs as needed:
+3. Re-evaluate category docs and update only the files with meaningful changes:
    - `query-performance.md`
    - `connection-management.md`
    - `security-rls.md`
