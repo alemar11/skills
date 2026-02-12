@@ -1,6 +1,6 @@
 # Postgres Best Practices (General)
 
-This folder contains general (non-vendor-specific) Postgres best practices derived from the Supabase Postgres best practices rules, rewritten to remove product-specific guidance.
+This folder contains generic, vendor-neutral PostgreSQL best practices.
 
 ## Categories
 - Query performance: `query-performance.md`
@@ -13,4 +13,4 @@ This folder contains general (non-vendor-specific) Postgres best practices deriv
 - Advanced features: `advanced-features.md`
 
 ## Usage
-Use these references when writing SQL, designing schemas, or diagnosing performance and concurrency issues.
+Use these references when writing SQL, designing schemas, reviewing migrations, or diagnosing production performance and concurrency issues.

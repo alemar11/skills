@@ -29,3 +29,5 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Keep `postgres/assets/postgres.toml.example` as the canonical current schema; keep `postgres/SKILL.md` brief and link to the example + schema reference.
 - In `postgres.toml`, `sslmode` must be a boolean (only `true`/`false`); reject string values and require migration/manual fix for legacy files.
 - When `DB_PROFILE` is unset and `postgres.toml` has multiple profiles, require explicit user selection; display available profile names + descriptions and a context-based suggested default.
+- Keep best-practices update tooling outside the skill under `/_tools`; the skill references should consume best-practices docs only and remain unaware of regeneration scripts/flow.
+- Use `/_tools/postgres_best_practices_maintenance.md` as the canonical procedure for refreshing Postgres best-practices content and provenance artifacts.
