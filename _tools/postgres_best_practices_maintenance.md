@@ -19,16 +19,30 @@ This runbook describes how to refresh and maintain the Postgres best-practices r
 - When a recommendation can be validated against official PostgreSQL documentation, do it and prefer that source.
 - Official reference for checks: https://www.postgresql.org/docs/current/
 - Do not rewrite all category files by default. Update only the specific best-practices files that have meaningful content changes.
+- Meaningful change gate (required before editing category files):
+  - Guidance is inaccurate, outdated, or contradicted by official PostgreSQL docs.
+  - New evidence materially improves correctness, safety, or applicability.
+  - A best-practice category is missing high-value guidance that belongs in scope.
+- Non-meaningful changes (do not edit category files for these alone):
+  - Formatting-only changes.
+  - Minor wording polish with no semantic improvement.
+  - Reordering equivalent bullets without improving readability or correctness.
 
 ## Tooling
 - Snapshot script: `./_tools/postgres_best_practices_snapshot.sh`
 - Cleanup script: `./_tools/postgres_best_practices_cleanup.sh`
+- Cleanup supports `--dry-run` for previewing deletions.
+
+## Prerequisites
+- Run commands from repository root.
+- Required tools: `bash`, `curl`, `python3`.
 
 ## Refresh Flow
 1. From repo root, regenerate the source snapshot:
    - `./_tools/postgres_best_practices_snapshot.sh 5`
-2. Review the updated `/_tools/postgres_best_practices/top-postgres-skills.md`.
-3. Re-evaluate category docs and update only the files with meaningful changes:
+2. Review the updated `/_tools/postgres_best_practices/top-postgres-skills.md` and diff:
+   - `git diff -- _tools/postgres_best_practices/top-postgres-skills.md`
+3. Re-evaluate category docs and update only files that pass the meaningful change gate:
    - `query-performance.md`
    - `connection-management.md`
    - `security-rls.md`
@@ -37,15 +51,25 @@ This runbook describes how to refresh and maintain the Postgres best-practices r
    - `data-access-patterns.md`
    - `monitoring-diagnostics.md`
    - `advanced-features.md`
-4. (Optional) Update maintainer-only evidence files:
+4. If no meaningful category updates are needed, leave `postgres/references/postgres_best_practices/` unchanged.
+5. (Optional) Update maintainer-only evidence files:
    - `/_tools/postgres_best_practices/sources-reviewed.md`
    - `/_tools/postgres_best_practices/verification.md`
    - Include official PostgreSQL docs references whenever available (`https://www.postgresql.org/docs/current/`).
-5. Ensure skill-level docs do not reference maintenance scripts:
+6. Ensure skill-level docs do not reference maintenance scripts:
    - `postgres/SKILL.md` should only reference best-practices content.
    - `postgres/references/postgres_usage.md` should not list maintenance scripts.
-6. Cleanup maintenance artifacts after the update phase:
+7. (Optional) Preview cleanup:
+   - `./_tools/postgres_best_practices_cleanup.sh --dry-run`
+8. Cleanup maintenance artifacts after the update phase:
    - `./_tools/postgres_best_practices_cleanup.sh`
+
+## Validation
+- Syntax-check maintenance scripts after script edits:
+  - `bash -n _tools/postgres_best_practices_snapshot.sh`
+  - `bash -n _tools/postgres_best_practices_cleanup.sh`
+- Review final workflow diff:
+  - `git diff -- _tools/postgres_best_practices_maintenance.md _tools/postgres_best_practices_snapshot.sh _tools/postgres_best_practices_cleanup.sh`
 
 ## Notes
 - Keep this runbook and maintenance scripts in `/_tools` only.
