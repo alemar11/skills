@@ -1,3 +1,6 @@
 .skills/
 __pycache__/
 *.pyc
+_tools/postgres_best_practices/top-postgres-skills.md
+_tools/postgres_best_practices/sources-reviewed.md
+_tools/postgres_best_practices/verification.md

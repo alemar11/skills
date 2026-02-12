@@ -21,6 +21,7 @@ This runbook describes how to refresh and maintain the Postgres best-practices r
 
 ## Tooling
 - Snapshot script: `./_tools/postgres_best_practices_snapshot.sh`
+- Cleanup script: `./_tools/postgres_best_practices_cleanup.sh`
 
 ## Refresh Flow
 1. From repo root, regenerate the source snapshot:
@@ -35,14 +36,17 @@ This runbook describes how to refresh and maintain the Postgres best-practices r
    - `data-access-patterns.md`
    - `monitoring-diagnostics.md`
    - `advanced-features.md`
-4. Update evidence files:
+4. (Optional) Update maintainer-only evidence files:
    - `/_tools/postgres_best_practices/sources-reviewed.md`
    - `/_tools/postgres_best_practices/verification.md`
    - Include official PostgreSQL docs references whenever available (`https://www.postgresql.org/docs/current/`).
 5. Ensure skill-level docs do not reference maintenance scripts:
    - `postgres/SKILL.md` should only reference best-practices content.
    - `postgres/references/postgres_usage.md` should not list maintenance scripts.
+6. Cleanup maintenance artifacts after the update phase:
+   - `./_tools/postgres_best_practices_cleanup.sh`
 
 ## Notes
 - Keep this runbook and maintenance scripts in `/_tools` only.
 - Treat best-practices docs as consumable references for the skill; regeneration mechanics stay outside the skill.
+- `top-postgres-skills.md`, `sources-reviewed.md`, and `verification.md` are temporary maintenance artifacts and can be deleted after each completed refresh.
