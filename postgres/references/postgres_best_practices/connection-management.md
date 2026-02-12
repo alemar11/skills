@@ -1,43 +1,39 @@
 # Connection Management Best Practices
 
-Reduce connection overhead and prevent resource exhaustion.
+These rules are generic for PostgreSQL deployments and avoid provider-specific assumptions.
 
-## Set appropriate connection limits
-Too many connections consume memory and degrade performance.
+## 1) Keep connection counts bounded
+Each backend is a server process with memory/CPU cost. Set `max_connections` intentionally for your host resources.
 
-```sql
--- Example guidance; tune for your hardware
-alter system set max_connections = 100;
-alter system set work_mem = '8MB';
-```
+## 2) Use a pooler when client concurrency is high
+A pooler lets many clients share fewer database backends, improving resilience under burst traffic.
 
-## Use connection pooling
-Poolers (e.g., PgBouncer) let many clients share a small set of server connections.
+## 3) Match pool mode to session features
+If your workload depends on session state (for example named prepared statements or temp tables), use a compatible pooling mode.
 
-```ini
-# pgbouncer.ini (example)
-pool_mode = transaction
-max_client_conn = 1000
-default_pool_size = 10
-```
-
-## Configure idle connection timeouts
-Automatically reclaim idle and idle-in-transaction sessions.
+## 4) Enforce defensive session timeouts
+Use timeouts to protect the cluster from runaway or abandoned sessions.
 
 ```sql
+alter system set statement_timeout = '30s';
+alter system set lock_timeout = '5s';
 alter system set idle_in_transaction_session_timeout = '30s';
 alter system set idle_session_timeout = '10min';
 select pg_reload_conf();
 ```
 
-## Use prepared statements correctly with pooling
-Named prepared statements are connection-bound; in transaction pooling they can disappear.
+## 5) Monitor connection pressure continuously
+Track active sessions, waiting states, and long-lived idle-in-transaction sessions.
 
 ```sql
--- Safer: unnamed statements (driver-managed) or deallocate in txn mode
-prepare get_user as select * from users where id = $1;
-execute get_user(123);
-deallocate get_user;
+select state, count(*)
+from pg_stat_activity
+group by state
+order by count(*) desc;
 ```
 
-If you require named prepared statements, use session pooling or disable prepares at the driver level.
+## Verification References
+- https://www.postgresql.org/docs/current/runtime-config-connection.html
+- https://www.postgresql.org/docs/current/runtime-config-client.html
+- https://www.postgresql.org/docs/current/monitoring-stats.html
+- https://www.pgbouncer.org/features.html

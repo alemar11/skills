@@ -1,41 +1,57 @@
-# Monitoring & Diagnostics Best Practices
+# Monitoring and Diagnostics Best Practices
 
-Use built-in tools to identify slow queries and maintenance needs.
+Use these checks continuously in production, not only during incidents.
 
-## Use EXPLAIN (ANALYZE, BUFFERS)
-Inspect actual execution costs and IO behavior.
+## 1) Start with `EXPLAIN (ANALYZE, BUFFERS)`
+Use measured execution plans to diagnose slow SQL before changing indexes/config.
 
 ```sql
 explain (analyze, buffers)
 select * from orders where customer_id = 123 and status = 'pending';
 ```
 
-Key signals:
-- Seq Scan on large tables
-- Rows Removed by Filter
-- Buffers: read >> hit
-- Sort Method: external merge
-
-## Enable pg_stat_statements
-Track the most expensive and frequent queries.
+## 2) Track workload with `pg_stat_statements`
+Identify expensive/frequent query fingerprints and prioritize by total impact.
 
 ```sql
 create extension if not exists pg_stat_statements;
 
-select query, calls, mean_exec_time
+select query, calls, mean_exec_time, total_exec_time
 from pg_stat_statements
-order by mean_exec_time desc
-limit 10;
+order by total_exec_time desc
+limit 20;
 ```
 
-## Keep statistics fresh with VACUUM and ANALYZE
-Outdated stats lead to bad plans.
+## 3) Monitor autovacuum/analyze health
+Watch stale stats and dead tuples to avoid planner drift and table bloat.
 
 ```sql
-analyze orders;
-
-alter table orders set (
-  autovacuum_vacuum_scale_factor = 0.05,
-  autovacuum_analyze_scale_factor = 0.02
-);
+select relname, n_live_tup, n_dead_tup, last_autovacuum, last_autoanalyze
+from pg_stat_user_tables
+order by n_dead_tup desc;
 ```
+
+## 4) Inspect lock and activity views
+Find long transactions, blocked sessions, and lock chains early.
+
+```sql
+select pid, state, wait_event_type, wait_event, now() - xact_start as xact_age
+from pg_stat_activity
+where state <> 'idle';
+```
+
+## 5) Review index usage and churn periodically
+Remove unused indexes and validate index effectiveness over time.
+
+```sql
+select schemaname, relname as table_name, indexrelname as index_name, idx_scan
+from pg_stat_user_indexes
+order by idx_scan asc;
+```
+
+## Verification References
+- https://www.postgresql.org/docs/current/using-explain.html
+- https://www.postgresql.org/docs/current/pgstatstatements.html
+- https://www.postgresql.org/docs/current/routine-vacuuming.html
+- https://www.postgresql.org/docs/current/monitoring-stats.html
+- https://www.postgresql.org/docs/current/monitoring-locks.html

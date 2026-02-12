@@ -1,39 +1,17 @@
 # Data Access Pattern Best Practices
 
-Reduce round trips and improve query efficiency at the application layer.
+These patterns improve throughput and reduce avoidable database work.
 
-## Batch inserts for bulk data
-Prefer multi-row INSERT or COPY for large loads.
-
-```sql
-insert into events (user_id, action) values
-  (1, 'click'),
-  (1, 'view'),
-  (2, 'click');
-
--- For large imports
-copy events (user_id, action) from stdin with (format csv);
-```
-
-## Eliminate N+1 queries
-Fetch related data in a single query.
+## 1) Batch writes instead of row-at-a-time loops
+Use multi-row `INSERT` or `COPY` for bulk ingestion.
 
 ```sql
-select u.id, u.name, o.*
-from users u
-left join orders o on o.user_id = u.id
-where u.active = true;
+insert into events (user_id, action)
+values (1, 'click'), (1, 'view'), (2, 'click');
 ```
 
-## Use cursor-based pagination
-OFFSET grows linearly with page depth; keyset pagination stays O(1).
-
-```sql
-select * from products where id > $last_id order by id limit 20;
-```
-
-## Use UPSERT for insert-or-update
-Avoid race conditions with `insert ... on conflict`.
+## 2) Use `ON CONFLICT` for atomic upserts
+Replace check-then-insert/update races with a single SQL statement.
 
 ```sql
 insert into settings (user_id, key, value)
@@ -41,3 +19,32 @@ values (123, 'theme', 'dark')
 on conflict (user_id, key)
 do update set value = excluded.value;
 ```
+
+## 3) Prefer keyset pagination for deep paging
+`OFFSET` cost grows with page depth; keyset/cursor pagination remains stable.
+
+```sql
+select * from products
+where (created_at, id) > ($1, $2)
+order by created_at, id
+limit 50;
+```
+
+## 4) Avoid N+1 query patterns
+Join or batch related lookups rather than issuing one query per row at the application layer.
+
+```sql
+select u.id, u.name, o.total
+from users u
+left join orders o on o.user_id = u.id
+where u.active = true;
+```
+
+## 5) Use parameterized queries/prepared statements
+Parameterized SQL improves safety and can reduce parse/plan overhead for repeated query shapes.
+
+## Verification References
+- https://www.postgresql.org/docs/current/sql-copy.html
+- https://www.postgresql.org/docs/current/sql-insert.html
+- https://www.postgresql.org/docs/current/queries-limit.html
+- https://www.postgresql.org/docs/current/sql-prepare.html
