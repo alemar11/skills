@@ -91,6 +91,8 @@ eval "$(./scripts/resolve_db_url.sh)"
 psql "$DB_URL"
 ```
 
+If `DB_PROFILE` is unset and `postgres.toml` has multiple profiles, the resolver asks you to choose one (shows profile name + description and suggests a default based on context). In non-interactive runs, set `DB_PROFILE` explicitly.
+
 Note: use `./scripts/psql_with_ssl_fallback.sh` (or scripts that wrap it) if you want automatic SSL retry. If the retry succeeds, ask before updating `postgres.toml` unless `DB_AUTO_UPDATE_SSLMODE=1` is set.
 
 ## Bootstrap a profile (interactive)

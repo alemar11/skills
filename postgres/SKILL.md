@@ -34,7 +34,8 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
 ## Trigger rules (summary)
 - If `<project-root>/.skills/postgres/postgres.toml` exists, do not scan by default; only scan when asked or missing.
 - If that TOML is under the current repo/root, use that root for scripts without asking for `DB_PROJECT_ROOT`.
-- If `DB_PROFILE` is unset and any profiles define `project`, auto-select the profile matching the current subproject (based on cwd); otherwise ask for `DB_PROFILE`.
+- If `DB_PROFILE` is unset and multiple profiles exist, ask the user which profile to use before running queries. Show profile `name` + `description`, and include a context-based suggested default.
+- If `DB_PROFILE` is unset and exactly one profile exists, use it.
 - If `postgres.toml` is missing, ask for host/port/database/user/password to create a profile (ask for `sslmode` only if needed).
 - If the requested profile is missing, ask for the profile details to add it.
 - If the user provides a connection URL, infer missing fields from it.

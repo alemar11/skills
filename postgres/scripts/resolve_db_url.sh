@@ -170,26 +170,18 @@ def infer_project(root: str, path: str) -> str:
     return parts[0]
 
 
-def pick_profile(
-    profile_hint: str | None, profiles: dict, project_root: str, cwd: str
-) -> str:
-    if profile_hint:
-        return profile_hint
+def profile_description(profile_data: dict) -> str:
+    value = profile_data.get("description")
+    if isinstance(value, str):
+        text = value.strip()
+        if text:
+            return text
+    return "(no description)"
+
+
+def suggest_profile(profiles: dict, project_root: str, cwd: str) -> str:
     if not profiles:
-        die("postgres.toml has no [database.<profile>] entries.")
-    projects_present = any(
-        isinstance(v.get("project"), str) and v.get("project").strip()
-        for v in profiles.values()
-    )
-    if not projects_present:
-        if default_profile in profiles:
-            return default_profile
-        if len(profiles) == 1:
-            return next(iter(profiles.keys()))
-        die(
-            "Multiple profiles found but DB_PROFILE is not set. "
-            "Set DB_PROFILE to choose one."
-        )
+        return default_profile
 
     project_slug = infer_project(project_root, cwd)
     if project_slug:
@@ -202,10 +194,7 @@ def pick_profile(
         if len(matches) == 1:
             return matches[0]
         if len(matches) > 1:
-            die(
-                f"Multiple profiles match project '{project_slug}'. "
-                "Set DB_PROFILE or make project values unique."
-            )
+            return matches[0]
 
     global_profiles = [
         name
@@ -214,19 +203,66 @@ def pick_profile(
     ]
     if len(global_profiles) == 1:
         return global_profiles[0]
-    if len(global_profiles) > 1:
-        die(
-            "Multiple global profiles (no project) found but DB_PROFILE is not set. "
-            "Set DB_PROFILE to choose one."
-        )
     if default_profile in profiles:
         return default_profile
+    return next(iter(profiles.keys()))
+
+
+def render_profiles_summary(profiles: dict, suggested: str) -> str:
+    lines = ["Available profiles (name: description):"]
+    for name, cfg in profiles.items():
+        marker = " (default)" if name == suggested else ""
+        lines.append(f"- {name}: {profile_description(cfg)}{marker}")
+    return "\n".join(lines)
+
+
+def ask_profile_choice(profiles: dict, suggested: str) -> str:
+    summary = render_profiles_summary(profiles, suggested)
+    if not sys.stdin.isatty():
+        die(
+            "Multiple profiles found and DB_PROFILE is not set.\n"
+            f"{summary}\n"
+            f"Suggested default from current context: {suggested}\n"
+            "Set DB_PROFILE to the profile you want."
+        )
+
+    print(
+        "Multiple profiles found in postgres.toml. Select one before running queries.",
+        file=sys.stderr,
+    )
+    print(summary, file=sys.stderr)
+    print(
+        f"Suggested default from current context: {suggested}",
+        file=sys.stderr,
+    )
+
+    while True:
+        sys.stderr.write(f"Profile to use [{suggested}]: ")
+        sys.stderr.flush()
+        raw = sys.stdin.readline()
+        if raw == "":
+            return suggested
+        choice = raw.strip() or suggested
+        if choice in profiles:
+            return choice
+        print(
+            "Invalid profile name. Choose one of: "
+            + ", ".join(profiles.keys()),
+            file=sys.stderr,
+        )
+
+
+def pick_profile(
+    profile_hint: str | None, profiles: dict, project_root: str, cwd: str
+) -> str:
+    if profile_hint:
+        return profile_hint
+    if not profiles:
+        die("postgres.toml has no [database.<profile>] entries.")
     if len(profiles) == 1:
         return next(iter(profiles.keys()))
-    die(
-        "No profile matched the current project. "
-        "Set DB_PROFILE or add a profile without project for shared use."
-    )
+    suggested = suggest_profile(profiles, project_root, cwd)
+    return ask_profile_choice(profiles, suggested)
 
 
 profile = pick_profile(explicit_profile, profiles, project_root, cwd)

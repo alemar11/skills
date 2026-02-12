@@ -28,3 +28,4 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Treat missing `schema_version` as pre-1 and require migration; `pg_bin_path` is required and must point to a directory containing `psql` (migration fails if it cannot be determined).
 - Keep `postgres/assets/postgres.toml.example` as the canonical current schema; keep `postgres/SKILL.md` brief and link to the example + schema reference.
 - In `postgres.toml`, `sslmode` must be a boolean (only `true`/`false`); reject string values and require migration/manual fix for legacy files.
+- When `DB_PROFILE` is unset and `postgres.toml` has multiple profiles, require explicit user selection; display available profile names + descriptions and a context-based suggested default.
