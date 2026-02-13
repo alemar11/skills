@@ -277,3 +277,191 @@ done
 
 This is intentionally a template, not an all-in-one automation.
 If you want to promote this into a script, the next iteration is a dedicated `scripts/prs_address_comments.sh` that accepts `--pr`, `--selection`, `--repo`, and optional `--comment-ids`.
+
+## fix-ci
+
+Purpose: inspect PR check failures, fetch run metadata/log snippets, and provide next actions.
+
+### Preconditions
+
+- `gh` installed and authenticated.
+- Repository scope resolves (`gh repo view` works in the target repo path).
+- Current branch has an open PR unless `{pr}` is explicitly provided.
+- `{json}` can be set to `true` to force machine-readable output for automation.
+
+### Paste and run (Phase 1): auth + PR resolution
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Replace placeholders:
+# {skill_dir} : path to this skill folder (for example /path/to/.codex/skills/custom/github)
+# {repo}      : optional repo path (defaults to current directory repo)
+# {pr}        : optional PR number or URL
+SCRIPT_PATH="{skill_dir}/scripts/inspect_pr_checks.py"
+REPO="{repo}"
+PR_INPUT="{pr}"
+
+if [[ "$SCRIPT_PATH" == "{skill_dir}/scripts/inspect_pr_checks.py" ]]; then
+  SCRIPT_PATH="scripts/inspect_pr_checks.py"
+fi
+if [[ "$REPO" == "{repo}" || -z "$REPO" ]]; then
+  REPO="."
+fi
+if [[ "$PR_INPUT" == "{pr}" ]]; then
+  PR_INPUT=""
+fi
+
+if ! gh auth status >/tmp/gh-fix-ci-auth.txt 2>&1; then
+  cat /tmp/gh-fix-ci-auth.txt
+  echo "Run: gh auth login"
+  exit 2
+fi
+
+if [[ "$REPO" != "." ]]; then
+  cd "$REPO"
+fi
+
+if ! gh repo view >/tmp/gh-fix-ci-repo.txt 2>&1; then
+  echo "Error: repository context not resolvable from REPO path '$REPO'."
+  echo "Resolve by running in a checked-out repository or passing a valid path to --repo."
+  cat /tmp/gh-fix-ci-repo.txt 2>/dev/null || true
+  exit 3
+fi
+
+if [[ -n "$PR_INPUT" ]]; then
+  echo "Resolved PR override: $PR_INPUT"
+else
+  echo "Resolved PR: current branch (if an open PR exists)"
+fi
+echo "Repository: $(gh repo view --json nameWithOwner -q .nameWithOwner)"
+```
+
+### Paste and run (Phase 2): fetch checks + run metadata + logs
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Replace placeholders:
+# {skill_dir} : path to this skill folder (for example /path/to/.codex/skills/custom/github)
+# {repo}      : optional repo path (defaults to current directory repo)
+# {pr}        : optional PR number or URL
+# {max_lines} : number of log lines in snippet (default: 160)
+# {context}   : context lines around failure marker (default: 30)
+# {json}      : true for machine output
+SCRIPT_PATH="{skill_dir}/scripts/inspect_pr_checks.py"
+REPO="{repo}"
+PR_INPUT="{pr}"
+MAX_LINES="{max_lines}"
+CONTEXT="{context}"
+JSON_MODE="{json}"
+OUTPUT_PATH="/tmp/inspect-pr-checks.json"
+
+if [[ "$SCRIPT_PATH" == "{skill_dir}/scripts/inspect_pr_checks.py" ]]; then
+  SCRIPT_PATH="scripts/inspect_pr_checks.py"
+fi
+if [[ "$REPO" == "{repo}" || -z "$REPO" ]]; then
+  REPO="."
+fi
+if [[ "$PR_INPUT" == "{pr}" ]]; then
+  PR_INPUT=""
+fi
+if [[ "$MAX_LINES" == "{max_lines}" || -z "$MAX_LINES" ]]; then
+  MAX_LINES=160
+fi
+if [[ "$CONTEXT" == "{context}" || -z "$CONTEXT" ]]; then
+  CONTEXT=30
+fi
+
+SCRIPT_ARGS=(--repo "$REPO" --max-lines "$MAX_LINES" --context "$CONTEXT")
+if [[ -n "$PR_INPUT" ]]; then
+  SCRIPT_ARGS+=(--pr "$PR_INPUT")
+fi
+
+if [[ "$JSON_MODE" == "true" || "$JSON_MODE" == "1" ]]; then
+  SCRIPT_ARGS+=(--json)
+  python3 "$SCRIPT_PATH" "${SCRIPT_ARGS[@]}" | tee "$OUTPUT_PATH"
+  echo "JSON saved to $OUTPUT_PATH"
+else
+  python3 "$SCRIPT_PATH" "${SCRIPT_ARGS[@]}"
+fi
+```
+
+### Paste and run (Phase 3): summarize failing checks from JSON
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+OUTPUT_PATH="/tmp/inspect-pr-checks.json"
+if [[ ! -f "$OUTPUT_PATH" ]]; then
+  echo "Run phase 2 with {json}=true first, then return here."
+  exit 1
+fi
+
+if command -v jq >/dev/null 2>&1; then
+  echo "PR: $(jq -r '.pr' "$OUTPUT_PATH")"
+  echo "Failing checks:"
+  jq -r '.results[] | " - " + .name + " [" + (.status | tostring) + "] " + (.detailsUrl // "n/a")' "$OUTPUT_PATH"
+  echo
+  jq -r '.results[] | " - " + .name + " | note: " + (.note // "none") + " | error: " + (.error // "none")' "$OUTPUT_PATH"
+else
+  python3 -m json.tool "$OUTPUT_PATH"
+fi
+```
+
+### Paste and run (Phase 4): inspect snippets and unavailable-log signals
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+OUTPUT_PATH="/tmp/inspect-pr-checks.json"
+if [[ ! -f "$OUTPUT_PATH" ]]; then
+  echo "Run phase 2 with {json}=true first, then return here."
+  exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Install jq to show one-line snippet diagnostics."
+  exit 2
+fi
+
+echo "Checks with snippets:"
+jq -r '.results[] | select(.status=="ok") | "\(.name):\n\(.logSnippet // "No snippet")\n"' "$OUTPUT_PATH"
+echo
+echo "Checks with missing/partial logs:"
+jq -r '.results[] | select(.status != "ok") | "\(.name): \(.status) - \(.error // .note // "no detail")\n"' "$OUTPUT_PATH"
+```
+
+### Paste and run (Phase 5): decide next action
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+OUTPUT_PATH="/tmp/inspect-pr-checks.json"
+
+if [[ ! -f "$OUTPUT_PATH" ]]; then
+  echo "Run phase 2 with {json}=true first, then return here."
+  exit 1
+fi
+
+if command -v jq >/dev/null 2>&1; then
+  if [[ "$(jq '.results | length' "$OUTPUT_PATH")" -eq 0 ]]; then
+    echo "No failing checks found. Re-run when CI has run additional jobs."
+    exit 0
+  fi
+fi
+
+echo "Next actions to execute manually:"
+echo "- Confirm root cause from Failure snippet section (Phase 4)."
+echo "- Apply local patch, rerun tests, then push commit to the PR branch."
+echo "- Re-run this workflow after pushing to refresh run status."
+```
+
+### Workflow note
+
+This workflow is template-first and intentionally conservative: it exposes copy/pasteable steps and clear fallback text, and can be promoted into a dedicated helper script after your preferred automated actions are agreed.

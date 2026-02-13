@@ -45,7 +45,7 @@ Use `references/script-summary.md` for the full list of reusable scripts (issues
 
 ## Workflow templates
 
-- `references/workflows.md`: Reusable, copy-ready end-to-end workflows (for example, PR review-comment handling on the current branch).
+- `references/workflows.md`: Reusable, copy-ready end-to-end workflows (for example, PR review-comment and PR check triage flows on the current branch).
 
 ## Repository listing
 

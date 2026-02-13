@@ -47,3 +47,4 @@ Use this as the authoritative script catalog referenced by `github/SKILL.md`.
 - `scripts/prs_merge.sh --pr <number> [--merge|--squash|--rebase] [--delete-branch] [--admin] [--auto] [--repo <owner/repo>] [--allow-non-project]`
 - `scripts/prs_close.sh --pr <number> [--repo <owner/repo>] [--allow-non-project]`
 - `scripts/prs_reopen.sh --pr <number> [--repo <owner/repo>] [--allow-non-project]`
+- `scripts/inspect_pr_checks.py [--repo <path>] [--pr <number|url>] [--max-lines <N>] [--context <N>] [--json]`
