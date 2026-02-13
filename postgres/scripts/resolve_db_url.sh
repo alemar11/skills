@@ -116,10 +116,10 @@ project_root = sys.argv[4]
 cwd = sys.argv[5]
 
 explicit_profile = profile_arg or None
-if explicit_profile and not re.match(r"^[a-z0-9_]+$", explicit_profile):
+if explicit_profile and not re.match(r"^[a-z0-9_-]+$", explicit_profile):
     die(
-        "Invalid DB_PROFILE. Use lowercase letters, digits, and underscores only "
-        "(e.g. local, db_test_1)."
+        "Invalid DB_PROFILE. Use lowercase letters, digits, underscores, and hyphens only "
+        "(e.g. local, db-test-1)."
     )
 
 env_url = os.environ.get("DB_URL")
@@ -266,10 +266,10 @@ def pick_profile(
 
 
 profile = pick_profile(explicit_profile, profiles, project_root, cwd)
-if not re.match(r"^[a-z0-9_]+$", profile):
+if not re.match(r"^[a-z0-9_-]+$", profile):
     die(
-        "Invalid DB_PROFILE. Use lowercase letters, digits, and underscores only "
-        "(e.g. local, db_test_1)."
+        "Invalid DB_PROFILE. Use lowercase letters, digits, underscores, and hyphens only "
+        "(e.g. local, db-test-1)."
     )
 
 profile_data = db.get(profile)

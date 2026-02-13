@@ -244,7 +244,7 @@ def ensure_pg_bin_path(config: dict) -> dict:
 
 
 def validate_profile(name: str) -> bool:
-    return bool(re.match(r"^[a-z0-9_]+$", name))
+    return bool(re.match(r"^[a-z0-9_-]+$", name))
 
 
 def prompt_required(text: str, default: str | None = None, secret: bool = False) -> str:
@@ -502,10 +502,13 @@ def coerce_port(value: str) -> str:
 
 def prompt_profile_name(default: str = "local") -> str:
     while True:
-        name = prompt("Profile name (lowercase, digits, underscore)", default)
+        name = prompt("Profile name (lowercase, digits, hyphen, underscore)", default)
         if validate_profile(name):
             return name
-        print("Invalid profile name. Use lowercase letters, digits, and underscores only.")
+        print(
+            "Invalid profile name. Use lowercase letters, digits, "
+            "underscores, and hyphens only."
+        )
 
 
 def prompt_missing_fields(cfg: dict) -> dict:

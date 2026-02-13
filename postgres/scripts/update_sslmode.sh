@@ -63,13 +63,13 @@ tmp_file="$(mktemp)"
 
 awk -v profile="$PROFILE" -v sslmode="$SSL_VALUE" '
   BEGIN { in_profile=0; found=0; updated=0 }
-  /^[[:space:]]*\[database\.[a-z0-9_]+\][[:space:]]*$/ {
+  /^[[:space:]]*\[database\.[a-z0-9_-]+\][[:space:]]*$/ {
     if (in_profile && !updated) {
       print "sslmode = " sslmode
       updated=1
     }
     in_profile=0
-    if (match($0, /^[[:space:]]*\[database\.([a-z0-9_]+)\][[:space:]]*$/, m)) {
+    if (match($0, /^[[:space:]]*\[database\.([a-z0-9_-]+)\][[:space:]]*$/, m)) {
       if (m[1] == profile) {
         in_profile=1
         found=1
