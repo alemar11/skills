@@ -44,7 +44,7 @@ Use `--help` on the relevant command for options, and prefer `--json` and `--jq`
 Use these scripts for reusable issue workflows.
 
 - Read and filter issues:
-  - Use `scripts/issues_list.sh --state open|closed|all [--labels <label1,label2>] [--limit N]` for listing.
+  - Use `scripts/issues_list.sh --state open|closed|all [--labels <label1,label2>] [--limit N]` for listing (default: open).
   - Use `scripts/issues_view.sh --issue <number>` when you need the full issue JSON payload.
   - Use `scripts/issues_comments_list.sh --issue <number>` when you need threaded comment history.
 - Change lifecycle and assignment:
@@ -72,7 +72,7 @@ Use these scripts for reusable issue workflows.
 - `scripts/issues_labels_update.sh --name <label> [--new-name <label>] [--color <rrggbb>] [--description <text>] [--repo <owner/repo>] [--allow-non-project]`: Update a label.
 - `scripts/issues_labels_delete.sh --name <label> [--repo <owner/repo>] [--allow-non-project]`: Delete a project label.
 - `scripts/issues_milestones_list.sh [--repo <owner/repo>] [--state open|closed|all] [--limit N] [--allow-non-project]`: List milestones.
-- `scripts/issues_list.sh [--state open|closed|all] [--labels <label1,label2>] [--limit N] [--repo <owner/repo>] [--allow-non-project]`: Read issues.
+- `scripts/issues_list.sh [--state open|closed|all] [--labels <label1,label2>] [--limit N] [--repo <owner/repo>] [--allow-non-project]` (default: open): Read issues.
 - `scripts/issues_view.sh --issue <number> [--repo <owner/repo>] [--allow-non-project]`: Read a full issue payload.
 - `scripts/issues_create.sh --title <text> [--body <text>] [--labels <label1,label2>] [--assignees <user1,user2>] [--repo <owner/repo>] [--allow-non-project]`: Create issue.
 - `scripts/issues_comment_add.sh --issue <number> --body <text> [--repo <owner/repo>] [--allow-non-project]`: Add a comment.
