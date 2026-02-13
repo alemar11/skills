@@ -1,12 +1,12 @@
 ---
 name: postgres
-description: Connect to Postgres databases and run queries or checks. Use when asked to access a DB or execute SQL.
+description: Connect to Postgres databases, run queries/diagnostics, and search official PostgreSQL docs only when explicitly requested.
 ---
 
 # Postgres
 
 ## Goal
-Use this skill to connect to Postgres and run user-requested queries or checks.
+Use this skill to connect to Postgres, run user-requested queries/diagnostics, and search official PostgreSQL docs only when explicitly requested.
 
 ## Workflow
 1) Confirm connection source:
@@ -18,6 +18,7 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
    - If `postgres.toml` exists, **first** ensure it is at the latest schema version. Run `./scripts/migrate_toml_schema.sh` only when an older schema is found, and run it from the skill dir only if `DB_PROJECT_ROOT`/`PROJECT_ROOT` is set.
 2) Choose action:
    - Connect/run a query, inspect schema, or run a helper script.
+   - For official PostgreSQL docs lookup, use `./scripts/search_postgres_docs.sh` only when the user explicitly asks for docs search/verification.
 3) Execute and report:
    - Run the requested action and summarize results or errors.
    - If a connection test fails, run `./scripts/check_deps.sh` and/or `./scripts/connection_info.sh` to diagnose.
@@ -40,6 +41,7 @@ Use this skill to connect to Postgres and run user-requested queries or checks.
 - If the requested profile is missing, ask for the profile details to add it.
 - If the user provides a connection URL, infer missing fields from it.
 - Ask whether to save the profile into `postgres.toml` or use a one-off (temporary) connection.
+- Do not run `./scripts/search_postgres_docs.sh` unless the user explicitly asks for official docs lookup/verification.
 - For migrations path resolution and schema-change workflow, follow the guardrails reference.
 
 ## Guardrails (summary)

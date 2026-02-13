@@ -192,6 +192,13 @@ DB_PROFILE_A=local DB_PROFILE_B=staging ./scripts/schema_diff.sh
 ./scripts/long_running_queries.sh 5 20
 ```
 
+## Official docs search (explicit request only)
+Run this helper only when the user explicitly asks to search or verify against official PostgreSQL docs (for example: "search docs", "find official docs", or "verify against official docs"). Do not run it for normal SQL/query/diagnostics requests.
+
+```sh
+./scripts/search_postgres_docs.sh "row level security policies" 5
+```
+
 ## Fast object search (by name)
 Search tables, views, columns, functions/procedures, triggers, enums/types, indexes, and sequences:
 
@@ -230,6 +237,8 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 - `data_dump.sh` — Data-only dump (custom or SQL based on file extension).
 - `restore_dump.sh` — Restores a dump file (custom or SQL).
 - `connection_info.sh` — Prints connection details and key settings.
+- `search_postgres_docs.sh` — Searches official PostgreSQL docs at runtime and returns ranked `docs/current` links with snippets.
+  - Example: `./scripts/search_postgres_docs.sh "row level security policies" 5`
 - `table_sizes.sh` — Lists largest tables (total/table/index sizes).
 - `locks_overview.sh` — Shows blocked/blocking sessions and queries.
 - `slow_queries.sh` — Lists slowest queries from `pg_stat_statements` (if enabled).

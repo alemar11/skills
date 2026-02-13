@@ -1,5 +1,5 @@
 interface:
   display_name: "Postgres"
-  short_description: "Connect to Postgres databases and run queries or checks."
+  short_description: "Connect to Postgres, run queries/diagnostics, and lookup official docs."
   brand_color: "#336791"
-  default_prompt: "Connect to the target Postgres database, run the requested query or check, and summarize results."
+  default_prompt: "Connect to the target Postgres database, run the requested query or operational check, and summarize results."
