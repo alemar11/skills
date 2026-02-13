@@ -465,3 +465,236 @@ echo "- Re-run this workflow after pushing to refresh run status."
 ### Workflow note
 
 This workflow is template-first and intentionally conservative: it exposes copy/pasteable steps and clear fallback text, and can be promoted into a dedicated helper script after your preferred automated actions are agreed.
+
+## issue-create-label-suggestions
+
+Purpose: suggest repository labels from title/body signals before creating a new issue and only apply labels after explicit user confirmation.
+
+### Preconditions
+
+- `gh` installed and authenticated.
+- `REPO` must resolve (or pass it explicitly as `owner/repo`).
+- `issues_suggest_labels.sh` available in this skill.
+
+### Paste and run (Phase 1): auth + repo + input capture
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="{repo}"
+TITLE="{title}"
+BODY="{body}"
+
+if ! gh auth status >/tmp/gh-label-suggest-auth.txt 2>&1; then
+  cat /tmp/gh-label-suggest-auth.txt
+  echo "Run: gh auth login"
+  exit 2
+fi
+
+if [[ "$REPO" == "{repo}" || -z "$REPO" ]]; then
+  echo "Missing {repo}; replace with owner/repo or the current repo context."
+  exit 1
+fi
+if [[ -z "$TITLE" ]]; then
+  echo "Missing {title}; replace with the issue title."
+  exit 1
+fi
+```
+
+### Paste and run (Phase 2): fetch ranked label suggestions
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_PATH="{skill_dir}/scripts/issues_suggest_labels.sh"
+REPO="{repo}"
+TITLE="{title}"
+BODY="{body}"
+MAX_SUGGESTIONS="{max_suggestions}"
+MIN_SCORE="{min_score}"
+OUTPUT_JSON=true
+
+if [[ "$SCRIPT_PATH" == "{skill_dir}/scripts/issues_suggest_labels.sh" ]]; then
+  SCRIPT_PATH="scripts/issues_suggest_labels.sh"
+fi
+if [[ -z "$MAX_SUGGESTIONS" || "$MAX_SUGGESTIONS" == "{max_suggestions}" ]]; then
+  MAX_SUGGESTIONS=5
+fi
+if [[ -z "$MIN_SCORE" || "$MIN_SCORE" == "{min_score}" ]]; then
+  MIN_SCORE=0.2
+fi
+
+SCRIPT_ARGS=(--repo "$REPO" --title "$TITLE" --max-suggestions "$MAX_SUGGESTIONS" --min-score "$MIN_SCORE")
+if [[ "$OUTPUT_JSON" == "true" || "$OUTPUT_JSON" == "1" ]]; then
+  SCRIPT_ARGS+=(--json)
+fi
+
+"$SCRIPT_PATH" "${SCRIPT_ARGS[@]}"
+```
+
+### Paste and run (Phase 3): confirm suggestion selection with user
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="{repo}"
+TITLE="{title}"
+BODY="{body}"
+SELECTED_LABELS="{selected_labels}"
+
+if [[ "$SELECTED_LABELS" == "{selected_labels}" ]]; then
+  echo "No labels selected. Re-run workflow only when user confirms selection."
+  exit 0
+fi
+```
+
+### Paste and run (Phase 4): create issue only after confirmation
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_PATH="{skill_dir}/scripts/issues_create.sh"
+REPO="{repo}"
+TITLE="{title}"
+BODY="{body}"
+SELECTED_LABELS="{selected_labels}"
+ASSIGNEES="{assignees}"
+
+if [[ "$SCRIPT_PATH" == "{skill_dir}/scripts/issues_create.sh" ]]; then
+  SCRIPT_PATH="scripts/issues_create.sh"
+fi
+
+if [[ -z "$SELECTED_LABELS" ]]; then
+  echo "No labels provided; create issue without labels."
+  "$SCRIPT_PATH" --repo "$REPO" --title "$TITLE" --body "$BODY"
+  exit 0
+fi
+
+if [[ -n "$ASSIGNEES" ]]; then
+  "$SCRIPT_PATH" --repo "$REPO" --title "$TITLE" --body "$BODY" --labels "$SELECTED_LABELS" --assignees "$ASSIGNEES"
+else
+  "$SCRIPT_PATH" --repo "$REPO" --title "$TITLE" --body "$BODY" --labels "$SELECTED_LABELS"
+fi
+```
+
+### Fallbacks
+
+- no labels available: confirm labels exist in repo with `gh label list --repo "$REPO"` and retry
+- no auth: run `gh auth login`
+- empty candidate list: use threshold controls (`--min-score`) or pass clearer title/body context
+
+## commit-with-issue-close
+
+Purpose: infer issue linkage from branch/context and propose `Fixes #<number>` (or chosen token) with explicit user approval before commit.
+
+### Preconditions
+
+- `git` and `gh` installed.
+- Current directory is a git repo, unless `--repo` is provided as a valid local path.
+- `commit_issue_linker.sh` is available in this skill.
+
+### Paste and run (Phase 1): capture message/context and infer candidates
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_PATH="{skill_dir}/scripts/commit_issue_linker.sh"
+MESSAGE="{message}"
+CONTEXT="{context}"
+BRANCH="{branch}"
+REPO="{repo}"
+ISSUE_NUMBER="{issue_number}"
+TOKEN="{token}"
+JSON_MODE="{json}"
+
+if [[ "$SCRIPT_PATH" == "{skill_dir}/scripts/commit_issue_linker.sh" ]]; then
+  SCRIPT_PATH="scripts/commit_issue_linker.sh"
+fi
+if [[ "$TOKEN" == "{token}" || -z "$TOKEN" ]]; then
+  TOKEN="fixes"
+fi
+
+if [[ "$JSON_MODE" == "true" || "$JSON_MODE" == "1" ]]; then
+  "$SCRIPT_PATH" \
+    --message "$MESSAGE" \
+    --context "$CONTEXT" \
+    ${BRANCH:+--branch "$BRANCH"} \
+    ${REPO:+--repo "$REPO"} \
+    ${ISSUE_NUMBER:+--issue-number "$ISSUE_NUMBER"} \
+    --token "$TOKEN" \
+    --json
+else
+  "$SCRIPT_PATH" \
+    --message "$MESSAGE" \
+    --context "$CONTEXT" \
+    ${BRANCH:+--branch "$BRANCH"} \
+    ${REPO:+--repo "$REPO"} \
+    ${ISSUE_NUMBER:+--issue-number "$ISSUE_NUMBER"} \
+    --token "$TOKEN"
+fi
+```
+
+### Paste and run (Phase 2): review decision and user choice
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+DECISION_STATE="{decision_state}"
+PROPOSED_MESSAGE="{proposed_message}"
+
+case "$DECISION_STATE" in
+  no_candidate)
+    echo "No issue candidate found; commit without close token or add context explicitly."
+    ;;
+  ambiguous)
+    echo "Multiple candidates detected; pick one candidate and rerun with --issue-number <n>."
+    ;;
+  already_linked)
+    echo "Message already includes a close token; commit as-is."
+    ;;
+  single_candidate)
+    echo "Suggested commit message:"
+    echo "$PROPOSED_MESSAGE"
+    ;;
+esac
+```
+
+### Paste and run (Phase 3): commit only after approval
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_PATH="{skill_dir}/scripts/commit_issue_linker.sh"
+REPO="{repo}"
+MESSAGE="{proposed_message}"
+APPROVE="{approve}"
+
+if [[ "$SCRIPT_PATH" == "{skill_dir}/scripts/commit_issue_linker.sh" ]]; then
+  SCRIPT_PATH="scripts/commit_issue_linker.sh"
+fi
+
+if [[ "$APPROVE" != "yes" ]]; then
+  echo "Execution blocked. Confirm with APPROVE=yes before running --execute."
+  exit 1
+fi
+
+"$SCRIPT_PATH" \
+  --message "$MESSAGE" \
+  --repo "$REPO" \
+  --execute
+
+```
+
+### Fallbacks
+
+- no auth: run `gh auth login`
+- not on a git repo: run inside the repo path and pass `--repo .` if needed
+- ambiguous/no candidate: ask the user for `{issue_number}` and rerun
+- commit context already has a close token: the workflow keeps it and does not add duplicates
