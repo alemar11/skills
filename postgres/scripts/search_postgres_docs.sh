@@ -2,6 +2,7 @@
 set -euo pipefail
 
 SEARCH_URL="${PG_DOCS_SEARCH_URL:-https://www.postgresql.org/search/}"
+CURRENT_DOCS_SCOPE="/docs/current/"
 DEFAULT_LIMIT=10
 MAX_LIMIT=20
 MAX_TIME="${PG_DOCS_SEARCH_MAX_TIME:-30}"
@@ -13,6 +14,7 @@ Usage: search_postgres_docs.sh "<query>" [limit]
 Search official PostgreSQL documentation pages at runtime.
 This helper is standalone and should be used only when the user explicitly asks
 for official PostgreSQL docs lookup/verification.
+Results are restricted to PostgreSQL current docs (`/docs/current/`) only.
 
 Arguments:
   query   Required search string.
@@ -82,9 +84,11 @@ if ! curl \
   --retry 3 \
   --retry-delay 2 \
   --retry-connrefused \
+  --compressed \
   --max-time "$MAX_TIME" \
   --get \
   --data-urlencode "q=$query" \
+  --data-urlencode "u=$CURRENT_DOCS_SCOPE" \
   "$SEARCH_URL" \
   -o "$tmp_html"; then
   echo "Error: failed to query official PostgreSQL search endpoint: $SEARCH_URL" >&2
@@ -105,42 +109,65 @@ try:
 except Exception as exc:
     raise SystemExit(f"Error: unable to read search response: {exc}")
 
-if "<title>PostgreSQL: Search results" not in raw:
+if not raw:
+    raise SystemExit("Error: empty response from postgresql.org search endpoint.")
+
+if "<title>postgresql: search results" not in raw.lower():
     raise SystemExit(
         "Error: unexpected search response from postgresql.org; cannot parse results."
     )
 
+if "returned no hits" in raw.lower():
+    print(
+        f'No matches found in official PostgreSQL current docs for query: "{query}".'
+    )
+    sys.exit(0)
+
+# Parse only the content area when possible to avoid unrelated links in nav/footer.
+content = raw
+parts = re.split(r"<!--\s*docbot goes here\s*-->", raw, maxsplit=1, flags=re.I)
+if len(parts) == 2:
+    content = parts[1]
+content = re.split(
+    r"</div>\s*<!--\s*pgContentWrap\s*-->", content, maxsplit=1, flags=re.I
+)[0]
+
+# Main parser: title link + score + snippet block for docs/current hits.
 pattern = re.compile(
-    r"\n\s*\d+\.\s*<a href=\"([^\"]+)\">(.+?)</a>\s*\[[^\]]+\]<br/>\s*<div>(.*?)</div>",
-    re.S,
+    r'(?:^|\n)\s*\d+\.\s*<a href="(https://www\.postgresql\.org/docs/current/[^"]+)">(.+?)</a>\s*\[[^\]]+\]\s*<br\s*/?>\s*<div>(.*?)</div>',
+    re.I | re.S,
 )
-matches = pattern.findall(raw)
+matches = pattern.findall(content)
+
+# Fallback parser in case score formatting changes upstream.
 if not matches:
-    if "returned no hits" in raw.lower():
-        print(
-            f'No matches found in official PostgreSQL current docs for query: "{query}".'
-        )
-        sys.exit(0)
+    fallback = re.compile(
+        r'(?:^|\n)\s*\d+\.\s*<a href="(https://www\.postgresql\.org/docs/current/[^"]+)">(.+?)</a>.*?<div>(.*?)</div>',
+        re.I | re.S,
+    )
+    matches = fallback.findall(content)
+
+if not matches:
     raise SystemExit("Error: could not parse search result entries from response.")
 
 results = []
 seen = set()
 
 for url, title, snippet in matches:
-    if not url.startswith("https://www.postgresql.org/docs/current/"):
-        continue
     if url in seen:
         continue
-    seen.add(url)
 
     clean_title = html.unescape(re.sub(r"<[^>]+>", "", title))
     clean_title = " ".join(clean_title.split())
+    if not clean_title or clean_title.lower().startswith("https://"):
+        continue
 
     clean_snippet = html.unescape(re.sub(r"<[^>]+>", "", snippet))
     clean_snippet = " ".join(clean_snippet.split())
     if not clean_snippet:
         clean_snippet = "(no snippet)"
 
+    seen.add(url)
     results.append((clean_title, url, clean_snippet))
     if len(results) >= limit:
         break
