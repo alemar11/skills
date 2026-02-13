@@ -7,7 +7,7 @@ This directory contains reusable skills—task-specific packages of instructions
 - `codex-changelog/` — Show release notes for the installed Codex CLI version.
 - `github/` — Use the GitHub CLI (`gh`) to manage repositories, issues, pull requests, and workflows.
 - `learn/` — Capture durable corrections or preferences and write them to AGENTS.md.
-- `postgres/` — Connect to Postgres databases and run queries or checks.
+- `postgres/` — Connect to Postgres, run queries/diagnostics, and lookup official docs on explicit request.
 
 ## Codex
 
