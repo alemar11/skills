@@ -43,6 +43,10 @@ Use `--help` on the relevant command for options, and prefer `--json` and `--jq`
 
 Use `references/script-summary.md` for the full list of reusable scripts (issues, pull requests, repo operations, and setup checks) with arguments and intent.
 
+## Workflow templates
+
+- `references/workflows.md`: Reusable, copy-ready end-to-end workflows (for example, PR review-comment handling on the current branch).
+
 ## Repository listing
 
 - Use `scripts/repos_list.sh` for repository discovery commands.
