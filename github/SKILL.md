@@ -37,7 +37,7 @@ Use `--help` on the relevant command for options, and prefer `--json` and `--jq`
 ## Scope rules
 
 - This skill must not perform organization-level management or settings actions.
-- Working on other repositories is allowed only via explicit `--repo owner/repo` passed to issue scripts.
+- Work on non-current repositories only when the user explicitly provides `owner/repo` (for commands or scripts that support `--repo`).
 
 ## Issue and pull request script reference
 
