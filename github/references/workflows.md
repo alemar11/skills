@@ -514,6 +514,9 @@ TITLE="{title}"
 BODY="{body}"
 MAX_SUGGESTIONS="{max_suggestions}"
 MIN_SCORE="{min_score}"
+ALLOW_NEW_LABELS="{allow_new_labels}"
+NEW_LABEL_COLOR="{new_label_color}"
+NEW_LABEL_DESCRIPTION="{new_label_description}"
 OUTPUT_JSON=true
 
 if [[ "$SCRIPT_PATH" == "{skill_dir}/scripts/issues_suggest_labels.sh" ]]; then
@@ -529,6 +532,15 @@ fi
 SCRIPT_ARGS=(--repo "$REPO" --title "$TITLE" --max-suggestions "$MAX_SUGGESTIONS" --min-score "$MIN_SCORE")
 if [[ "$OUTPUT_JSON" == "true" || "$OUTPUT_JSON" == "1" ]]; then
   SCRIPT_ARGS+=(--json)
+fi
+if [[ "${ALLOW_NEW_LABELS,,}" == "true" || "${ALLOW_NEW_LABELS,,}" == "yes" || "${ALLOW_NEW_LABELS,,}" == "1" ]]; then
+  SCRIPT_ARGS+=(--allow-new-label)
+  if [[ -n "$NEW_LABEL_COLOR" && "$NEW_LABEL_COLOR" != "{new_label_color}" ]]; then
+    SCRIPT_ARGS+=(--new-label-color "$NEW_LABEL_COLOR")
+  fi
+  if [[ -n "$NEW_LABEL_DESCRIPTION" && "$NEW_LABEL_DESCRIPTION" != "{new_label_description}" ]]; then
+    SCRIPT_ARGS+=(--new-label-description "$NEW_LABEL_DESCRIPTION")
+  fi
 fi
 
 "$SCRIPT_PATH" "${SCRIPT_ARGS[@]}"
@@ -584,6 +596,8 @@ fi
 ### Fallbacks
 
 - no labels available: confirm labels exist in repo with `gh label list --repo "$REPO"` and retry
+- no high-confidence reusable matches: either add stronger context terms or enable fallback labels with curated reusable candidates.
+- new label fallback: when `ALLOW_NEW_LABELS` is set, suggestions are created at repo scope with `gh label create --repo`; keep fallback candidates generic (`bug`, `enhancement`, `documentation`, etc.) so they stay reusable.
 - no auth: run `gh auth login`
 - empty candidate list: use threshold controls (`--min-score`) or pass clearer title/body context
 

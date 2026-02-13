@@ -23,6 +23,14 @@ Goal: suggest labels for issue creation without mutating anything by default.
 - `keyword_alias` (up to 0.25)
   - Add for common aliases present in title/body.
 
+### New label fallback policy
+
+- Resolve candidates from existing repo labels first and score them only from `--title` / `--body`.
+- Only when existing-label candidates are absent (or below threshold) consider reusable, generic fallback candidates from a curated alias set (`bug`, `enhancement`, `documentation`, `tests`, `build`, `dependencies`, `chore`).
+- Create fallback labels only when explicitly enabled and always with `gh label create --repo ...` (repo scope only).
+- Never create non-reusable names (issue numbers, PR-specific names, one-off phrases, or mixed-context terms).
+- Report creation outcome (`created` vs failure reason) with the same ranked output schema.
+
 #### Suggested default aliases
 
 - `bug`, `enhancement`, `documentation`, `docs`, `tests`, `test`, `build`, `ci`, `chore`.
