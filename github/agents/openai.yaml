@@ -1,0 +1,5 @@
+interface:
+  display_name: "GitHub"
+  short_description: "Use the GitHub CLI (`gh`) for repositories, issues, pull requests, and workflows."
+  brand_color: "#1F9D55"
+  default_prompt: "Use GitHub CLI (`gh`) to complete the requested repository, issue, or pull request task."
