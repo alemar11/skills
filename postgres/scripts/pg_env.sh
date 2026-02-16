@@ -7,6 +7,11 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+if [[ -n "${PROJECT_ROOT+x}" ]]; then
+  echo "Unsupported environment variable 'PROJECT_ROOT'. Use 'DB_PROJECT_ROOT' instead." >&2
+  return 1 2>/dev/null || exit 1
+fi
+
 pg_env_add_path() {
   local dir="$1"
   if [[ -n "$dir" && -d "$dir" ]]; then
@@ -31,7 +36,7 @@ pg_env_normalize_bin_dir() {
 }
 
 pg_env_resolve_project_root() {
-  local root_override="${DB_PROJECT_ROOT:-${PROJECT_ROOT:-}}"
+  local root_override="${DB_PROJECT_ROOT:-}"
   local root="$root_override"
   if [[ -z "$root" && -x "$(command -v git)" ]]; then
     root="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || true)"

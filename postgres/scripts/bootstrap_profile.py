@@ -43,6 +43,24 @@ SSL_TRUE = {
     "verify-full",
 }
 SSL_FALSE = {"false", "f", "0", "no", "n", "off", "disable", "disabled"}
+FORBIDDEN_ENV_ALIASES = {
+    "PROJECT_ROOT": "DB_PROJECT_ROOT",
+    "DATABASE_URL": "DB_URL",
+    "POSTGRES_URL": "DB_URL",
+    "POSTGRESQL_URL": "DB_URL",
+    "PGHOST": "DB_URL",
+    "PGPORT": "DB_URL",
+    "PGDATABASE": "DB_URL",
+    "PGUSER": "DB_URL",
+    "PGPASSWORD": "DB_URL",
+    "PGSSLMODE": "DB_URL",
+    "DB_HOST": "DB_URL",
+    "DB_PORT": "DB_URL",
+    "DB_NAME": "DB_URL",
+    "DB_DATABASE": "DB_URL",
+    "DB_USER": "DB_URL",
+    "DB_PASSWORD": "DB_URL",
+}
 
 
 def prompt(text: str, default: str | None = None) -> str:
@@ -165,6 +183,14 @@ def normalize_sslmode(value, default: bool | None = None) -> bool | None:
     if lowered in SSL_FALSE:
         return False
     return default
+
+
+def fail_if_unsupported_env_vars() -> None:
+    for key, replacement in FORBIDDEN_ENV_ALIASES.items():
+        if key in os.environ:
+            raise SystemExit(
+                f"Unsupported environment variable '{key}'. Use '{replacement}' instead."
+            )
 
 
 def sslmode_to_string(value: bool | None) -> str:
@@ -307,11 +333,8 @@ def should_scan_file(path: str) -> bool:
 
 
 def scan_project(root: str) -> list[dict]:
-    url_re = re.compile(r"postgres(?:ql)?://[^\\s\"'`<>]+", re.IGNORECASE)
     key_re = re.compile(
-        r"(?P<key>PGHOST|PGPORT|PGDATABASE|PGUSER|PGPASSWORD|PGSSLMODE|"
-        r"DB_HOST|DB_PORT|DB_NAME|DB_DATABASE|DB_USER|DB_PASSWORD|"
-        r"DATABASE_URL|POSTGRES_URL|POSTGRESQL_URL)"
+        r"(?P<key>DB_URL)"
         r"\\s*[:=]\\s*(?P<val>[^\\s#]+)",
         re.IGNORECASE,
     )
@@ -336,22 +359,6 @@ def scan_project(root: str) -> list[dict]:
             except Exception:
                 continue
 
-            for match in url_re.findall(text):
-                url = match.rstrip(").,;]}\"'")
-                if looks_dynamic(url):
-                    continue
-                cfg = parse_url(url)
-                candidates.append(
-                    {
-                        "source": os.path.relpath(path, root),
-                        "profile": suggest_profile_name(path, used_profiles),
-                        "project": infer_project(
-                            root, os.path.relpath(path, root), is_monorepo
-                        ),
-                        "data": cfg,
-                    }
-                )
-
             env = {}
             for match in key_re.finditer(text):
                 key = match.group("key").upper()
@@ -360,9 +367,7 @@ def scan_project(root: str) -> list[dict]:
                     continue
                 env[key] = val
 
-            url_val = env.get("DATABASE_URL") or env.get("POSTGRES_URL") or env.get(
-                "POSTGRESQL_URL"
-            )
+            url_val = env.get("DB_URL")
             if url_val:
                 cfg = parse_url(url_val)
                 candidates.append(
@@ -373,29 +378,6 @@ def scan_project(root: str) -> list[dict]:
                             root, os.path.relpath(path, root), is_monorepo
                         ),
                         "data": cfg,
-                    }
-                )
-
-            mapping = {
-                "host": env.get("PGHOST") or env.get("DB_HOST", ""),
-                "port": env.get("PGPORT") or env.get("DB_PORT", ""),
-                "database": env.get("PGDATABASE")
-                or env.get("DB_NAME")
-                or env.get("DB_DATABASE", ""),
-                "user": env.get("PGUSER") or env.get("DB_USER", ""),
-                "password": env.get("PGPASSWORD") or env.get("DB_PASSWORD", ""),
-                "sslmode": normalize_sslmode(env.get("PGSSLMODE", "")),
-            }
-
-            if any(mapping.values()):
-                candidates.append(
-                    {
-                        "source": os.path.relpath(path, root),
-                        "profile": suggest_profile_name(path, used_profiles),
-                        "project": infer_project(
-                            root, os.path.relpath(path, root), is_monorepo
-                        ),
-                        "data": mapping,
                     }
                 )
 
@@ -742,6 +724,7 @@ def update_agents_migrations_path(agents_path: str, migrations_path: str) -> Non
 
 
 def main() -> None:
+    fail_if_unsupported_env_vars()
     print("Postgres profile bootstrap")
     print("(Nothing is written unless you choose to save.)\n")
 

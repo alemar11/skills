@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SEARCH_URL="${PG_DOCS_SEARCH_URL:-https://www.postgresql.org/search/}"
+if [[ -n "${PG_DOCS_SEARCH_URL+x}" ]]; then
+  echo "Unsupported environment variable 'PG_DOCS_SEARCH_URL'. Use 'DB_DOCS_SEARCH_URL' instead." >&2
+  exit 1
+fi
+
+if [[ -n "${PG_DOCS_SEARCH_MAX_TIME+x}" ]]; then
+  echo "Unsupported environment variable 'PG_DOCS_SEARCH_MAX_TIME'. Use 'DB_DOCS_SEARCH_MAX_TIME' instead." >&2
+  exit 1
+fi
+
+SEARCH_URL="${DB_DOCS_SEARCH_URL:-https://www.postgresql.org/search/}"
 CURRENT_DOCS_SCOPE="/docs/current/"
 DEFAULT_LIMIT=10
 MAX_LIMIT=20
-MAX_TIME="${PG_DOCS_SEARCH_MAX_TIME:-30}"
+MAX_TIME="${DB_DOCS_SEARCH_MAX_TIME:-30}"
 
 usage() {
   cat <<'EOF'

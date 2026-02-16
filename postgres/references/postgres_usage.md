@@ -38,10 +38,13 @@ Windows:
 - `DB_AUTO_UPDATE_SSLMODE=1` auto-persists `sslmode=true` after a successful retry (otherwise ask and print the command).
 - `DB_CONFIRM=YES` skips confirmation prompts for cancel/terminate scripts.
 - `DB_VIEW_DEF_TRUNC` and `DB_FUNC_DEF_TRUNC` truncate view/function definitions in schema introspection output.
+- `DB_DOCS_SEARCH_URL` and `DB_DOCS_SEARCH_MAX_TIME` tune official docs lookup behavior.
 
 ## psql usage
 Run these from the skill directory (the one that contains `scripts/`).
-Set `DB_PROJECT_ROOT` (or `PROJECT_ROOT`) to the target project root (the directory that contains `.skills/postgres/postgres.toml`).
+Set `DB_PROJECT_ROOT` to the target project root (the directory that contains `.skills/postgres/postgres.toml`).
+
+This skill accepts only `DB_*` user-facing env vars. Legacy aliases such as `PROJECT_ROOT`, `DATABASE_URL`, `POSTGRES_URL`, and `PGHOST` are unsupported.
 
 Example:
 ```sh
@@ -194,6 +197,10 @@ DB_PROFILE_A=local DB_PROFILE_B=staging ./scripts/schema_diff.sh
 
 ## Official docs search (explicit request only)
 Run this helper only when the user explicitly asks to search or verify against official PostgreSQL docs (for example: "search docs", "find official docs", or "verify against official docs"). Do not run it for normal SQL/query/diagnostics requests.
+
+Optional env overrides:
+- `DB_DOCS_SEARCH_URL` (default: `https://www.postgresql.org/search/`)
+- `DB_DOCS_SEARCH_MAX_TIME` (default: `30`)
 
 ```sh
 ./scripts/search_postgres_docs.sh "row level security policies" 5
