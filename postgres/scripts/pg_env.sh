@@ -77,68 +77,6 @@ if isinstance(val, str):
 PY
 }
 
-pg_env_check_schema_version() {
-  local toml_path="$1"
-  if [[ -z "$toml_path" || ! -f "$toml_path" ]]; then
-    return 0
-  fi
-  python3 - "$toml_path" <<'PY'
-import sys
-try:
-    import tomllib
-except Exception:
-    print(
-        "python3>=3.11 is required to parse postgres.toml profiles (tomllib). "
-        "Update python3 or set DB_URL for a one-off connection.",
-        file=sys.stderr,
-    )
-    sys.exit(1)
-
-LATEST_SCHEMA = 1
-
-def die(message: str) -> None:
-    print(message, file=sys.stderr)
-    sys.exit(1)
-
-def parse_schema_version(value) -> int:
-    if value is None:
-        return 0
-    if isinstance(value, bool):
-        return int(value)
-    if isinstance(value, int):
-        return value
-    text = str(value).strip()
-    if text.isdigit():
-        return int(text)
-    die(f"Invalid schema_version in postgres.toml: {value!r}")
-    return 0
-
-path = sys.argv[1]
-try:
-    with open(path, "rb") as fh:
-        data = tomllib.load(fh)
-except Exception:
-    die(f"Failed to parse postgres.toml at {path}.")
-
-conf = data.get("configuration")
-if not isinstance(conf, dict) or conf.get("schema_version") in (None, ""):
-    die(
-        "postgres.toml is missing [configuration].schema_version; "
-        "run ./scripts/migrate_toml_schema.sh to update.",
-    )
-current = parse_schema_version(conf.get("schema_version"))
-if current < LATEST_SCHEMA:
-    die(
-        f"postgres.toml schema_version is outdated ({current} < {LATEST_SCHEMA}); "
-        "run ./scripts/migrate_toml_schema.sh."
-    )
-if current > LATEST_SCHEMA:
-    die(
-        f"postgres.toml schema_version {current} is newer than supported {LATEST_SCHEMA}."
-    )
-PY
-}
-
 pg_env_write_pg_bin_path() {
   local toml_path="$1"
   local new_dir="$2"
@@ -228,29 +166,30 @@ pg_env_prompt_install() {
   return 1
 }
 
-pg_env_project_root="$(pg_env_resolve_project_root)"
+pg_env_psql_path="$(command -v psql 2>/dev/null || true)"
+pg_env_project_root=""
 pg_env_toml_path=""
-if [[ -n "$pg_env_project_root" ]]; then
-  pg_env_toml_path="$pg_env_project_root/.skills/postgres/postgres.toml"
-fi
-
 pg_env_config_bin=""
-if [[ -n "$pg_env_toml_path" && -f "$pg_env_toml_path" ]]; then
-  pg_env_check_schema_version "$pg_env_toml_path"
-  if [[ -x "$SCRIPT_DIR/check_toml_gitignored.sh" ]]; then
-    "$SCRIPT_DIR/check_toml_gitignored.sh" "$pg_env_project_root" || true
+
+# Fast path: if psql is already available, skip profile/toml parsing overhead.
+if [[ -z "$pg_env_psql_path" ]]; then
+  pg_env_project_root="$(pg_env_resolve_project_root)"
+  if [[ -n "$pg_env_project_root" ]]; then
+    pg_env_toml_path="$pg_env_project_root/.skills/postgres/postgres.toml"
   fi
-  pg_env_config_bin="$(pg_env_read_pg_bin_path "$pg_env_toml_path")"
-fi
 
-if [[ -n "$pg_env_config_bin" ]]; then
-  pg_env_config_bin_dir="$(pg_env_normalize_bin_dir "$pg_env_config_bin")"
-  pg_env_add_path "$pg_env_config_bin_dir"
-fi
+  if [[ -n "$pg_env_toml_path" && -f "$pg_env_toml_path" ]]; then
+    pg_env_config_bin="$(pg_env_read_pg_bin_path "$pg_env_toml_path")"
+  fi
 
-pg_env_psql_path=""
-if command -v psql >/dev/null 2>&1; then
-  pg_env_psql_path="$(command -v psql)"
+  if [[ -n "$pg_env_config_bin" ]]; then
+    pg_env_config_bin_dir="$(pg_env_normalize_bin_dir "$pg_env_config_bin")"
+    pg_env_add_path "$pg_env_config_bin_dir"
+  fi
+
+  if command -v psql >/dev/null 2>&1; then
+    pg_env_psql_path="$(command -v psql)"
+  fi
 fi
 
 if [[ -z "$pg_env_psql_path" ]]; then

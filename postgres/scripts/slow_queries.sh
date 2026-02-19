@@ -3,35 +3,58 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIMIT="${1:-20}"
+QUERY_CHARS="${DB_QUERY_TEXT_MAX_CHARS:-300}"
 
-EXT_CHECK="$("$SCRIPT_DIR/psql_with_ssl_fallback.sh" -v ON_ERROR_STOP=1 -Atc "select 1 from pg_extension where extname = 'pg_stat_statements';")"
-if [[ -z "$EXT_CHECK" ]]; then
-  echo "pg_stat_statements extension is not enabled in this database." >&2
+if ! [[ "$LIMIT" =~ ^[0-9]+$ ]]; then
+  echo "Invalid limit: $LIMIT" >&2
   exit 1
 fi
 
-HAS_TOTAL_EXEC_TIME="$("$SCRIPT_DIR/psql_with_ssl_fallback.sh" -v ON_ERROR_STOP=1 -Atc \
-  "select 1 from information_schema.columns where table_name='pg_stat_statements' and column_name='total_exec_time';")"
-
-if [[ -n "$HAS_TOTAL_EXEC_TIME" ]]; then
-  TOTAL_COL="total_exec_time"
-  MEAN_COL="mean_exec_time"
-else
-  TOTAL_COL="total_time"
-  MEAN_COL="mean_time"
+if ! [[ "$QUERY_CHARS" =~ ^[0-9]+$ ]]; then
+  echo "Invalid DB_QUERY_TEXT_MAX_CHARS value: $QUERY_CHARS" >&2
+  exit 1
 fi
 
 "$SCRIPT_DIR/psql_with_ssl_fallback.sh" \
+  -X \
   -v ON_ERROR_STOP=1 \
   -P pager=off \
-  -c "
+  <<SQL
+select
+  exists(select 1 from pg_extension where extname = 'pg_stat_statements')::int as has_ext
+\gset
+\if :has_ext
+select
+  case
+    when exists (
+      select 1 from information_schema.columns
+      where table_name = 'pg_stat_statements' and column_name = 'total_exec_time'
+    ) then 'total_exec_time'
+    else 'total_time'
+  end as total_col,
+  case
+    when exists (
+      select 1 from information_schema.columns
+      where table_name = 'pg_stat_statements' and column_name = 'mean_exec_time'
+    ) then 'mean_exec_time'
+    else 'mean_time'
+  end as mean_col
+\gset
 select
   calls,
-  round(${TOTAL_COL}::numeric, 2) as total_ms,
-  round(${MEAN_COL}::numeric, 2) as mean_ms,
+  round(:"total_col"::numeric, 2) as total_ms,
+  round(:"mean_col"::numeric, 2) as mean_ms,
   rows,
-  left(query, 300) as query
+  left(query, ${QUERY_CHARS}) as query
 from pg_stat_statements
 where dbid = (select oid from pg_database where datname = current_database())
-order by ${TOTAL_COL} desc
-limit ${LIMIT};"
+order by :"total_col" desc
+limit ${LIMIT};
+\else
+do \$\$
+begin
+  raise exception 'pg_stat_statements extension is not enabled in this database.';
+end
+\$\$;
+\endif
+SQL

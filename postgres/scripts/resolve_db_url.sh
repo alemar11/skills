@@ -3,6 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+DEFAULT_PROFILE="local"
+CACHE_VERSION="2"
+
 check_unsupported_env() {
   local key="$1"
   local replacement="$2"
@@ -12,25 +15,235 @@ check_unsupported_env() {
   fi
 }
 
-check_unsupported_env "PROJECT_ROOT" "DB_PROJECT_ROOT"
-check_unsupported_env "DATABASE_URL" "DB_URL"
-check_unsupported_env "POSTGRES_URL" "DB_URL"
-check_unsupported_env "POSTGRESQL_URL" "DB_URL"
-check_unsupported_env "PGHOST" "DB_URL"
-check_unsupported_env "PGPORT" "DB_URL"
-check_unsupported_env "PGDATABASE" "DB_URL"
-check_unsupported_env "PGUSER" "DB_URL"
-check_unsupported_env "PGPASSWORD" "DB_URL"
-check_unsupported_env "PGSSLMODE" "DB_URL"
-check_unsupported_env "DB_HOST" "DB_URL"
-check_unsupported_env "DB_PORT" "DB_URL"
-check_unsupported_env "DB_NAME" "DB_URL"
-check_unsupported_env "DB_DATABASE" "DB_URL"
-check_unsupported_env "DB_USER" "DB_URL"
-check_unsupported_env "DB_PASSWORD" "DB_URL"
+resolve_debug() {
+  if [[ "${DB_DEBUG:-0}" == "1" ]]; then
+    echo "[resolve_db_url] $*" >&2
+  fi
+}
 
-PROFILE="${DB_PROFILE:-}"
-DEFAULT_PROFILE="local"
+resolve_cache_enabled() {
+  case "${DB_RESOLVE_CACHE:-1}" in
+    0|false|FALSE|False|off|OFF|Off|no|NO|No)
+      return 1
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
+resolve_cache_dir() {
+  local runtime_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
+  local uid="${UID:-$(id -u 2>/dev/null || echo 0)}"
+  printf '%s/codex-postgres-resolve-%s' "$runtime_dir" "$uid"
+}
+
+resolve_file_mtime() {
+  local path="$1"
+  if [[ ! -f "$path" ]]; then
+    echo "missing"
+    return 0
+  fi
+  if stat -f %m "$path" >/dev/null 2>&1; then
+    stat -f %m "$path"
+    return 0
+  fi
+  if stat -c %Y "$path" >/dev/null 2>&1; then
+    stat -c %Y "$path"
+    return 0
+  fi
+  # Fallback: hash content if mtime is unavailable.
+  if command -v shasum >/dev/null 2>&1; then
+    shasum "$path" | awk '{print $1}'
+    return 0
+  fi
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$path" | awk '{print $1}'
+    return 0
+  fi
+  echo "unknown"
+}
+
+resolve_signature() {
+  local mode="$1"
+  shift
+  local raw
+  raw="${CACHE_VERSION}|${mode}|$*"
+  if command -v cksum >/dev/null 2>&1; then
+    local checksum length _
+    read -r checksum length _ <<<"$(printf '%s' "$raw" | cksum)"
+    printf '%s-%s' "$checksum" "$length"
+    return 0
+  fi
+  printf '%s' "$raw" | tr -cs '[:alnum:]_-' '_'
+}
+
+print_resolved() {
+  printf 'DB_URL=%q\n' "$1"
+  printf 'DB_SSLMODE=%q\n' "$2"
+  printf 'DB_PROFILE=%q\n' "$3"
+  printf 'DB_URL_SOURCE=%q\n' "$4"
+  printf 'DB_TOML_PATH=%q\n' "$5"
+}
+
+resolve_cache_load() {
+  local signature="$1"
+  local cache_dir cache_file
+  cache_dir="$(resolve_cache_dir)"
+  cache_file="$cache_dir/${signature}.env"
+
+  if [[ ! -r "$cache_file" ]]; then
+    return 1
+  fi
+
+  local cached_signature=""
+  local cached_db_url=""
+  local cached_db_sslmode=""
+  local cached_db_profile=""
+  local cached_db_url_source=""
+  local cached_db_toml_path=""
+
+  # shellcheck disable=SC1090
+  source "$cache_file" || return 1
+
+  cached_signature="${CACHE_SIGNATURE:-}"
+  cached_db_url="${CACHE_DB_URL:-}"
+  cached_db_sslmode="${CACHE_DB_SSLMODE:-}"
+  cached_db_profile="${CACHE_DB_PROFILE:-}"
+  cached_db_url_source="${CACHE_DB_URL_SOURCE:-}"
+  cached_db_toml_path="${CACHE_DB_TOML_PATH:-}"
+
+  if [[ "$cached_signature" != "$signature" ]]; then
+    return 1
+  fi
+
+  if [[ -z "$cached_db_url" || -z "$cached_db_sslmode" || -z "$cached_db_profile" || -z "$cached_db_url_source" ]]; then
+    return 1
+  fi
+
+  resolve_debug "cache hit"
+  touch "$cache_file" 2>/dev/null || true
+  print_resolved "$cached_db_url" "$cached_db_sslmode" "$cached_db_profile" "$cached_db_url_source" "$cached_db_toml_path"
+  return 0
+}
+
+resolve_cache_prune() {
+  local cache_dir="$1"
+  local max_entries="${DB_RESOLVE_CACHE_MAX_ENTRIES:-32}"
+  if ! [[ "$max_entries" =~ ^[0-9]+$ ]] || [[ "$max_entries" -lt 1 ]]; then
+    max_entries=32
+  fi
+
+  local entries=()
+  local entry
+  while IFS= read -r entry; do
+    entries+=("$entry")
+  done < <(ls -1t "$cache_dir"/*.env 2>/dev/null || true)
+
+  local i
+  for ((i=max_entries; i<${#entries[@]}; i++)); do
+    rm -f "${entries[$i]}"
+  done
+}
+
+resolve_cache_save() {
+  local signature="$1"
+  local db_url="$2"
+  local db_sslmode="$3"
+  local db_profile="$4"
+  local db_url_source="$5"
+  local db_toml_path="$6"
+
+  local cache_dir cache_file tmp_file
+  cache_dir="$(resolve_cache_dir)"
+  mkdir -p "$cache_dir" 2>/dev/null || return 0
+  cache_file="$cache_dir/${signature}.env"
+  tmp_file="$(mktemp)" || return 0
+
+  {
+    printf 'CACHE_SIGNATURE=%q\n' "$signature"
+    printf 'CACHE_DB_URL=%q\n' "$db_url"
+    printf 'CACHE_DB_SSLMODE=%q\n' "$db_sslmode"
+    printf 'CACHE_DB_PROFILE=%q\n' "$db_profile"
+    printf 'CACHE_DB_URL_SOURCE=%q\n' "$db_url_source"
+    printf 'CACHE_DB_TOML_PATH=%q\n' "$db_toml_path"
+  } >"$tmp_file"
+
+  if mv "$tmp_file" "$cache_file" 2>/dev/null; then
+    resolve_cache_prune "$cache_dir"
+    resolve_debug "cache save"
+  else
+    rm -f "$tmp_file"
+  fi
+}
+
+resolve_gitignore_marker_file() {
+  local runtime_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
+  local uid="${UID:-$(id -u 2>/dev/null || echo 0)}"
+  printf '%s/codex-postgres-gitignore-%s.env' "$runtime_dir" "$uid"
+}
+
+resolve_gitignore_seen() {
+  local project_root="$1"
+  local marker_file marker_sig marker_project marker_toml
+  marker_file="$(resolve_gitignore_marker_file)"
+  marker_sig="$(resolve_signature "gitignore" "$project_root")"
+  if [[ ! -r "$marker_file" ]]; then
+    return 1
+  fi
+  # shellcheck disable=SC1090
+  source "$marker_file" || return 1
+  marker_project="${GITIGNORE_LAST_PROJECT:-}"
+  marker_toml="${GITIGNORE_LAST_TOML_PATH:-}"
+  [[ "$GITIGNORE_LAST_SIG" == "$marker_sig" ]] || return 1
+  [[ "$marker_project" == "$project_root" ]] || return 1
+  [[ "$marker_toml" == "$TOML_PATH" ]] || return 1
+}
+
+resolve_gitignore_mark_seen() {
+  local project_root="$1"
+  local marker_file tmp_file marker_sig
+  marker_file="$(resolve_gitignore_marker_file)"
+  tmp_file="$(mktemp)" || return 0
+  marker_sig="$(resolve_signature "gitignore" "$project_root")"
+  {
+    printf 'GITIGNORE_LAST_SIG=%q\n' "$marker_sig"
+    printf 'GITIGNORE_LAST_PROJECT=%q\n' "$project_root"
+    printf 'GITIGNORE_LAST_TOML_PATH=%q\n' "$TOML_PATH"
+  } >"$tmp_file"
+  mv "$tmp_file" "$marker_file" 2>/dev/null || rm -f "$tmp_file"
+}
+
+maybe_check_toml_gitignored() {
+  local project_root="$1"
+  if [[ "${DB_GITIGNORE_CHECK:-1}" == "0" ]]; then
+    return 0
+  fi
+  if [[ ! -x "$SCRIPT_DIR/check_toml_gitignored.sh" ]]; then
+    return 0
+  fi
+  if resolve_gitignore_seen "$project_root"; then
+    return 0
+  fi
+  "$SCRIPT_DIR/check_toml_gitignored.sh" "$project_root" || true
+  resolve_gitignore_mark_seen "$project_root"
+}
+
+parse_resolved_output() {
+  local output="$1"
+  eval "$output"
+
+  RES_DB_URL="${DB_URL:-}"
+  RES_DB_SSLMODE="${DB_SSLMODE:-}"
+  RES_DB_PROFILE="${DB_PROFILE:-}"
+  RES_DB_URL_SOURCE="${DB_URL_SOURCE:-}"
+  RES_DB_TOML_PATH="${DB_TOML_PATH:-}"
+
+  if [[ -z "$RES_DB_URL" || -z "$RES_DB_SSLMODE" || -z "$RES_DB_PROFILE" || -z "$RES_DB_URL_SOURCE" ]]; then
+    echo "resolve_db_url.sh failed to produce required output values." >&2
+    exit 1
+  fi
+}
 
 normalize_sslmode_from_env_url() {
   local url="$1"
@@ -71,17 +284,31 @@ normalize_sslmode_from_env_url() {
   esac
 }
 
-require_python311_tomllib() {
+require_python3() {
   if ! command -v python3 >/dev/null 2>&1; then
     echo "python3 is required to parse postgres.toml profiles. Install Python 3.11+ or set DB_URL for a one-off connection." >&2
     exit 1
   fi
-  if ! python3 -c 'import sys, tomllib; raise SystemExit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; then
-    echo "python3>=3.11 is required to parse postgres.toml profiles (tomllib). Update python3 or set DB_URL for a one-off connection." >&2
-    exit 1
-  fi
 }
 
+check_unsupported_env "PROJECT_ROOT" "DB_PROJECT_ROOT"
+check_unsupported_env "DATABASE_URL" "DB_URL"
+check_unsupported_env "POSTGRES_URL" "DB_URL"
+check_unsupported_env "POSTGRESQL_URL" "DB_URL"
+check_unsupported_env "PGHOST" "DB_URL"
+check_unsupported_env "PGPORT" "DB_URL"
+check_unsupported_env "PGDATABASE" "DB_URL"
+check_unsupported_env "PGUSER" "DB_URL"
+check_unsupported_env "PGPASSWORD" "DB_URL"
+check_unsupported_env "PGSSLMODE" "DB_URL"
+check_unsupported_env "DB_HOST" "DB_URL"
+check_unsupported_env "DB_PORT" "DB_URL"
+check_unsupported_env "DB_NAME" "DB_URL"
+check_unsupported_env "DB_DATABASE" "DB_URL"
+check_unsupported_env "DB_USER" "DB_URL"
+check_unsupported_env "DB_PASSWORD" "DB_URL"
+
+PROFILE="${DB_PROFILE:-}"
 if [[ -n "$PROFILE" && ! "$PROFILE" =~ ^[a-z0-9_-]+$ ]]; then
   echo "Invalid DB_PROFILE. Use lowercase letters, digits, underscores, and hyphens only (e.g. local, db-test-1)." >&2
   exit 1
@@ -89,11 +316,17 @@ fi
 
 if [[ -n "${DB_URL:-}" ]]; then
   db_sslmode="$(normalize_sslmode_from_env_url "$DB_URL")"
-  printf 'DB_URL=%q\n' "$DB_URL"
-  printf 'DB_SSLMODE=%q\n' "$db_sslmode"
-  printf 'DB_PROFILE=%q\n' "${PROFILE:-$DEFAULT_PROFILE}"
-  printf 'DB_URL_SOURCE=%q\n' "env"
-  printf 'DB_TOML_PATH=%q\n' ""
+  resolved_profile="${PROFILE:-$DEFAULT_PROFILE}"
+
+  if resolve_cache_enabled; then
+    cache_sig="$(resolve_signature "env" "$DB_URL" "$db_sslmode" "$resolved_profile")"
+    if resolve_cache_load "$cache_sig"; then
+      exit 0
+    fi
+    resolve_cache_save "$cache_sig" "$DB_URL" "$db_sslmode" "$resolved_profile" "env" ""
+  fi
+
+  print_resolved "$DB_URL" "$db_sslmode" "$resolved_profile" "env" ""
   exit 0
 fi
 
@@ -116,20 +349,36 @@ if [[ -z "$ROOT_OVERRIDE" ]]; then
 fi
 
 TOML_PATH="$PROJECT_ROOT/.skills/postgres/postgres.toml"
+TOML_MTIME="$(resolve_file_mtime "$TOML_PATH")"
 
-if [[ -x "$SCRIPT_DIR/check_toml_gitignored.sh" ]]; then
-  "$SCRIPT_DIR/check_toml_gitignored.sh" "$PROJECT_ROOT" || true
+CACHE_SIG=""
+if resolve_cache_enabled; then
+  CACHE_SIG="$(resolve_signature "toml" "$PROFILE" "$ROOT_OVERRIDE" "$PROJECT_ROOT" "$PWD" "$TOML_PATH" "$TOML_MTIME")"
+  if resolve_cache_load "$CACHE_SIG"; then
+    exit 0
+  fi
 fi
 
-require_python311_tomllib
+maybe_check_toml_gitignored "$PROJECT_ROOT"
 
-python3 - "$TOML_PATH" "$PROFILE" "$DEFAULT_PROFILE" "$PROJECT_ROOT" "$PWD" <<'PY'
+require_python3
+
+resolved_output="$(python3 - "$TOML_PATH" "$PROFILE" "$DEFAULT_PROFILE" "$PROJECT_ROOT" "$PWD" <<'PY'
 import os
 import re
 import shlex
 import sys
-import tomllib
 import urllib.parse
+
+try:
+    import tomllib
+except Exception:
+    print(
+        "python3>=3.11 is required to parse postgres.toml profiles (tomllib). "
+        "Update python3 or set DB_URL for a one-off connection.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 LATEST_SCHEMA = 1
 
@@ -443,3 +692,12 @@ shell_print("DB_PROFILE", profile)
 shell_print("DB_URL_SOURCE", "toml")
 shell_print("DB_TOML_PATH", toml_path)
 PY
+)"
+
+parse_resolved_output "$resolved_output"
+
+if [[ -n "$CACHE_SIG" ]]; then
+  resolve_cache_save "$CACHE_SIG" "$RES_DB_URL" "$RES_DB_SSLMODE" "$RES_DB_PROFILE" "$RES_DB_URL_SOURCE" "$RES_DB_TOML_PATH"
+fi
+
+print_resolved "$RES_DB_URL" "$RES_DB_SSLMODE" "$RES_DB_PROFILE" "$RES_DB_URL_SOURCE" "$RES_DB_TOML_PATH"

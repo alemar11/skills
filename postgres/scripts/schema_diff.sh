@@ -157,8 +157,21 @@ cleanup() {
 }
 trap cleanup EXIT
 
-dump_schema "A" "$tmp_a"
-dump_schema "B" "$tmp_b"
+dump_schema "A" "$tmp_a" &
+pid_a=$!
+dump_schema "B" "$tmp_b" &
+pid_b=$!
+
+set +e
+wait "$pid_a"
+status_a=$?
+wait "$pid_b"
+status_b=$?
+set -e
+
+if [[ $status_a -ne 0 || $status_b -ne 0 ]]; then
+  exit 1
+fi
 
 if diff -u "$tmp_a" "$tmp_b"; then
   echo "No structural differences."

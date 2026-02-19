@@ -36,8 +36,14 @@ Windows:
 - `DB_APPLICATION_NAME` (default: `codex-postgres-skill`) sets a consistent `application_name`.
 - `DB_STATEMENT_TIMEOUT_MS` and `DB_LOCK_TIMEOUT_MS` apply session timeouts via `PGOPTIONS`.
 - `DB_AUTO_UPDATE_SSLMODE=1` auto-persists `sslmode=true` after a successful retry (otherwise ask and print the command).
+- `DB_RESOLVE_CACHE=1` caches resolved connection/profile details to speed up repeated script runs (set `0` to disable).
+- `DB_RESOLVE_CACHE_MAX_ENTRIES` controls resolver cache fanout for multi-profile workflows (default `32`).
+- `DB_GITIGNORE_CHECK=0` skips gitignore warning checks on hot path when desired.
+- `DB_SSL_RETRY=0` disables SSL retry logic in the wrapper for faster trusted-local runs.
 - `DB_CONFIRM=YES` skips confirmation prompts for cancel/terminate scripts.
 - `DB_VIEW_DEF_TRUNC` and `DB_FUNC_DEF_TRUNC` truncate view/function definitions in schema introspection output.
+- `DB_QUERY_TEXT_MAX_CHARS` controls query text truncation defaults in `slow_queries.sh` and `pg_stat_statements_top.sh`.
+- `DB_TABLE_SIZES_SCHEMA` and `DB_TABLE_SIZES_MIN_BYTES` scope `table_sizes.sh` output on large databases.
 - `DB_DOCS_SEARCH_URL` and `DB_DOCS_SEARCH_MAX_TIME` tune official docs lookup behavior.
 
 ## psql usage
@@ -101,6 +107,7 @@ Note: use `./scripts/psql_with_ssl_fallback.sh` (or scripts that wrap it) if you
 
 ## Bootstrap a profile (interactive)
 This helper will optionally scan a project for existing config, recap candidates in TOML format, and let you save or use a one-off connection. It prompts for the project root to scan.
+Use `DB_PROFILE_SCAN_MODE=full` for a deeper scan; default mode is `fast` for lower startup latency.
 
 ```sh
 ./scripts/bootstrap_profile.sh
@@ -231,6 +238,7 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 ## Script index (keep current)
 - `resolve_db_url.sh` — Resolves `DB_URL` from `postgres.toml` or `DB_URL` env for one-off use.
   - Example: `eval "$(./scripts/resolve_db_url.sh)"`
+  - Perf: uses `DB_RESOLVE_CACHE=1` by default for faster repeated resolution.
 - `psql_with_ssl_fallback.sh` — Runs `psql` with automatic SSL retry when needed.
   - Example: `./scripts/psql_with_ssl_fallback.sh -v ON_ERROR_STOP=1 -c "select 1;"`
 - `bootstrap_profile.sh` — Interactive profile setup with optional project scan.
@@ -247,9 +255,9 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 - `connection_info.sh` — Prints connection details and key settings.
 - `search_postgres_docs.sh` — Searches official PostgreSQL docs at runtime and returns ranked `docs/current` links with snippets.
   - Example: `./scripts/search_postgres_docs.sh "row level security policies" 5`
-- `table_sizes.sh` — Lists largest tables (total/table/index sizes).
+- `table_sizes.sh` — Lists largest tables (total/table/index sizes); accepts optional `DB_TABLE_SIZES_SCHEMA` and `DB_TABLE_SIZES_MIN_BYTES` filters.
 - `locks_overview.sh` — Shows blocked/blocking sessions and queries.
-- `slow_queries.sh` — Lists slowest queries from `pg_stat_statements` (if enabled).
+- `slow_queries.sh` — Lists slowest queries from `pg_stat_statements` (if enabled), truncates query text via `DB_QUERY_TEXT_MAX_CHARS` (default `300`).
 - `index_health.sh` — Highlights missing/unused index candidates.
 - `activity_overview.sh` — Lists active sessions and queries.
 - `long_running_queries.sh` — Shows active queries exceeding a duration threshold.
@@ -257,7 +265,7 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 - `terminate_backend.sh` — Terminates a backend (prompts for confirmation).
 - `query_action.sh` — Lists matching active queries, then cancels or terminates selected PIDs.
 - `explain_analyze.sh` — Runs `EXPLAIN (ANALYZE, BUFFERS)` for a provided SQL statement (use `--no-analyze` to avoid executing the query).
-- `pg_stat_statements_top.sh` — Shows top queries by total/mean execution time.
+- `pg_stat_statements_top.sh` — Shows top queries by total/mean execution time; defaults to current DB only. Supports `--all-dbs`, `--full-query`, and `--query-chars`.
 - `vacuum_analyze_status.sh` — Summarizes VACUUM/ANALYZE recency and dead tuples.
 - `missing_fk_indexes.sh` — Lists foreign keys without supporting indexes.
 - `update_sslmode.sh` — Updates `sslmode` for a profile in `postgres.toml` (used by the fallback flow).

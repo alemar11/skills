@@ -11,8 +11,10 @@ import urllib.parse
 LATEST_SCHEMA = 1
 TOML_PATH = sys.argv[1]
 PROJECT_ROOT = sys.argv[2] if len(sys.argv) > 2 else os.getcwd()
+SCAN_MODE = os.environ.get("DB_PROFILE_SCAN_MODE", "fast").strip().lower()
 IGNORE_DIRS = {
     ".git",
+    ".skills",
     "node_modules",
     "dist",
     "build",
@@ -29,6 +31,36 @@ IGNORE_DIRS = {
     ".idea",
     ".vscode",
 }
+FAST_SCAN_EXTENSIONS = {
+    ".env",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".ini",
+    ".conf",
+    ".cfg",
+    ".properties",
+    ".envrc",
+}
+FULL_SCAN_EXTENSIONS = FAST_SCAN_EXTENSIONS.union(
+    {
+        ".js",
+        ".ts",
+        ".jsx",
+        ".tsx",
+        ".py",
+        ".rb",
+        ".go",
+        ".swift",
+        ".java",
+        ".kt",
+        ".scala",
+        ".php",
+        ".rs",
+        ".cs",
+    }
+)
 SSL_TRUE = {
     "true",
     "t",
@@ -304,33 +336,9 @@ def should_scan_file(path: str) -> bool:
     if name.startswith(".env") or name in {"Dockerfile", "docker-compose.yml", "docker-compose.yaml"}:
         return True
     ext = os.path.splitext(name)[1].lower()
-    allowed = {
-        ".env",
-        ".js",
-        ".ts",
-        ".jsx",
-        ".tsx",
-        ".json",
-        ".yaml",
-        ".yml",
-        ".toml",
-        ".py",
-        ".rb",
-        ".go",
-        ".swift",
-        ".java",
-        ".kt",
-        ".scala",
-        ".php",
-        ".rs",
-        ".cs",
-        ".ini",
-        ".conf",
-        ".cfg",
-        ".properties",
-        ".envrc",
-    }
-    return ext in allowed
+    if SCAN_MODE == "full":
+        return ext in FULL_SCAN_EXTENSIONS
+    return ext in FAST_SCAN_EXTENSIONS
 
 
 def scan_project(root: str) -> list[dict]:
