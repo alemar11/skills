@@ -29,6 +29,74 @@ check_unsupported_env "DB_DATABASE" "DB_URL"
 check_unsupported_env "DB_USER" "DB_URL"
 check_unsupported_env "DB_PASSWORD" "DB_URL"
 
+PROFILE="${DB_PROFILE:-}"
+DEFAULT_PROFILE="local"
+
+normalize_sslmode_from_env_url() {
+  local url="$1"
+  local query="${url#*\?}"
+  local raw=""
+
+  if [[ "$query" != "$url" ]]; then
+    query="${query%%#*}"
+    local pair
+    IFS='&' read -r -a pairs <<< "$query"
+    for pair in "${pairs[@]}"; do
+      case "$pair" in
+        sslmode=*)
+          raw="${pair#sslmode=}"
+          break
+          ;;
+      esac
+    done
+  fi
+
+  if [[ -z "$raw" ]]; then
+    echo "disable"
+    return 0
+  fi
+
+  local lower
+  lower="$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]')"
+  case "$lower" in
+    true|t|1|yes|y|on|enable|enabled|require|required|verify-ca|verify-full)
+      echo "require"
+      ;;
+    false|f|0|no|n|off|disable|disabled)
+      echo "disable"
+      ;;
+    *)
+      echo "$raw"
+      ;;
+  esac
+}
+
+require_python311_tomllib() {
+  if ! command -v python3 >/dev/null 2>&1; then
+    echo "python3 is required to parse postgres.toml profiles. Install Python 3.11+ or set DB_URL for a one-off connection." >&2
+    exit 1
+  fi
+  if ! python3 -c 'import sys, tomllib; raise SystemExit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; then
+    echo "python3>=3.11 is required to parse postgres.toml profiles (tomllib). Update python3 or set DB_URL for a one-off connection." >&2
+    exit 1
+  fi
+}
+
+if [[ -n "$PROFILE" && ! "$PROFILE" =~ ^[a-z0-9_-]+$ ]]; then
+  echo "Invalid DB_PROFILE. Use lowercase letters, digits, underscores, and hyphens only (e.g. local, db-test-1)." >&2
+  exit 1
+fi
+
+if [[ -n "${DB_URL:-}" ]]; then
+  db_sslmode="$(normalize_sslmode_from_env_url "$DB_URL")"
+  printf 'DB_URL=%q\n' "$DB_URL"
+  printf 'DB_SSLMODE=%q\n' "$db_sslmode"
+  printf 'DB_PROFILE=%q\n' "${PROFILE:-$DEFAULT_PROFILE}"
+  printf 'DB_URL_SOURCE=%q\n' "env"
+  printf 'DB_TOML_PATH=%q\n' ""
+  exit 0
+fi
+
 ROOT_OVERRIDE="${DB_PROJECT_ROOT:-}"
 PROJECT_ROOT="$ROOT_OVERRIDE"
 if [[ -z "$PROJECT_ROOT" && -x "$(command -v git)" ]]; then
@@ -48,12 +116,12 @@ if [[ -z "$ROOT_OVERRIDE" ]]; then
 fi
 
 TOML_PATH="$PROJECT_ROOT/.skills/postgres/postgres.toml"
-PROFILE="${DB_PROFILE:-}"
-DEFAULT_PROFILE="local"
 
 if [[ -x "$SCRIPT_DIR/check_toml_gitignored.sh" ]]; then
   "$SCRIPT_DIR/check_toml_gitignored.sh" "$PROJECT_ROOT" || true
 fi
+
+require_python311_tomllib
 
 python3 - "$TOML_PATH" "$PROFILE" "$DEFAULT_PROFILE" "$PROJECT_ROOT" "$PWD" <<'PY'
 import os
@@ -147,16 +215,6 @@ if explicit_profile and not re.match(r"^[a-z0-9_-]+$", explicit_profile):
         "Invalid DB_PROFILE. Use lowercase letters, digits, underscores, and hyphens only "
         "(e.g. local, db-test-1)."
     )
-
-env_url = os.environ.get("DB_URL")
-if env_url:
-    sslmode = normalize_sslmode(sslmode_from_url(env_url)) or "disable"
-    shell_print("DB_URL", env_url)
-    shell_print("DB_SSLMODE", sslmode)
-    shell_print("DB_PROFILE", explicit_profile or default_profile)
-    shell_print("DB_URL_SOURCE", "env")
-    shell_print("DB_TOML_PATH", toml_path)
-    sys.exit(0)
 
 if not os.path.exists(toml_path):
     die(

@@ -37,6 +37,15 @@ if [[ -x "$SCRIPT_DIR/check_toml_gitignored.sh" ]]; then
   "$SCRIPT_DIR/check_toml_gitignored.sh" "$PROJECT_ROOT" || true
 fi
 
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "python3 is required to migrate postgres.toml schema. Install Python 3.11+." >&2
+  exit 1
+fi
+if ! python3 -c 'import sys, tomllib; raise SystemExit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; then
+  echo "python3>=3.11 is required to migrate postgres.toml schema (tomllib)." >&2
+  exit 1
+fi
+
 python3 - "$TOML_PATH" <<'PY'
 import os
 import sys

@@ -16,10 +16,10 @@ for cmd in "${required[@]}"; do
   fi
 done
 
-# resolve_db_url.sh and other helpers require python3 with tomllib (3.11+).
+# postgres.toml profile parsing helpers require python3 with tomllib (3.11+).
 if command -v python3 >/dev/null 2>&1; then
   if ! python3 -c 'import sys, tomllib; raise SystemExit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; then
-    echo "  missing python3>=3.11 (tomllib)"
+    echo "  missing python3>=3.11 (tomllib for postgres.toml profiles)"
     missing+=("python3>=3.11")
   fi
 fi

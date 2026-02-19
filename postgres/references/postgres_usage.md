@@ -24,7 +24,7 @@ Windows:
 - or `choco install postgresql`
 
 ## Dependencies
-- `python3` (3.11+ for `tomllib`) is required by `resolve_db_url.sh` and the SSL fallback flow.
+- `python3` (3.11+ for `tomllib`) is required for `postgres.toml` profile parsing (`resolve_db_url.sh`, `bootstrap_profile.sh`, `migrate_toml_schema.sh`). One-off `DB_URL` resolution does not require TOML parsing.
   - macOS: prefer Homebrew `python3` (3.11+) to avoid the older system Python. Example:
     ```sh
     export PATH="$(brew --prefix python)/bin:$PATH"
