@@ -62,6 +62,17 @@ explain (analyze, buffers)
 select * from orders where customer_id = 123 and status = 'pending';
 ```
 
+## 7) Use extended statistics for correlated predicates
+When filters on multiple columns are correlated, create extended statistics and run `ANALYZE` so row estimates are more accurate.
+
+```sql
+create statistics orders_status_region_stats (dependencies, ndistinct, mcv)
+on status, region_id
+from orders;
+
+analyze orders;
+```
+
 ## Verification References
 - https://www.postgresql.org/docs/current/indexes-intro.html
 - https://www.postgresql.org/docs/current/indexes-multicolumn.html
@@ -69,3 +80,5 @@ select * from orders where customer_id = 123 and status = 'pending';
 - https://www.postgresql.org/docs/current/indexes-partial.html
 - https://www.postgresql.org/docs/current/indexes-types.html
 - https://www.postgresql.org/docs/current/using-explain.html
+- https://www.postgresql.org/docs/current/planner-stats.html
+- https://www.postgresql.org/docs/current/sql-createstatistics.html

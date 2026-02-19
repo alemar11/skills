@@ -49,9 +49,21 @@ from pg_stat_user_indexes
 order by idx_scan asc;
 ```
 
+## 6) Enable slow-query and lock-wait logging
+Capture slow SQL and lock waits in logs so intermittent production issues are diagnosable.
+
+```sql
+alter system set log_min_duration_statement = '250ms';
+alter system set log_lock_waits = on;
+alter system set deadlock_timeout = '200ms';
+select pg_reload_conf();
+```
+
 ## Verification References
 - https://www.postgresql.org/docs/current/using-explain.html
 - https://www.postgresql.org/docs/current/pgstatstatements.html
 - https://www.postgresql.org/docs/current/routine-vacuuming.html
 - https://www.postgresql.org/docs/current/monitoring-stats.html
 - https://www.postgresql.org/docs/current/monitoring-locks.html
+- https://www.postgresql.org/docs/current/runtime-config-logging.html
+- https://www.postgresql.org/docs/current/runtime-config-locks.html

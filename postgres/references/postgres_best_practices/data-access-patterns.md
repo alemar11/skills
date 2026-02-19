@@ -43,8 +43,18 @@ where u.active = true;
 ## 5) Use parameterized queries/prepared statements
 Parameterized SQL improves safety and can reduce parse/plan overhead for repeated query shapes.
 
+## 6) Use `RETURNING` to avoid extra round trips
+When a write needs to return generated IDs or updated values, use `RETURNING` in the same statement.
+
+```sql
+insert into orders (customer_id, total)
+values ($1, $2)
+returning id, created_at;
+```
+
 ## Verification References
 - https://www.postgresql.org/docs/current/sql-copy.html
 - https://www.postgresql.org/docs/current/sql-insert.html
 - https://www.postgresql.org/docs/current/queries-limit.html
 - https://www.postgresql.org/docs/current/sql-prepare.html
+- https://www.postgresql.org/docs/current/dml-returning.html

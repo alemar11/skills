@@ -43,9 +43,18 @@ RLS predicates run with user queries; index policy columns to avoid full scans.
 create index orders_tenant_id_idx on orders (tenant_id);
 ```
 
+## 6) Set default privileges for future objects
+Use `ALTER DEFAULT PRIVILEGES` so newly created tables/sequences/functions do not accidentally get overly broad access.
+
+```sql
+alter default privileges in schema public
+revoke all on tables from public;
+```
+
 ## Verification References
 - https://www.postgresql.org/docs/current/user-manag.html
 - https://www.postgresql.org/docs/current/sql-grant.html
 - https://www.postgresql.org/docs/current/sql-revoke.html
 - https://www.postgresql.org/docs/current/ddl-rowsecurity.html
 - https://www.postgresql.org/docs/current/sql-createpolicy.html
+- https://www.postgresql.org/docs/current/sql-alterdefaultprivileges.html
