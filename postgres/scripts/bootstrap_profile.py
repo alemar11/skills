@@ -8,6 +8,7 @@ import tomllib
 import urllib.parse
 
 
+LATEST_SCHEMA = 1
 TOML_PATH = sys.argv[1]
 PROJECT_ROOT = sys.argv[2] if len(sys.argv) > 2 else os.getcwd()
 IGNORE_DIRS = {
@@ -405,7 +406,7 @@ def write_toml(path: str, data: dict, profile_order: list[str]) -> None:
     config = data.get("configuration")
     if not isinstance(config, dict):
         config = {}
-    config.setdefault("schema_version", 1)
+    config.setdefault("schema_version", LATEST_SCHEMA)
     config.setdefault("pg_bin_path", "")
 
     db = data.get("database", {})
@@ -418,7 +419,9 @@ def write_toml(path: str, data: dict, profile_order: list[str]) -> None:
     lines: list[str] = []
     lines.append("[configuration]")
     # Keep schema_version first for readability/greppability.
-    lines.append(f"schema_version = {format_value(config.get('schema_version', 1))}")
+    lines.append(
+        f"schema_version = {format_value(config.get('schema_version', LATEST_SCHEMA))}"
+    )
     lines.append(f'pg_bin_path = {format_value(config.get("pg_bin_path", ""))}')
     for key in sorted(k for k in config.keys() if k not in {"schema_version", "pg_bin_path"}):
         lines.append(f"{key} = {format_value(config[key])}")
@@ -827,7 +830,7 @@ def main() -> None:
     config = data.get("configuration")
     if not isinstance(config, dict):
         config = {}
-    config["schema_version"] = 1
+    config["schema_version"] = LATEST_SCHEMA
     config = ensure_pg_bin_path(config)
     data["configuration"] = config
 

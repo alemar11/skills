@@ -32,3 +32,4 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Keep best-practices update tooling outside the skill under `/_tools`; the skill references should consume best-practices docs only and remain unaware of regeneration scripts/flow.
 - Use `/_tools/postgres_best_practices_maintenance.md` as the canonical procedure for refreshing Postgres best-practices content and provenance artifacts.
 - Treat `DB_*` as the only user-facing env contract for the Postgres skill; reject non-`DB_*` aliases (for example `PROJECT_ROOT`, `DATABASE_URL`, `PGHOST`) and keep `PG*` usage internal-only when invoking Postgres tools.
+- Enforce TOML schema gating at runtime for profile-based scripts: missing/outdated `schema_version` must fail fast and require `./scripts/migrate_toml_schema.sh` before proceeding.

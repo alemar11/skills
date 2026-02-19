@@ -45,6 +45,7 @@ Run these from the skill directory (the one that contains `scripts/`).
 Set `DB_PROJECT_ROOT` to the target project root (the directory that contains `.skills/postgres/postgres.toml`).
 
 This skill accepts only `DB_*` user-facing env vars. Legacy aliases such as `PROJECT_ROOT`, `DATABASE_URL`, `POSTGRES_URL`, and `PGHOST` are unsupported.
+When using TOML profiles, scripts require `postgres.toml` to be on the latest schema version; run `./scripts/migrate_toml_schema.sh` if prompted. One-off `DB_URL` usage bypasses TOML schema checks.
 
 Example:
 ```sh

@@ -131,6 +131,8 @@ import sys
 import tomllib
 import urllib.parse
 
+LATEST_SCHEMA = 1
+
 
 def shell_print(key: str, value: str) -> None:
     if value is None:
@@ -203,6 +205,20 @@ def die(message: str) -> None:
     sys.exit(1)
 
 
+def parse_schema_version(value) -> int:
+    if value is None:
+        return 0
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, int):
+        return value
+    text = str(value).strip()
+    if text.isdigit():
+        return int(text)
+    die(f"Invalid schema_version in postgres.toml: {value!r}")
+    return 0
+
+
 toml_path = sys.argv[1]
 profile_arg = sys.argv[2]
 default_profile = sys.argv[3]
@@ -224,6 +240,31 @@ if not os.path.exists(toml_path):
 
 with open(toml_path, "rb") as f:
     data = tomllib.load(f)
+
+config = data.get("configuration")
+if not isinstance(config, dict):
+    die(
+        "postgres.toml is missing [configuration].schema_version; "
+        "run ./scripts/migrate_toml_schema.sh before using TOML profiles."
+    )
+
+current_schema = parse_schema_version(config.get("schema_version"))
+if current_schema == 0:
+    die(
+        "postgres.toml is missing [configuration].schema_version; "
+        "run ./scripts/migrate_toml_schema.sh before using TOML profiles."
+    )
+if current_schema < LATEST_SCHEMA:
+    die(
+        "postgres.toml schema_version is outdated "
+        f"({current_schema} < {LATEST_SCHEMA}). "
+        "Run ./scripts/migrate_toml_schema.sh first."
+    )
+if current_schema > LATEST_SCHEMA:
+    die(
+        "postgres.toml schema_version is newer than this skill supports "
+        f"({current_schema} > {LATEST_SCHEMA})."
+    )
 
 db = data.get("database")
 if not isinstance(db, dict):

@@ -17,6 +17,7 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, a
    - If not in a git repo, or if running outside the target project, set `DB_PROJECT_ROOT` explicitly.
    - When creating or loading `postgres.toml` and the target project is a git repo, verify `.skills/postgres/postgres.toml` is gitignored to avoid committing credentials.
    - If `postgres.toml` exists, **first** ensure it is at the latest schema version. Run `./scripts/migrate_toml_schema.sh` only when an older schema is found, and run it from the skill dir only if `DB_PROJECT_ROOT` is set.
+   - Treat missing or outdated `schema_version` as a hard stop for TOML profile usage; migrate first, then continue.
 2) Choose action:
    - Connect/run a query, inspect schema, or run a helper script.
    - For official PostgreSQL docs lookup, use `./scripts/search_postgres_docs.sh` only when the user explicitly asks for docs search/verification.

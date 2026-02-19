@@ -82,26 +82,59 @@ pg_env_check_schema_version() {
   if [[ -z "$toml_path" || ! -f "$toml_path" ]]; then
     return 0
   fi
-  python3 - "$toml_path" <<'PY' 2>/dev/null || true
+  python3 - "$toml_path" <<'PY'
 import sys
 try:
     import tomllib
 except Exception:
-    sys.exit(0)
+    print(
+        "python3>=3.11 is required to parse postgres.toml profiles (tomllib). "
+        "Update python3 or set DB_URL for a one-off connection.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+LATEST_SCHEMA = 1
+
+def die(message: str) -> None:
+    print(message, file=sys.stderr)
+    sys.exit(1)
+
+def parse_schema_version(value) -> int:
+    if value is None:
+        return 0
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, int):
+        return value
+    text = str(value).strip()
+    if text.isdigit():
+        return int(text)
+    die(f"Invalid schema_version in postgres.toml: {value!r}")
+    return 0
 
 path = sys.argv[1]
 try:
     with open(path, "rb") as fh:
         data = tomllib.load(fh)
 except Exception:
-    sys.exit(0)
+    die(f"Failed to parse postgres.toml at {path}.")
 
 conf = data.get("configuration")
 if not isinstance(conf, dict) or conf.get("schema_version") in (None, ""):
-    print(
+    die(
         "postgres.toml is missing [configuration].schema_version; "
         "run ./scripts/migrate_toml_schema.sh to update.",
-        file=sys.stderr,
+    )
+current = parse_schema_version(conf.get("schema_version"))
+if current < LATEST_SCHEMA:
+    die(
+        f"postgres.toml schema_version is outdated ({current} < {LATEST_SCHEMA}); "
+        "run ./scripts/migrate_toml_schema.sh."
+    )
+if current > LATEST_SCHEMA:
+    die(
+        f"postgres.toml schema_version {current} is newer than supported {LATEST_SCHEMA}."
     )
 PY
 }

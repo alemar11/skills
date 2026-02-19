@@ -54,6 +54,8 @@ path = "db/migrations"
 - `sslmode = true` maps to `sslmode=require` in connection URLs.
 - `pg_bin_path` must point to a directory containing a `psql` binary.
 - `project` (per-profile) is used for auto-selecting a profile when `DB_PROFILE` is unset; profiles without `project` are treated as shared/global.
+- Runtime TOML profile usage enforces `schema_version == 1`; if missing/outdated, run `./scripts/migrate_toml_schema.sh` before using profile-based scripts.
+- One-off `DB_URL` usage does not require `postgres.toml` and bypasses TOML schema checks.
 
 ## Version 0 (legacy, pre-`schema_version`)
 **Status:** legacy; must be migrated to v1.
