@@ -36,6 +36,7 @@ This runbook describes how to refresh and maintain the Postgres best-practices r
 ## Prerequisites
 - Run commands from repository root.
 - Required tools: `bash`, `curl`, `python3`.
+- Maintenance scripts auto-detect the repository root via `git` when possible, so artifact paths remain stable even when invoked from symlinked or nested working directories.
 
 ## Refresh Flow
 1. From repo root, regenerate the source snapshot:
