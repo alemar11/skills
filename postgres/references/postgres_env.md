@@ -17,6 +17,7 @@ This skill exposes a `DB_*`-only user-facing environment contract.
 - `DB_QUERY_TEXT_MAX_CHARS`
 - `DB_TABLE_SIZES_SCHEMA`
 - `DB_TABLE_SIZES_MIN_BYTES`
+- `DB_FIND_OBJECT_TYPES`
 - `DB_PROFILE_SCAN_MODE`
 - `DB_CONFIRM`
 - `DB_VIEW_DEF_TRUNC`

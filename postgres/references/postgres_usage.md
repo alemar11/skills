@@ -44,6 +44,7 @@ Windows:
 - `DB_VIEW_DEF_TRUNC` and `DB_FUNC_DEF_TRUNC` truncate view/function definitions in schema introspection output.
 - `DB_QUERY_TEXT_MAX_CHARS` controls query text truncation defaults in `slow_queries.sh` and `pg_stat_statements_top.sh`.
 - `DB_TABLE_SIZES_SCHEMA` and `DB_TABLE_SIZES_MIN_BYTES` scope `table_sizes.sh` output on large databases.
+- `DB_FIND_OBJECT_TYPES` sets a default object-type filter for `find_objects.sh` (same format as `--types`).
 - `DB_DOCS_SEARCH_URL` and `DB_DOCS_SEARCH_MAX_TIME` tune official docs lookup behavior.
 
 ## psql usage
@@ -215,10 +216,42 @@ Optional env overrides:
 ```
 
 ## Fast object search (by name)
-Search tables, views, columns, functions/procedures, triggers, enums/types, indexes, and sequences:
+Search common Postgres objects by name or partial name.
+
+Default coverage includes:
+- schemas
+- tables
+- views/materialized views
+- sequences
+- indexes
+- constraints
+- columns
+- functions/procedures
+- triggers
+- rules
+- policies (RLS)
+- enums/types
+- extensions
+- collations
+- operators/operator classes/operator families
+- FDW objects (fdw, foreign servers, user mappings)
+- event triggers
+- publications
 
 ```sh
 DB_PROFILE=local ./scripts/find_objects.sh users
+```
+
+Filter to specific object types (comma-separated):
+
+```sh
+DB_PROFILE=local ./scripts/find_objects.sh user --types table,column,view
+```
+
+You can also set the filter via env:
+
+```sh
+DB_FIND_OBJECT_TYPES=table,column,view DB_PROFILE=local ./scripts/find_objects.sh user
 ```
 
 ## Backup and restore (examples)
@@ -255,6 +288,8 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 - `connection_info.sh` — Prints connection details and key settings.
 - `search_postgres_docs.sh` — Searches official PostgreSQL docs at runtime and returns ranked `docs/current` links with snippets.
   - Example: `./scripts/search_postgres_docs.sh "row level security policies" 5`
+- `find_objects.sh` — Searches object names across schemas/catalog objects; accepts optional `--types` (or `DB_FIND_OBJECT_TYPES`) filter.
+  - Example: `DB_PROFILE=local ./scripts/find_objects.sh auth --types table,column,view`
 - `table_sizes.sh` — Lists largest tables (total/table/index sizes); accepts optional `DB_TABLE_SIZES_SCHEMA` and `DB_TABLE_SIZES_MIN_BYTES` filters.
 - `locks_overview.sh` — Shows blocked/blocking sessions and queries.
 - `slow_queries.sh` — Lists slowest queries from `pg_stat_statements` (if enabled), truncates query text via `DB_QUERY_TEXT_MAX_CHARS` (default `300`).
