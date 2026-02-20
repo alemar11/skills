@@ -5,9 +5,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 if command -v git >/dev/null 2>&1 && git -C "$SCRIPT_DIR" rev-parse --show-toplevel >/dev/null 2>&1; then
   REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
 else
-  REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+  REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 fi
-DEFAULT_OUT="$REPO_ROOT/_tools/postgres_best_practices/top-postgres-skills.md"
+DEFAULT_OUT="$REPO_ROOT/_tools/postgres/postgres_best_practices/top-postgres-skills.md"
 API_URL_BASE="${SKILLS_API_URL:-https://skills.sh/api/search}"
 
 usage() {
@@ -15,8 +15,8 @@ usage() {
 Usage: postgres_best_practices_snapshot.sh <limit> [output_file]
 
 Examples:
-  ./_tools/postgres_best_practices_snapshot.sh 5
-  ./_tools/postgres_best_practices_snapshot.sh 10 /tmp/top-postgres-skills.md
+  ./_tools/postgres/postgres_best_practices_snapshot.sh 5
+  ./_tools/postgres/postgres_best_practices_snapshot.sh 10 /tmp/top-postgres-skills.md
 EOF
 }
 

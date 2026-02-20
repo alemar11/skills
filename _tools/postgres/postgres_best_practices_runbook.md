@@ -1,17 +1,17 @@
-# Postgres Best Practices Maintenance
+# Postgres Best Practices Runbook
 
-This runbook describes how to refresh and maintain the Postgres best-practices references without making the `postgres` skill aware of the maintenance tooling.
+This runbook describes how to refresh Postgres best-practices references while keeping the `postgres` skill unaware of tooling internals.
 
 ## Hard Rule: Postgres Skill Unawareness
-- The `postgres` skill must remain unaware of best-practices maintenance internals.
-- Do not reference maintenance scripts, source snapshots, verification artifacts, or maintenance flow from files under `postgres/`.
-- Keep all maintenance mechanics and provenance artifacts under `/_tools/postgres_best_practices/` and this runbook.
+- The `postgres` skill must remain unaware of best-practices tooling internals.
+- Do not reference runbook scripts, source snapshots, verification artifacts, or regeneration flow from files under `postgres/`.
+- Keep all runbook mechanics and provenance artifacts under `/_tools/postgres/postgres_best_practices/` and this runbook.
 - The skill should only consume final best-practices content files under `postgres/references/postgres_best_practices/`.
 
 ## Scope
-- Snapshot source skills data into `/_tools/postgres_best_practices/top-postgres-skills.md`.
+- Snapshot source skills data into `/_tools/postgres/postgres_best_practices/top-postgres-skills.md`.
 - Update best-practices content under `postgres/references/postgres_best_practices/`.
-- Keep maintenance tooling only under `/_tools`.
+- Keep runbook tooling only under `/_tools/postgres`.
 
 ## Content Rules
 - Keep all recommendations generic to PostgreSQL; avoid vendor-opinionated guidance tied to specific managed providers or proprietary features.
@@ -29,20 +29,20 @@ This runbook describes how to refresh and maintain the Postgres best-practices r
   - Reordering equivalent bullets without improving readability or correctness.
 
 ## Tooling
-- Snapshot script: `./_tools/postgres_best_practices_snapshot.sh`
-- Cleanup script: `./_tools/postgres_best_practices_cleanup.sh`
+- Snapshot script: `./_tools/postgres/postgres_best_practices_snapshot.sh`
+- Cleanup script: `./_tools/postgres/postgres_best_practices_cleanup.sh`
 - Cleanup supports `--dry-run` for previewing deletions.
 
 ## Prerequisites
 - Run commands from repository root.
 - Required tools: `bash`, `curl`, `python3`.
-- Maintenance scripts auto-detect the repository root via `git` when possible, so artifact paths remain stable even when invoked from symlinked or nested working directories.
+- Scripts auto-detect the repository root via `git` when possible, so artifact paths remain stable even when invoked from symlinked or nested working directories.
 
 ## Refresh Flow
 1. From repo root, regenerate the source snapshot:
-   - `./_tools/postgres_best_practices_snapshot.sh 5`
-2. Review the updated `/_tools/postgres_best_practices/top-postgres-skills.md` and diff:
-   - `git diff -- _tools/postgres_best_practices/top-postgres-skills.md`
+   - `./_tools/postgres/postgres_best_practices_snapshot.sh 5`
+2. Review the updated `/_tools/postgres/postgres_best_practices/top-postgres-skills.md` and diff:
+   - `git diff -- _tools/postgres/postgres_best_practices/top-postgres-skills.md`
 3. Re-evaluate category docs and update only files that pass the meaningful change gate:
    - `query-performance.md`
    - `connection-management.md`
@@ -54,25 +54,25 @@ This runbook describes how to refresh and maintain the Postgres best-practices r
    - `advanced-features.md`
 4. If no meaningful category updates are needed, leave `postgres/references/postgres_best_practices/` unchanged.
 5. (Optional) Update maintainer-only evidence files:
-   - `/_tools/postgres_best_practices/sources-reviewed.md`
-   - `/_tools/postgres_best_practices/verification.md`
+   - `/_tools/postgres/postgres_best_practices/sources-reviewed.md`
+   - `/_tools/postgres/postgres_best_practices/verification.md`
    - Include official PostgreSQL docs references whenever available (`https://www.postgresql.org/docs/current/`).
-6. Ensure skill-level docs do not reference maintenance scripts:
+6. Ensure skill-level docs do not reference runbook scripts:
    - `postgres/SKILL.md` should only reference best-practices content.
-   - `postgres/references/postgres_usage.md` should not list maintenance scripts.
+   - `postgres/references/postgres_usage.md` should not list runbook scripts.
 7. (Optional) Preview cleanup:
-   - `./_tools/postgres_best_practices_cleanup.sh --dry-run`
-8. Cleanup maintenance artifacts after the update phase:
-   - `./_tools/postgres_best_practices_cleanup.sh`
+   - `./_tools/postgres/postgres_best_practices_cleanup.sh --dry-run`
+8. Cleanup temporary runbook artifacts after the update phase:
+   - `./_tools/postgres/postgres_best_practices_cleanup.sh`
 
 ## Validation
-- Syntax-check maintenance scripts after script edits:
-  - `bash -n _tools/postgres_best_practices_snapshot.sh`
-  - `bash -n _tools/postgres_best_practices_cleanup.sh`
+- Syntax-check scripts after script edits:
+  - `bash -n _tools/postgres/postgres_best_practices_snapshot.sh`
+  - `bash -n _tools/postgres/postgres_best_practices_cleanup.sh`
 - Review final workflow diff:
-  - `git diff -- _tools/postgres_best_practices_maintenance.md _tools/postgres_best_practices_snapshot.sh _tools/postgres_best_practices_cleanup.sh`
+  - `git diff -- _tools/postgres/postgres_best_practices_runbook.md _tools/postgres/postgres_best_practices_snapshot.sh _tools/postgres/postgres_best_practices_cleanup.sh`
 
 ## Notes
-- Keep this runbook and maintenance scripts in `/_tools` only.
+- Keep this runbook and scripts in `/_tools/postgres` only.
 - Treat best-practices docs as consumable references for the skill; regeneration mechanics stay outside the skill.
-- `top-postgres-skills.md`, `sources-reviewed.md`, and `verification.md` are temporary maintenance artifacts and can be deleted after each completed refresh.
+- `top-postgres-skills.md`, `sources-reviewed.md`, and `verification.md` are temporary runbook artifacts and can be deleted after each completed refresh.

@@ -5,9 +5,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 if command -v git >/dev/null 2>&1 && git -C "$SCRIPT_DIR" rev-parse --show-toplevel >/dev/null 2>&1; then
   REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
 else
-  REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+  REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 fi
-ARTIFACT_DIR="$REPO_ROOT/_tools/postgres_best_practices"
+ARTIFACT_DIR="$REPO_ROOT/_tools/postgres/postgres_best_practices"
 DRY_RUN=false
 
 usage() {
