@@ -28,6 +28,9 @@ missing_option_value() {
 sql_cmd=""
 sql_file=""
 passthrough=()
+psql_args=(
+  -v ON_ERROR_STOP=1
+)
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -82,18 +85,20 @@ if [[ -n "$sql_file" && ! -f "$sql_file" ]]; then
   exit 1
 fi
 
+if (( ${#passthrough[@]} > 0 )); then
+  psql_args+=("${passthrough[@]}")
+fi
+
 if [[ -n "$sql_cmd" ]]; then
   "$SCRIPT_DIR/psql_with_ssl_fallback.sh" \
-    -v ON_ERROR_STOP=1 \
-    "${passthrough[@]}" \
+    "${psql_args[@]}" \
     -c "$sql_cmd"
   exit 0
 fi
 
 if [[ -n "$sql_file" ]]; then
   "$SCRIPT_DIR/psql_with_ssl_fallback.sh" \
-    -v ON_ERROR_STOP=1 \
-    "${passthrough[@]}" \
+    "${psql_args[@]}" \
     -f "$sql_file"
   exit 0
 fi
@@ -105,6 +110,5 @@ if [[ -t 0 ]]; then
 fi
 
 "$SCRIPT_DIR/psql_with_ssl_fallback.sh" \
-  -v ON_ERROR_STOP=1 \
-  "${passthrough[@]}" \
+  "${psql_args[@]}" \
   -f -
