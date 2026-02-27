@@ -8,6 +8,18 @@ description: Connect to Postgres databases, run queries/diagnostics, and search 
 ## Goal
 Use this skill to connect to Postgres, run user-requested queries/diagnostics, and search official PostgreSQL docs only when explicitly requested.
 
+## Fast path (copy/paste)
+- Ad-hoc read query:
+  - `DB_PROFILE=local ./scripts/run_sql.sh -c "select now();"`
+- DDL/DO block (safe quoting):
+  - `DB_PROFILE=local ./scripts/run_sql.sh <<'SQL'`
+  - `DO $$ BEGIN RAISE NOTICE 'ok'; END $$;`
+  - `SQL`
+- Connection test:
+  - `DB_PROFILE=local ./scripts/test_connection.sh`
+- Find objects:
+  - `DB_PROFILE=local ./scripts/find_objects.sh users`
+
 ## Workflow
 1) Confirm connection source:
    - If `DB_URL` is provided, use it for a one-off connection unless the user asks to persist it.
@@ -20,12 +32,29 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, a
    - Treat missing or outdated `schema_version` as a hard stop for TOML profile usage; migrate first, then continue.
 2) Choose action:
    - Connect/run a query, inspect schema, or run a helper script.
+   - Default query runner: use `./scripts/psql_with_ssl_fallback.sh` (or `./scripts/run_sql.sh` for SQL text/file/stdin).
    - For official PostgreSQL docs lookup, use `./scripts/search_postgres_docs.sh` only when the user explicitly asks for docs search/verification.
 3) Execute and report:
    - Run the requested action and summarize results or errors.
    - If a connection test fails, run `./scripts/check_deps.sh` and/or `./scripts/connection_info.sh` to diagnose.
 4) Persist only if asked:
    - Update TOML only with explicit user approval, except `[configuration].pg_bin_path` which may be auto-written when missing. `schema_version` is written by the migration helper. Prompt before changing an existing value.
+
+## SQL safety
+- Never run `DO $$ ... $$` using `-c "..."` with double quotes; shell expansion can break `$$`.
+- Prefer `./scripts/run_sql.sh` with heredoc (`<<'SQL'`) or a `.sql` file.
+- If `-c` is unavoidable for `DO $$`, escape dollars as `\$\$`.
+
+## Task to script map
+- Ad-hoc SQL query: `./scripts/run_sql.sh` (or `./scripts/psql_with_ssl_fallback.sh`)
+- Connection check: `./scripts/test_connection.sh`
+- Connection diagnostics: `./scripts/check_deps.sh`, `./scripts/connection_info.sh`
+- Postgres version: `./scripts/pg_version.sh`
+- Find objects by name: `./scripts/find_objects.sh`
+- Schema introspection: `./scripts/schema_introspect.sh`
+- Slow/active query diagnostics: `./scripts/slow_queries.sh`, `./scripts/activity_overview.sh`, `./scripts/long_running_queries.sh`
+- Lock diagnostics: `./scripts/locks_overview.sh`
+- Official docs search (explicit request only): `./scripts/search_postgres_docs.sh`
 
 ## Config and schema (brief)
 - Config file: `<project-root>/.skills/postgres/postgres.toml`
@@ -55,6 +84,12 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, a
 - For full rules and migration workflow, read `references/postgres_guardrails.md` when doing schema changes.
 
 ## Common requests
+- Run SQL safely (inline):
+  - `DB_PROFILE=local ./scripts/run_sql.sh -c "select 1;"`
+- Run SQL safely (heredoc):
+  - `DB_PROFILE=local ./scripts/run_sql.sh <<'SQL'`
+  - `select current_database();`
+  - `SQL`
 - Check connection: `DB_PROFILE=local ./scripts/test_connection.sh`
 - Postgres version: `DB_PROFILE=local ./scripts/pg_version.sh`
 - Connection details: `DB_PROFILE=local ./scripts/connection_info.sh`

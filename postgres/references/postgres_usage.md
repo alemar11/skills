@@ -106,6 +106,32 @@ If `DB_PROFILE` is unset and `postgres.toml` has multiple profiles, the resolver
 
 Note: use `./scripts/psql_with_ssl_fallback.sh` (or scripts that wrap it) if you want automatic SSL retry. If the retry succeeds, ask before updating `postgres.toml` unless `DB_AUTO_UPDATE_SSLMODE=1` is set.
 
+## Safe SQL runner (recommended for ad-hoc SQL)
+Use `run_sql.sh` to avoid shell quoting mistakes and keep `ON_ERROR_STOP=1` by default.
+
+Inline SQL:
+```sh
+DB_PROFILE=local ./scripts/run_sql.sh -c "select now();"
+```
+
+SQL file:
+```sh
+DB_PROFILE=local ./scripts/run_sql.sh -f ./query.sql
+```
+
+Heredoc (safe for `DO $$` blocks):
+```sh
+DB_PROFILE=local ./scripts/run_sql.sh <<'SQL'
+DO $$
+BEGIN
+  RAISE NOTICE 'ok';
+END
+$$;
+SQL
+```
+
+Important: avoid `-c "DO $$ ... $$"` with double quotes, because shell expansion can alter `$$`.
+
 ## Bootstrap a profile (interactive)
 This helper will optionally scan a project for existing config, recap candidates in TOML format, and let you save or use a one-off connection. It prompts for the project root to scan.
 Use `DB_PROFILE_SCAN_MODE=full` for a deeper scan; default mode is `fast` for lower startup latency.
@@ -274,6 +300,10 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
   - Perf: uses `DB_RESOLVE_CACHE=1` by default for faster repeated resolution.
 - `psql_with_ssl_fallback.sh` — Runs `psql` with automatic SSL retry when needed.
   - Example: `./scripts/psql_with_ssl_fallback.sh -v ON_ERROR_STOP=1 -c "select 1;"`
+- `run_sql.sh` — Safe ad-hoc SQL runner (`-c`, `-f`, or stdin), with `ON_ERROR_STOP=1`.
+  - Example: `DB_PROFILE=local ./scripts/run_sql.sh <<'SQL'`
+  - `select current_database();`
+  - `SQL`
 - `bootstrap_profile.sh` — Interactive profile setup with optional project scan.
 - `check_deps.sh` — Verifies required CLI tools and prints install hints.
 - `check_psql.sh` — Lightweight check for `psql` presence (uses `pg_env.sh`), prints version if available.
