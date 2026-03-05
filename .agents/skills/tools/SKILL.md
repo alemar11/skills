@@ -20,6 +20,17 @@ If the user asks what this skill can do, answer with these two capability groups
    - Audit local skills including hidden `.agents/skills/*`.
    - Generate markdown-focused optimization proposals for local skill docs (`SKILL.md`, `references/*.md`, and related maintainer docs) with no auto-applied refactors.
 
+## Available Tasks (User Menu)
+When the user asks what this skill can do, offer this task list:
+1) `sync metadata/docs`
+   - Align `SKILL.md`, `agents/openai.yaml`, `README.md`, and `AGENTS.md`.
+2) `audit consistency`
+   - Run structure/rules checks across skills and report findings by severity.
+3) `refresh postgres references`
+   - Execute Postgres best-practices refresh workflow defined in this skill references.
+4) `benchmark against upstream`
+   - Download/update `openai/skills` and `anthropics/skills`, study `SKILL.md` patterns, compare local skills, and propose markdown optimization updates (no auto-apply).
+
 ## Trigger rules
 Use this skill when users ask to:
 - Maintain or clean up one or more skills
