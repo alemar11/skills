@@ -484,11 +484,61 @@ def compare_severity_key(proposal: dict[str, Any]) -> tuple[int, str]:
     return rank.get(proposal["severity"], 3), proposal["id"]
 
 
+def build_per_skill_review(local_inventory: list[dict[str, Any]], proposals: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    review: list[dict[str, Any]] = []
+
+    for record in sorted(local_inventory, key=lambda item: item["skill_md_path"]):
+        skill_md_path = record["skill_md_path"]
+        skill_root = record["skill_root"]
+        related = [
+            p
+            for p in proposals
+            if p.get("target") == skill_md_path or p.get("skill_root") == skill_root
+        ]
+
+        related = sorted(related, key=compare_severity_key)
+        decision = "CHANGE" if related else "NOOP"
+
+        if decision == "CHANGE":
+            rationale = " | ".join([f"{p['severity'].upper()}: {p['title']}" for p in related[:3]])
+            proposed_files = sorted(
+                {
+                    p["target"]
+                    for p in related
+                    if isinstance(p.get("target"), str)
+                    and p["target"].endswith(".md")
+                    and (
+                        p["target"] == skill_md_path
+                        or p["target"].startswith(f"{skill_root}/")
+                    )
+                }
+            )
+            if not proposed_files:
+                proposed_files = [skill_md_path]
+        else:
+            rationale = "No meaningful markdown structure updates identified for this skill."
+            proposed_files = []
+
+        review.append(
+            {
+                "skill_root": skill_root,
+                "skill_md_path": skill_md_path,
+                "decision": decision,
+                "rationale": rationale,
+                "proposed_markdown_files": proposed_files,
+                "linked_proposal_ids": [p["id"] for p in related],
+            }
+        )
+
+    return review
+
+
 def build_markdown_report(
     upstream_inventory: list[dict[str, Any]],
     local_inventory: list[dict[str, Any]],
     upstream_summary: dict[str, Any],
     proposals: list[dict[str, Any]],
+    per_skill_review: list[dict[str, Any]],
     errors: list[str],
     configured_repos: list[str],
 ) -> str:
@@ -531,6 +581,17 @@ def build_markdown_report(
             lines.append(f"  - Rationale: {proposal['rationale']}")
     lines.append("")
 
+    lines.append("## Per-skill Decisions")
+    for item in per_skill_review:
+        lines.append(f"- `{item['skill_md_path']}`: `{item['decision']}`")
+        lines.append(f"  - Rationale: {item['rationale']}")
+        if item["decision"] == "CHANGE":
+            files = ", ".join([f"`{f}`" for f in item["proposed_markdown_files"]]) or "`(none)`"
+            lines.append(f"  - Proposed markdown files: {files}")
+            if item["linked_proposal_ids"]:
+                lines.append(f"  - Linked proposals: `{', '.join(item['linked_proposal_ids'])}`")
+    lines.append("")
+
     lines.append("## Top Upstream Sections")
     section_frequency = upstream_summary.get("section_frequency", {})
     if not section_frequency:
@@ -561,6 +622,7 @@ def main() -> int:
     local_inventory = collect_local_inventory(repo_root)
     upstream_summary = summarize_upstream(upstream_inventory)
     proposals = build_proposals(local_inventory, upstream_summary, repo_root)
+    per_skill_review = build_per_skill_review(local_inventory, proposals)
 
     result = "PASS"
     if not upstream_inventory:
@@ -581,6 +643,8 @@ def main() -> int:
             "upstream": upstream_summary,
             "local_skill_count": len(local_inventory),
             "proposal_count": len(proposals),
+            "per_skill_change_count": sum(1 for item in per_skill_review if item["decision"] == "CHANGE"),
+            "per_skill_noop_count": sum(1 for item in per_skill_review if item["decision"] == "NOOP"),
             "errors": upstream_errors,
         },
     }
@@ -592,7 +656,16 @@ def main() -> int:
         json.dumps(local_inventory, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     (output_dir / "proposals.json").write_text(
-        json.dumps({"result": result, "proposals": proposals}, indent=2, ensure_ascii=False) + "\n",
+        json.dumps(
+            {"result": result, "proposals": proposals, "per_skill_review": per_skill_review},
+            indent=2,
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (output_dir / "per_skill_review.json").write_text(
+        json.dumps(per_skill_review, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
 
@@ -601,6 +674,7 @@ def main() -> int:
         local_inventory=local_inventory,
         upstream_summary=upstream_summary,
         proposals=proposals,
+        per_skill_review=per_skill_review,
         errors=upstream_errors,
         configured_repos=repos,
     )

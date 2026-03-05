@@ -40,6 +40,7 @@ Both are required by default unless the user explicitly requests a narrower scop
 - `upstream_inventory.json`
 - `local_inventory.json`
 - `proposals.json`
+- `per_skill_review.json`
 - `comparison_report.md`
 
 ## Workflow (Mandatory Order)

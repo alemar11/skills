@@ -24,7 +24,7 @@ Use this playbook for repository-wide structure and policy checks.
 ## Suggested Commands
 - `find . -type f -name 'SKILL.md' -not -path '*/.git/*' | sort`
 - `find . -type f -path '*/agents/openai.yaml' -not -path '*/.git/*' | sort`
-- `rg --files -g '*/references/*.md'`
+- `find . -type f -path '*/references/*.md' -not -path '*/.git/*' | sort`
 - `find . -type f -path '*/references/*.md' | awk -F/ '{print $NF}'`
 - `rg -n "\./scripts/|agents/openai.yaml|SKILL.md|\\.agents/skills/" -S`
 
