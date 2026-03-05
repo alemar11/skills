@@ -10,7 +10,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 - `postgres/` — Connect to Postgres, run queries/diagnostics, and lookup official docs on explicit request.
 
 ## Project Skills
-- `.agents/skills/tools/` — Orchestrate maintenance, optimization, and refactor workflows for skills in this repository.
+- `.agents/skills/tools/` — Orchestrate maintenance, optimization, refactor, and upstream benchmark workflows for skills in this repository.
 Project skills are repository-local and are not included in the reusable `skill-installer` prompts below.
 
 ## Codex

@@ -1,6 +1,6 @@
 ---
 name: tools
-description: Orchestrate maintenance, optimization, and refactor workflows for skills in this repository, including metadata/doc sync and consistency checks.
+description: Orchestrate maintenance, optimization, refactor, and upstream benchmark workflows for skills in this repository, including metadata/doc sync and consistency checks.
 ---
 
 # Tools
@@ -8,11 +8,20 @@ description: Orchestrate maintenance, optimization, and refactor workflows for s
 ## Goal
 Use this project-maintainer skill to keep skills aligned, healthy, and releasable. This skill orchestrates maintenance workflows; it does not replace domain skills.
 
+## User-facing Capability Summary
+If the user asks what this skill can do, answer with these two capability groups:
+1) Maintain local skills:
+   - Keep skill docs and metadata aligned (`SKILL.md`, `agents/openai.yaml`, `README.md`, `AGENTS.md`).
+   - Run structure/consistency checks and flag issues.
+   - Propose meaningful optimization/refactor updates and report PASS/FAIL.
+2) Benchmark local skills against upstream ecosystems (`openai/skills` and `anthropics/skills`) and propose meaningful structure improvements.
+
 ## Trigger rules
 Use this skill when users ask to:
 - Maintain or clean up one or more skills
 - Optimize one or more skills (quality, consistency, or maintainability)
 - Refactor skill structure or instructions while preserving intent
+- Benchmark local skills against upstream skill ecosystems (for example `openai/skills` and `anthropics/skills`)
 - Sync `SKILL.md`, `agents/openai.yaml`, and repository docs
 - Run a maintenance pass before release
 - Refresh Postgres best-practices references
@@ -21,8 +30,9 @@ Use this skill when users ask to:
 1) Route the request with `references/maintenance-router.md`.
 2) For metadata/docs alignment, follow `references/metadata-sync.md`.
 3) For repository-wide structure and rules checks, follow `references/doc-consistency.md`.
-4) For Postgres best-practices refresh, follow `references/postgres-refresh.md` (self-contained workflow in this skill).
-5) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
+4) For upstream benchmarking and structure proposals, follow `references/openai-skill-benchmark.md`.
+5) For Postgres best-practices refresh, follow `references/postgres-refresh.md` (self-contained workflow in this skill).
+6) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
 
 ## Guardrails
 - Keep this skill orchestration-only in v1.

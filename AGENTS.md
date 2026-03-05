@@ -29,6 +29,6 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - If the user asks to upgrade or refresh Postgres best-practices docs, route through the `tools` skill workflow.
 
 ### Tools skill
-- The `.agents/skills/tools` skill is the default orchestrator for maintenance, optimization, and refactor tasks affecting skills in this repository.
+- The `.agents/skills/tools` skill is the default orchestrator for maintenance, optimization, refactor, and upstream benchmark tasks affecting skills in this repository.
 - Keep `tools` self-contained: workflow markdown guidance must live under `.agents/skills/tools/references/`.
 - When updating skill metadata/docs across the repo, route through the `tools` playbooks and keep README/openai metadata text aligned.

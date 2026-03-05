@@ -13,10 +13,12 @@ Run this checklist before finalizing maintainer updates.
 
 3. Domain-specific workflows
 - If Postgres docs were refreshed, confirm runbook compliance and meaningful-change rationale.
+- If upstream benchmarking was run, confirm benchmark artifacts and proposal report were generated under `.agents/skills/tools/artifacts/openai-skill-benchmark/`.
 
 ## Command Set (Typical)
-- `rg --files -g '*/SKILL.md' -g '*/agents/openai.yaml'`
-- `rg -n "postgres-best-practices-runbook|\\.agents/skills/tools|agents/openai.yaml|SKILL.md" -S`
+- `find . -type f -name 'SKILL.md' -not -path '*/.git/*' | sort`
+- `find . -type f -path '*/agents/openai.yaml' -not -path '*/.git/*' | sort`
+- `rg -n "postgres-best-practices-runbook|openai-skill-benchmark|\\.agents/skills/tools|agents/openai.yaml|SKILL.md" -S`
 - `git diff --stat`
 - `git diff`
 

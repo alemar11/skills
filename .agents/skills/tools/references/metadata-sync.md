@@ -10,8 +10,8 @@ Use this playbook to keep each skill's `SKILL.md`, `agents/openai.yaml`, and top
 
 ## Workflow
 1. Enumerate skill manifests:
-   - `rg --files -g '*/SKILL.md'`
-   - `rg --files -g '*/agents/openai.yaml'`
+   - `find . -type f -name 'SKILL.md' -not -path '*/.git/*' | sort`
+   - `find . -type f -path '*/agents/openai.yaml' -not -path '*/.git/*' | sort`
 2. For each skill, compare:
    - `SKILL.md` frontmatter `name` and `description`
    - `agents/openai.yaml` interface fields (`display_name`, `short_description`, `default_prompt`)
