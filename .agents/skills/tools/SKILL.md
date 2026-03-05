@@ -6,7 +6,7 @@ description: Orchestrate maintenance, optimization, refactor, and upstream bench
 # Tools
 
 ## Goal
-Use this project-maintainer skill to keep skills aligned, healthy, and releasable. This skill orchestrates maintenance workflows; it does not replace domain skills.
+Use this project-maintainer skill to keep skills aligned, healthy, and releasable. Primary maintainer outcome: improve local skill markdown quality (`SKILL.md` and `references/*.md`) through structured analysis and actionable optimization proposals. This skill orchestrates maintenance workflows; it does not replace domain skills.
 
 ## User-facing Capability Summary
 If the user asks what this skill can do, answer with these two capability groups:
@@ -15,6 +15,10 @@ If the user asks what this skill can do, answer with these two capability groups
    - Run structure/consistency checks and flag issues.
    - Propose meaningful optimization/refactor updates and report PASS/FAIL.
 2) Benchmark local skills against upstream ecosystems (`openai/skills` and `anthropics/skills`) and propose meaningful structure improvements.
+   - Download/update both upstream repos into `.cache/upstream-skills/`.
+   - Study upstream `SKILL.md` structure patterns (frontmatter, sections, workflow/trigger clarity, and layout).
+   - Audit local skills including hidden `.agents/skills/*`.
+   - Generate markdown-focused optimization proposals for local skill docs (`SKILL.md`, `references/*.md`, and related maintainer docs) with no auto-applied refactors.
 
 ## Trigger rules
 Use this skill when users ask to:
@@ -30,7 +34,7 @@ Use this skill when users ask to:
 1) Route the request with `references/maintenance-router.md`.
 2) For metadata/docs alignment, follow `references/metadata-sync.md`.
 3) For repository-wide structure and rules checks, follow `references/doc-consistency.md`.
-4) For upstream benchmarking and structure proposals, follow `references/openai-skill-benchmark.md`.
+4) For upstream benchmarking and structure proposals, follow `references/openai-skill-benchmark.md` (clone/update upstream repos first, then analyze and propose).
 5) For Postgres best-practices refresh, follow `references/postgres-refresh.md` (self-contained workflow in this skill).
 6) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
 

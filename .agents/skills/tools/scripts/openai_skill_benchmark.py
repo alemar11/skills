@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Benchmark local skills against upstream skill repositories.
 
-Fetches upstream skills (default: openai/skills + anthropics/skills), analyzes
-SKILL.md structure, audits local skills (including hidden .agents paths), and
-writes actionable proposal artifacts.
+This script clones/pulls upstream repositories into .cache, analyzes SKILL.md
+structure, audits local skills (including hidden .agents paths), and writes
+actionable proposal artifacts.
 """
 
 from __future__ import annotations
@@ -15,9 +15,6 @@ import re
 import statistics
 import subprocess
 import sys
-import urllib.error
-import urllib.parse
-import urllib.request
 from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -25,6 +22,7 @@ from typing import Any
 
 DEFAULT_REPOS = ["openai/skills", "anthropics/skills"]
 DEFAULT_OUTPUT_DIR = ".agents/skills/tools/artifacts/openai-skill-benchmark"
+DEFAULT_CLONE_ROOT = ".cache/upstream-skills"
 
 
 @dataclass
@@ -53,7 +51,6 @@ def detect_repo_root(script_path: Path) -> Path:
             return Path(output)
     except Exception:
         pass
-
     return script_dir.parents[3]
 
 
@@ -71,6 +68,11 @@ def parse_args() -> argparse.Namespace:
         action="append",
         default=None,
         help="Upstream repo in owner/repo format; repeatable. Default: openai/skills + anthropics/skills",
+    )
+    parser.add_argument(
+        "--clone-root",
+        default=DEFAULT_CLONE_ROOT,
+        help=f"Directory where upstream repos are cloned/pulled (default: {DEFAULT_CLONE_ROOT})",
     )
     parser.add_argument(
         "--output-dir",
@@ -100,38 +102,39 @@ def normalize_repo_args(raw_repos: list[str] | None) -> list[str]:
     return repos or DEFAULT_REPOS.copy()
 
 
-def api_get_json(url: str, token: str | None) -> Any:
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "skills-benchmark-agent",
-    }
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-
-    request = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.loads(response.read().decode("utf-8"))
+def run_git(args: list[str], cwd: Path | None = None) -> tuple[int, str]:
+    proc = subprocess.run(
+        args,
+        cwd=str(cwd) if cwd else None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    return proc.returncode, proc.stdout.strip()
 
 
-def api_get_text(url: str, token: str | None) -> str:
-    headers = {"User-Agent": "skills-benchmark-agent"}
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+def ensure_repo_clone(repo: str, ref: str, clone_root: Path, errors: list[str]) -> Path | None:
+    repo_dir = clone_root / repo.replace("/", "-")
+    repo_url = f"https://github.com/{repo}.git"
 
-    request = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return response.read().decode("utf-8", errors="replace")
+    if not (repo_dir / ".git").is_dir():
+        code, out = run_git(["git", "clone", "--depth", "1", "--branch", ref, repo_url, str(repo_dir)])
+        if code != 0:
+            errors.append(f"{repo}: clone failed ({out})")
+            return None
+        return repo_dir
 
+    code, out = run_git(["git", "fetch", "--depth", "1", "origin", ref], cwd=repo_dir)
+    if code != 0:
+        errors.append(f"{repo}: fetch failed ({out})")
+        return None
 
-def github_recursive_tree(repo: str, ref: str, token: str | None) -> list[dict[str, Any]]:
-    ref_encoded = urllib.parse.quote(ref, safe="")
-    url = f"https://api.github.com/repos/{repo}/git/trees/{ref_encoded}?recursive=1"
-    payload = api_get_json(url, token)
-    if isinstance(payload, dict):
-        tree = payload.get("tree", [])
-        if isinstance(tree, list):
-            return tree
-    return []
+    code, out = run_git(["git", "reset", "--hard", "FETCH_HEAD"], cwd=repo_dir)
+    if code != 0:
+        errors.append(f"{repo}: reset failed ({out})")
+        return None
+
+    return repo_dir
 
 
 def strip_quotes(value: str) -> str:
@@ -192,98 +195,69 @@ def parse_skill_markdown(content: str) -> SkillMetrics:
     )
 
 
-def extract_upstream_skill_roots(tree: list[dict[str, Any]], scope: str) -> list[tuple[str, str]]:
-    tree_paths = {entry.get("path", ""): entry.get("type", "") for entry in tree}
-    has_openai_layout = any(path.startswith("skills/.system/") for path in tree_paths) or any(
-        path.startswith("skills/.curated/") for path in tree_paths
-    )
+def list_skill_dirs(skills_root: Path, scope: str) -> list[tuple[str, Path]]:
+    if not skills_root.is_dir():
+        return []
 
-    roots: list[tuple[str, str]] = []
-    if has_openai_layout:
-        allow_system = scope in {"both", "system"}
-        allow_curated = scope in {"both", "curated"}
-        pattern = re.compile(r"^skills/(\.[^/]+)/([^/]+)$")
-        for path, entry_type in tree_paths.items():
-            if entry_type != "tree":
-                continue
-            m = pattern.match(path)
-            if not m:
-                continue
-            bucket = m.group(1)
-            if bucket == ".system" and not allow_system:
-                continue
-            if bucket == ".curated" and not allow_curated:
-                continue
-            roots.append((bucket.lstrip("."), path))
-    else:
-        pattern = re.compile(r"^skills/([^/]+)$")
-        for path, entry_type in tree_paths.items():
-            if entry_type != "tree":
-                continue
-            if pattern.match(path):
-                roots.append(("all", path))
+    system_dir = skills_root / ".system"
+    curated_dir = skills_root / ".curated"
 
-    roots.sort(key=lambda item: item[1])
+    roots: list[tuple[str, Path]] = []
+    if system_dir.is_dir() or curated_dir.is_dir():
+        if scope in {"both", "system"} and system_dir.is_dir():
+            for child in sorted(system_dir.iterdir()):
+                if child.is_dir():
+                    roots.append(("system", child))
+        if scope in {"both", "curated"} and curated_dir.is_dir():
+            for child in sorted(curated_dir.iterdir()):
+                if child.is_dir():
+                    roots.append(("curated", child))
+        return roots
+
+    for child in sorted(skills_root.iterdir()):
+        if child.is_dir() and not child.name.startswith("."):
+            roots.append(("all", child))
     return roots
 
 
 def collect_upstream_inventory(
-    repos: list[str], ref: str, scope: str, token: str | None
+    repos: list[str], ref: str, scope: str, clone_root: Path
 ) -> tuple[list[dict[str, Any]], list[str]]:
     records: list[dict[str, Any]] = []
     errors: list[str] = []
 
+    clone_root.mkdir(parents=True, exist_ok=True)
+
     for repo in repos:
-        try:
-            tree = github_recursive_tree(repo, ref, token)
-        except urllib.error.HTTPError as exc:
-            errors.append(f"{repo}: failed to fetch repository tree ({exc.code})")
-            continue
-        except Exception as exc:
-            errors.append(f"{repo}: failed to fetch repository tree ({exc})")
+        repo_dir = ensure_repo_clone(repo, ref, clone_root, errors)
+        if not repo_dir:
             continue
 
-        if not tree:
-            errors.append(f"{repo}: repository tree is empty or unavailable")
+        skills_root = repo_dir / "skills"
+        skill_dirs = list_skill_dirs(skills_root, scope)
+        if not skill_dirs:
+            errors.append(f"{repo}: no skill directories found under {skills_root}")
             continue
 
-        path_to_type = {entry.get("path", ""): entry.get("type", "") for entry in tree}
-        roots = extract_upstream_skill_roots(tree, scope)
-        if not roots:
-            errors.append(f"{repo}: no skill roots detected for scope `{scope}`")
-            continue
+        for scope_bucket, skill_dir in skill_dirs:
+            skill_md_path = skill_dir / "SKILL.md"
+            has_skill_md = skill_md_path.is_file()
 
-        for scope_bucket, skill_root in roots:
-            children: set[str] = set()
-            prefix = f"{skill_root}/"
-            for path in path_to_type:
-                if not path.startswith(prefix):
-                    continue
-                remainder = path[len(prefix) :]
-                first = remainder.split("/", 1)[0]
-                if first:
-                    children.add(first)
-
-            skill_md_rel = f"{skill_root}/SKILL.md"
-            has_skill_md = path_to_type.get(skill_md_rel) == "blob"
+            children = {p.name for p in skill_dir.iterdir() if p.exists()}
             metrics: SkillMetrics | None = None
             if has_skill_md:
-                raw_path = urllib.parse.quote(skill_md_rel, safe="/")
-                raw_ref = urllib.parse.quote(ref, safe="")
-                raw_url = f"https://raw.githubusercontent.com/{repo}/{raw_ref}/{raw_path}"
                 try:
-                    metrics = parse_skill_markdown(api_get_text(raw_url, token))
-                except urllib.error.HTTPError as exc:
-                    errors.append(f"{repo}:{skill_md_rel}: failed to fetch SKILL.md ({exc.code})")
+                    metrics = parse_skill_markdown(skill_md_path.read_text(encoding="utf-8"))
                 except Exception as exc:
-                    errors.append(f"{repo}:{skill_md_rel}: failed to fetch SKILL.md ({exc})")
+                    errors.append(f"{repo}:{skill_md_path}: failed to parse SKILL.md ({exc})")
 
             records.append(
                 {
                     "baseline_repo": repo,
                     "scope_bucket": scope_bucket,
-                    "skill_name": Path(skill_root).name,
-                    "skill_path": skill_root,
+                    "skill_name": skill_dir.name,
+                    "skill_path": skill_dir.relative_to(repo_dir).as_posix(),
+                    "source_clone": str(repo_dir),
                     "has_skill_md": has_skill_md,
                     "has_agents_dir": "agents" in children,
                     "has_references_dir": "references" in children,
@@ -317,7 +291,6 @@ def collect_local_inventory(repo_root: Path) -> list[dict[str, Any]]:
             visibility = "project"
 
         metrics = parse_skill_markdown(skill_md_path.read_text(encoding="utf-8"))
-
         records.append(
             {
                 "skill_root": rel_root,
@@ -371,7 +344,6 @@ def summarize_upstream(records: list[dict[str, Any]]) -> dict[str, Any]:
             trigger_count += 1
         if skill["has_agents_dir"]:
             agents_count += 1
-
         section_counter.update({normalize_heading(h) for h in metrics["headings"] if h.strip()})
 
     def ratio(value: int, total: int) -> float:
@@ -394,7 +366,6 @@ def summarize_upstream(records: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def scan_command_coverage(repo_root: Path) -> bool:
-    """True when legacy rg globs likely miss hidden project skills."""
     targets = [
         repo_root / ".agents" / "skills" / "tools" / "references" / "metadata-sync.md",
         repo_root / ".agents" / "skills" / "tools" / "references" / "doc-consistency.md",
@@ -407,9 +378,7 @@ def scan_command_coverage(repo_root: Path) -> bool:
     return False
 
 
-def build_proposals(
-    local_inventory: list[dict[str, Any]], upstream_summary: dict[str, Any], repo_root: Path
-) -> list[dict[str, Any]]:
+def build_proposals(local_inventory: list[dict[str, Any]], upstream_summary: dict[str, Any], repo_root: Path) -> list[dict[str, Any]]:
     proposals: list[dict[str, Any]] = []
     pid = 1
 
@@ -552,7 +521,7 @@ def build_markdown_report(
 
     lines.append("## Findings")
     if result == "FAIL":
-        lines.append("- Upstream baseline fetch failed. Retry later or provide `GH_TOKEN`/`GITHUB_TOKEN` to increase API limits.")
+        lines.append("- Upstream baseline fetch failed. Check clone/fetch errors in this report and retry.")
     elif not proposals:
         lines.append("- No meaningful structure updates were identified. `PASS (NOOP)`.")
     else:
@@ -577,17 +546,17 @@ def main() -> int:
     args = parse_args()
     script_path = Path(__file__)
     repo_root = detect_repo_root(script_path)
+    clone_root = (repo_root / args.clone_root).resolve()
     output_dir = (repo_root / args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
     repos = normalize_repo_args(args.repo)
 
     upstream_inventory, upstream_errors = collect_upstream_inventory(
         repos=repos,
         ref=args.ref,
         scope=args.scope,
-        token=token,
+        clone_root=clone_root,
     )
     local_inventory = collect_local_inventory(repo_root)
     upstream_summary = summarize_upstream(upstream_inventory)
@@ -605,6 +574,7 @@ def main() -> int:
             "repos": repos,
             "ref": args.ref,
             "scope": args.scope,
+            "clone_root": str(clone_root.relative_to(repo_root)),
             "output_dir": str(output_dir.relative_to(repo_root)),
         },
         "summary": {

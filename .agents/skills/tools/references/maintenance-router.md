@@ -6,13 +6,13 @@ Use this file first to route maintenance requests to the right playbook.
 - `sync`: align metadata and docs
 - `audit`: run consistency/release checks
 - `refresh`: refresh domain best-practices content
-- `benchmark`: compare local skills against upstream skill ecosystems and propose meaningful structure updates
+- `benchmark`: compare local skills against upstream skill ecosystems and propose meaningful markdown/structure updates
 
 ## Decision Tree
 1. If the user asks to align skill metadata, descriptions, or docs, classify as `sync` and use `metadata-sync.md`.
 2. If the user asks for repo health, policy compliance, structure checks, or pre-release validation, classify as `audit` and use `doc-consistency.md` plus `release-checklist.md`.
 3. If the user asks to refresh Postgres best-practices content, classify as `refresh` and use `postgres-refresh.md`.
-4. If the user asks to benchmark local skills against upstream repos (for example `openai/skills`, `anthropics/skills`), classify as `benchmark` and use `openai-skill-benchmark.md`.
+4. If the user asks to benchmark local skills against upstream repos (for example `openai/skills`, `anthropics/skills`), classify as `benchmark` and use `openai-skill-benchmark.md` (download/update upstream repos first, then analyze `SKILL.md` patterns and propose markdown optimization changes).
 5. If a request mixes categories, run in this deterministic order:
    - `sync` -> `metadata-sync.md`
    - `refresh` -> `postgres-refresh.md`
