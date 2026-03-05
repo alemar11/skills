@@ -30,6 +30,7 @@ When the user asks what this skill can do, offer this task list:
    - Execute Postgres best-practices refresh workflow defined in this skill references.
 4) `benchmark against upstream`
    - Download/update `openai/skills` and `anthropics/skills`, study `SKILL.md` patterns, compare local skills, and propose markdown optimization updates (no auto-apply).
+   - After artifacts are generated, review local skills one by one and state whether each skill needs changes (`CHANGE`) or not (`NOOP`), with concrete proposals when needed.
 
 ## Trigger rules
 Use this skill when users ask to:
@@ -45,7 +46,7 @@ Use this skill when users ask to:
 1) Route the request with `references/maintenance-router.md`.
 2) For metadata/docs alignment, follow `references/metadata-sync.md`.
 3) For repository-wide structure and rules checks, follow `references/doc-consistency.md`.
-4) For upstream benchmarking and structure proposals, follow `references/openai-skill-benchmark.md` (clone/update upstream repos first, then analyze and propose).
+4) For upstream benchmarking and structure proposals, follow `references/openai-skill-benchmark.md` (clone/update upstream repos first, then analyze artifacts and propose per-skill updates one by one).
 5) For Postgres best-practices refresh, follow `references/postgres-refresh.md` (self-contained workflow in this skill).
 6) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
 

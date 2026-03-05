@@ -50,6 +50,18 @@ Both are required by default unless the user explicitly requests a narrower scop
 5. `propose`: generate non-auto-applied structural recommendations for local skills.
    - Target markdown maintainability first: `SKILL.md`, `references/*.md`, and supporting maintainer docs when directly coupled.
 6. `report`: emit JSON + markdown artifacts and summarize PASS/FAIL/NOOP.
+7. `review-one-by-one`: after artifacts exist, review every local skill one by one and produce a per-skill decision:
+   - `CHANGE`: propose concrete markdown updates for that skill.
+   - `NOOP`: explicitly state no meaningful updates are needed for that skill.
+
+## Per-skill Output Requirement (Mandatory)
+- Always provide a per-skill list for all locally discovered skills after benchmark artifacts are generated.
+- For each skill include:
+  - skill path
+  - decision (`CHANGE` or `NOOP`)
+  - short rationale
+  - proposed target markdown files (when `CHANGE`)
+- Do not auto-apply benchmark proposals unless the user explicitly asks for implementation.
 
 ## Meaningful Proposal Rubric
 Propose only when there is a material improvement in:
