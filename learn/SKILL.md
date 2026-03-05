@@ -5,6 +5,11 @@ description: Capture durable corrections or preferences and write confirmed lear
 
 # Learn From Mistakes
 
+## Trigger rules
+- Use when the user states a durable correction, preference, or policy that should persist across future work.
+- Do not use for one-off instructions limited to the current task or files.
+- Always confirm the target AGENTS.md and intended wording before writing durable guidance.
+
 ## Quick flow
 - Find the most recent **durable** correction/avoidance/preference in the current conversation.
 - Determine scope before proposing a target:

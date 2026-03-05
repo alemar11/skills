@@ -5,6 +5,13 @@ description: Use the GitHub CLI (`gh`) for repository-scoped issue, pull request
 
 # GitHub CLI
 
+## Trigger rules
+
+- Use for repository-scoped GitHub operations via `gh` (issues, pull requests, workflow runs, and repo metadata).
+- Default to the current repository unless the user explicitly provides another `owner/repo`.
+- Reject or reroute organization-level or enterprise-level mutation requests.
+- If a task does not require GitHub CLI operations, use a more direct non-`gh` workflow.
+
 ## Quick workflow
 
 1. Determine project scope first.

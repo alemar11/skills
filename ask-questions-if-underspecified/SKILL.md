@@ -11,6 +11,12 @@ Ask the minimum set of clarifying questions needed to avoid wrong work; do not s
 
 Only use this skill when explicitly invoked.
 
+## Trigger rules
+
+- Use when the user explicitly invokes this skill or clearly asks for clarification before implementation.
+- Use when key requirements are ambiguous enough to risk wrong implementation.
+- Do not use when the request is already specific, testable, and ready to execute.
+
 ## Workflow
 
 ### 1) Decide whether the request is underspecified
