@@ -26,9 +26,10 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 ### Postgres skill
 - Keep Postgres runtime behavior and operator-facing rules in `postgres/SKILL.md` and `postgres/references/*` (not duplicated here).
 - Keep best-practices regeneration orchestration in `.agents/skills/tools` and use `.agents/skills/tools/references/postgres-best-practices-runbook.md` as the canonical refresh procedure.
-- If the user asks to upgrade or refresh Postgres best-practices docs, route through the `tools` skill workflow.
+- Route maintainer-only Postgres best-practices refresh work through repo-level maintainer docs and the `tools` skill workflow, not through runtime skill instructions.
 
 ### Tools skill
 - The `.agents/skills/tools` skill is the default orchestrator for maintenance, optimization, refactor, and upstream benchmark tasks affecting skills in this repository.
 - Keep `tools` self-contained: workflow markdown guidance must live under `.agents/skills/tools/references/`.
+- Keep the dependency direction one-way: runtime skills must not depend on or reference `.agents/skills/tools`; only repo-level maintainer docs may route work to `tools`.
 - When updating skill metadata/docs across the repo, route through the `tools` playbooks and keep README/openai metadata text aligned.
