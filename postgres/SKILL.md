@@ -80,7 +80,7 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, a
 - For migrations path resolution and schema-change workflow, follow the guardrails reference.
 - If the user explicitly marks a migration as migrated/released/run in production, perform the release workflow in guardrails immediately (unless they ask for a dry run only).
 - If `CHANGELOG.md` is not in `WIP/RELEASED` format, migrate it to that template before writing new migration notes.
-- If the user asks to refresh Postgres best-practices docs/references, route to `.agents/skills/tools/references/postgres-best-practices-runbook.md` via the `tools` skill workflow.
+- If the user asks to refresh Postgres best-practices docs/references, treat that as maintainer-only workflow outside this runtime skill.
 
 ## Guardrails (summary)
 - Always ask for approval before making any database structure change (DDL like CREATE/ALTER/DROP).

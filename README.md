@@ -3,14 +3,14 @@
 This directory contains reusable skills and project maintainer skills—task-specific packages of instructions, resources, and optional scripts that help agents follow workflows reliably.
 
 ## Skills
-- `ask-questions-if-underspecified/` — Clarify requirements before implementing when a request is underspecified.
-- `codex-changelog/` — Show release notes for the installed Codex CLI version.
-- `github/` — Use the GitHub CLI (`gh`) to manage repositories, issues, pull requests, and workflows.
-- `learn/` — Capture durable corrections or preferences and write them to AGENTS.md.
-- `postgres/` — Connect to Postgres, run queries/diagnostics, and lookup official docs on explicit request.
+- `ask-questions-if-underspecified/` — Clarify requirements before implementing when a request is underspecified or the user asks for clarification.
+- `codex-changelog/` — Check the installed Codex CLI version and fetch/print the matching GitHub Releases changelog from `openai/codex/releases`.
+- `github/` — Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, and workflow operations only; default to the current git project unless another `owner/repo` is provided.
+- `learn/` — Capture durable corrections or preferences and write confirmed learnings to `AGENTS.md` when the user sets lasting guidance.
+- `postgres/` — Connect to Postgres databases, run queries/diagnostics, and search official PostgreSQL docs only when explicitly requested.
 
 ## Project Skills
-- `.agents/skills/tools/` — Orchestrate maintenance, optimization, refactor, and upstream benchmark workflows for skills in this repository.
+- `.agents/skills/tools/` — Orchestrate maintenance, optimization, refactor, and upstream benchmark workflows for skills in this repository, including metadata/doc sync and consistency checks.
 Project skills are repository-local and are not included in the reusable `skill-installer` prompts below.
 
 ## Codex

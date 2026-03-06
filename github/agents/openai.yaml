@@ -1,6 +1,6 @@
 interface:
   display_name: "GitHub"
-  short_description: "Use the GitHub CLI (`gh`) for repositories, issues, pull requests, and workflows."
+  short_description: "Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, and workflow operations only. Default to the current git project unless another `owner/repo` is provided."
   brand_color: "#1F9D55"
   icon_small: "./assets/github-small.svg"
   icon_large: "./assets/github.png"

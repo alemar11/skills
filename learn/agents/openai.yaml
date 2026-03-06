@@ -1,5 +1,5 @@
 interface:
   display_name: "Learn"
-  short_description: "Capture durable corrections or preferences and write them to AGENTS.md."
+  short_description: "Capture durable corrections or preferences and write confirmed learnings to AGENTS.md. Use when the user sets lasting guidance."
   brand_color: "#2F9E44"
   default_prompt: "Capture the durable correction or preference from this conversation and confirm where to write it in AGENTS.md."
