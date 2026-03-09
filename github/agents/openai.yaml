@@ -1,7 +1,7 @@
 interface:
   display_name: "GitHub"
-  short_description: "Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, and workflow operations only. Default to the current git project unless another `owner/repo` is provided."
+  short_description: "Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, workflow, release, and tag operations. Default to the current git project unless another `owner/repo` is provided."
   brand_color: "#1F9D55"
   icon_small: "./assets/github-small.svg"
   icon_large: "./assets/github.png"
-  default_prompt: "Use GitHub CLI (`gh`) to complete the requested repository, issue, or pull request task."
+  default_prompt: "Use GitHub CLI (`gh`) to complete the requested repository, issue, pull request, release, or tag task."

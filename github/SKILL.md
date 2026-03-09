@@ -1,13 +1,13 @@
 ---
 name: github
-description: Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, and workflow operations only. Default to the current git project unless another `owner/repo` is provided.
+description: Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, workflow, release, and tag operations. Default to the current git project unless another `owner/repo` is provided.
 ---
 
 # GitHub CLI
 
 ## Trigger rules
 
-- Use for repository-scoped GitHub operations via `gh` (issues, pull requests, workflow runs, and repo metadata).
+- Use for repository-scoped GitHub operations via `gh` (issues, pull requests, workflow runs, releases, tags, and repo metadata).
 - Default to the current repository unless the user explicitly provides another `owner/repo`.
 - Reject or reroute organization-level or enterprise-level mutation requests.
 - If a task does not require GitHub CLI operations, use a more direct non-`gh` workflow.
@@ -42,6 +42,8 @@ description: Use the GitHub CLI (`gh`) for repository-scoped issue, pull request
   - `gh pr list`, `gh pr view`, `gh pr create`, `gh pr edit`, `gh pr comment`, `gh pr review`, `gh pr checkout`, `gh pr merge`, `gh pr checks`
 - Workflow actions
   - `gh run list`, `gh run view`, `gh run watch`
+- Release actions
+  - `gh release list`, `gh release view`, `gh release create`, `gh release edit`, `gh release delete`
 - General
   - `gh alias`, `gh api`, `gh extension`
 
@@ -58,10 +60,46 @@ Use `references/script-summary.md` for the full list of reusable scripts (issues
 
 ## Workflow templates
 
-- `references/workflows.md`: Reusable, copy-ready end-to-end workflows (for example, PR review-comment and PR check triage flows on the current branch).
+- `references/workflows.md`: Reusable, copy-ready end-to-end workflows, including PR review-comment, PR check triage, and release/tag creation with explicit default-branch and target-commit confirmation.
 - `references/github_workflow_behaviors.md`: Decision policy for issue label suggestion and commit issue-link workflows.
 
 Note (2026-03): issue transfer is standardized with dedicated copy/move scripts after manual transfers proved too easy to run from the wrong repo context.
+
+## Release and tag creation standard
+
+- First determine whether the user wants:
+  - a GitHub release that may create a missing tag, or
+  - a tag only.
+- For `gh release create`, do not rely on its implicit target selection.
+  - Resolve the repository default branch explicitly.
+  - Resolve the exact HEAD commit of that branch explicitly.
+- When the user does not specify a branch or commit, show the proposed default target before mutating:
+  - default branch name
+  - target commit short SHA
+  - target commit subject line
+- Do not hardcode `main`. Use the repository's actual default branch.
+- For release creation, choose the notes strategy before publishing.
+  - If the user does not specify a notes strategy, offer exactly these three options:
+    1. infer notes by diffing since the last published release tag,
+    2. keep the release notes blank,
+    3. use user-provided notes.
+  - Default to option 1 when the user delegates the choice.
+  - For option 1, resolve the latest published release tag when one exists and generate the proposed title/body for the new tag from that prior release range.
+- If the user does not want the default target:
+  - pick the branch first,
+  - then pick the commit on that branch.
+- For release-backed tags, prefer an explicit target even when the user confirms the default:
+  - `gh release create <tag> --target <branch-or-sha>`
+- `gh release create <tag>` creates the release and auto-creates the tag if the tag does not already exist in the remote repository.
+- Prefer an explicit previous tag for generated notes when one exists:
+  - `gh release create <tag> --target <branch-or-sha> --generate-notes --notes-start-tag <previous_tag>`
+- For tag-only creation:
+  - use `git tag` plus `git push origin <tag>` when working from a local clone,
+  - use `gh api` only when GitHub API-specific behavior is required.
+- If the user wants an annotated tag to drive release notes:
+  - create and push the annotated tag first,
+  - then use `gh release create <tag> --verify-tag --notes-from-tag`.
+- Always report the chosen notes strategy, the previous tag used for release-note generation when applicable, plus the final tag name, resolved target SHA, and release URL.
 
 ## Issue close standard
 

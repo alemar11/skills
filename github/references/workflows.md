@@ -4,6 +4,228 @@ Use this section for copy-paste, branch-safe operational flows.
 
 Note (2026-03): cross-repo issue transfers now use dedicated helper scripts so the repo context and source-closure behavior stay consistent.
 
+## release-or-tag-create
+
+Purpose: create a release-backed tag or a tag-only ref without guessing the target branch or commit.
+
+### Preconditions
+
+- `gh` installed and authenticated.
+- Repository scope is known.
+- If you are operating from a local clone, run `scripts/preflight_gh.sh --expect-repo <owner/repo>` from that repo root before mutation.
+- For tag-only creation with `git tag`, work from a local clone of the target repository.
+
+### Operator policy
+
+- Decide whether the request is for a GitHub release or a tag only.
+- Never assume `main`; resolve the repository default branch.
+- When the user does not provide a target branch or commit, propose the default branch HEAD commit and confirm it before creating anything.
+- For releases, choose the notes strategy before publishing:
+  - option 1: infer notes by diffing since the last published release tag,
+  - option 2: keep the release notes blank,
+  - option 3: use user-provided notes.
+- If the user does not specify a notes strategy, offer those three options and recommend option 1.
+- For option 1, resolve the latest published release tag when one exists and generate proposed notes from that tag to the confirmed target.
+- If the user wants a different target, choose branch first, then commit.
+- Even after default-target confirmation, prefer `gh release create <tag> --target <branch-or-sha>` so the target is explicit.
+
+### Paste and run (Phase 1): resolve the default target and show it for confirmation
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="{repo}"
+TARGET_BRANCH="{target_branch}"
+
+if ! gh auth status >/tmp/gh-release-workflow-auth.txt 2>&1; then
+  cat /tmp/gh-release-workflow-auth.txt
+  echo "Run: gh auth login"
+  exit 2
+fi
+
+if [[ "$REPO" == "{repo}" || -z "$REPO" ]]; then
+  REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+fi
+
+DEFAULT_BRANCH="$(gh repo view "$REPO" --json defaultBranchRef -q .defaultBranchRef.name)"
+if [[ "$TARGET_BRANCH" == "{target_branch}" || -z "$TARGET_BRANCH" ]]; then
+  TARGET_BRANCH="$DEFAULT_BRANCH"
+fi
+
+TARGET_SHA="$(gh api "repos/$REPO/commits/$TARGET_BRANCH" --jq '.sha')"
+TARGET_SUBJECT="$(gh api "repos/$REPO/commits/$TARGET_BRANCH" --jq '.commit.message | split("\n")[0]')"
+
+echo "Repository:      $REPO"
+echo "Default branch:  $DEFAULT_BRANCH"
+echo "Target branch:   $TARGET_BRANCH"
+echo "Target commit:   ${TARGET_SHA:0:7} $TARGET_SUBJECT"
+echo
+echo "If this is not the target you want, choose a branch first and then a specific commit on that branch."
+echo "Recent commits on $TARGET_BRANCH:"
+gh api "repos/$REPO/commits?sha=$TARGET_BRANCH&per_page=10" \
+  --jq '.[] | "  \(.sha[0:7]) \(.commit.message | split("\n")[0])"'
+```
+
+### Paste and run (Phase 1B, option 1): prepare inferred release notes since the last published release tag
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="{repo}"
+NEW_TAG="{new_tag}"
+TARGET_REF="{target_ref}"
+WORKDIR="${TMPDIR:-/tmp}/gh-release-notes-${RANDOM}"
+
+if [[ "$REPO" == "{repo}" || -z "$REPO" ]]; then
+  REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+fi
+if [[ "$NEW_TAG" == "{new_tag}" || -z "$NEW_TAG" ]]; then
+  echo "Replace {new_tag} with the new release tag."
+  exit 1
+fi
+if [[ "$TARGET_REF" == "{target_ref}" || -z "$TARGET_REF" ]]; then
+  echo "Replace {target_ref} with the confirmed branch or commit SHA."
+  exit 1
+fi
+
+mkdir -p "$WORKDIR"
+PREVIOUS_TAG="$(gh release list --repo "$REPO" --exclude-drafts --exclude-pre-releases --json tagName --limit 1 --jq '.[0].tagName' || true)"
+
+API_ARGS=(
+  "repos/$REPO/releases/generate-notes"
+  -X POST
+  -f "tag_name=$NEW_TAG"
+  -f "target_commitish=$TARGET_REF"
+)
+if [[ -n "$PREVIOUS_TAG" && "$PREVIOUS_TAG" != "null" ]]; then
+  API_ARGS+=(-f "previous_tag_name=$PREVIOUS_TAG")
+fi
+
+gh api "${API_ARGS[@]}" --jq '.name' > "$WORKDIR/release_title.txt"
+gh api "${API_ARGS[@]}" --jq '.body' > "$WORKDIR/release_notes.md"
+
+echo "Repository:      $REPO"
+if [[ -n "$PREVIOUS_TAG" && "$PREVIOUS_TAG" != "null" ]]; then
+  echo "Previous tag:    $PREVIOUS_TAG"
+else
+  echo "Previous tag:    <none found; treating as first published release>"
+fi
+echo "Draft title:     $(cat "$WORKDIR/release_title.txt")"
+echo "Draft notes:     $WORKDIR/release_notes.md"
+echo
+sed -n '1,80p' "$WORKDIR/release_notes.md"
+```
+
+### Paste and run (Phase 2A): create a release and create the tag if it is missing
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="{repo}"
+TAG="{tag}"
+TARGET_REF="{target_ref}"
+NOTES_MODE="{infer|blank|user}"
+NOTES_FILE="{notes_file}"
+TITLE_FILE="{title_file}"
+PREVIOUS_TAG="{previous_tag}"
+NOTES_TEXT="{notes_text}"
+
+if [[ "$REPO" == "{repo}" || -z "$REPO" ]]; then
+  REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+fi
+if [[ "$TAG" == "{tag}" || -z "$TAG" ]]; then
+  echo "Replace {tag} with the release tag to create."
+  exit 1
+fi
+if [[ "$TARGET_REF" == "{target_ref}" || -z "$TARGET_REF" ]]; then
+  echo "Replace {target_ref} with the confirmed branch or commit SHA."
+  exit 1
+fi
+if [[ "$NOTES_MODE" == "{infer|blank|user}" || -z "$NOTES_MODE" ]]; then
+  echo "Replace {infer|blank|user} with infer, blank, or user."
+  exit 1
+fi
+
+CMD=(gh release create "$TAG" --repo "$REPO" --target "$TARGET_REF" --fail-on-no-commits)
+if [[ "$TITLE_FILE" != "{title_file}" && -n "$TITLE_FILE" ]]; then
+  CMD+=(-t "$(cat "$TITLE_FILE")")
+fi
+
+case "$NOTES_MODE" in
+  infer)
+    if [[ "$NOTES_FILE" != "{notes_file}" && -n "$NOTES_FILE" ]]; then
+      CMD+=(-F "$NOTES_FILE")
+    elif [[ "$PREVIOUS_TAG" != "{previous_tag}" && -n "$PREVIOUS_TAG" ]]; then
+      CMD+=(--generate-notes --notes-start-tag "$PREVIOUS_TAG")
+    else
+      CMD+=(--generate-notes)
+    fi
+    ;;
+  blank)
+    CMD+=(--notes "")
+    ;;
+  user)
+    if [[ "$NOTES_FILE" != "{notes_file}" && -n "$NOTES_FILE" ]]; then
+      CMD+=(-F "$NOTES_FILE")
+    elif [[ "$NOTES_TEXT" != "{notes_text}" && -n "$NOTES_TEXT" ]]; then
+      CMD+=(--notes "$NOTES_TEXT")
+    else
+      echo "For NOTES_MODE=user, provide either {notes_file} or {notes_text}."
+      exit 1
+    fi
+    ;;
+  *)
+    echo "NOTES_MODE must be one of: infer, blank, user."
+    exit 1
+    ;;
+esac
+
+"${CMD[@]}"
+gh release view "$TAG" --repo "$REPO" --json url,tagName,targetCommitish
+```
+
+### Paste and run (Phase 2B): create a tag only from a local clone
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+TAG="{tag}"
+TARGET_SHA="{target_sha}"
+ANNOTATION="{annotation}"
+
+if [[ "$TAG" == "{tag}" || -z "$TAG" ]]; then
+  echo "Replace {tag} with the tag to create."
+  exit 1
+fi
+if [[ "$TARGET_SHA" == "{target_sha}" || -z "$TARGET_SHA" ]]; then
+  echo "Replace {target_sha} with the confirmed commit SHA."
+  exit 1
+fi
+
+if [[ "$ANNOTATION" == "{annotation}" || -z "$ANNOTATION" ]]; then
+  git tag "$TAG" "$TARGET_SHA"
+else
+  git tag -a "$TAG" "$TARGET_SHA" -m "$ANNOTATION"
+fi
+
+git push origin "$TAG"
+git rev-list -n 1 "$TAG"
+```
+
+### Notes
+
+- `gh release create <tag>` auto-creates the tag when it is missing, but this workflow still resolves and confirms the target up front so the release does not accidentally point at the wrong commit.
+- The release-notes API can generate a name and markdown body for the new release; GitHub documents that the body contains information such as the changes since the last release and contributors.
+- Option 1 is the recommended default when the user asks to create a release without specifying how notes should be produced.
+- Option 2 keeps the release notes blank on purpose.
+- Option 3 is for text the user wants to supply directly or via a file.
+- If you need a release from an annotated tag, create and push the annotated tag first, then run `gh release create <tag> --verify-tag --notes-from-tag`.
+- For remote-only tag creation without a local clone, use `gh api` against the Git database endpoints only when the user explicitly wants that API-based path.
+
 ## issue-copy-or-move
 
 Purpose: copy or move an issue between repositories without manually reassembling title/body text or improvising the source backlink behavior.

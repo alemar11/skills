@@ -5,7 +5,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 ## Skills
 - `ask-questions-if-underspecified/` — Clarify requirements before implementing when a request is underspecified or the user asks for clarification.
 - `codex-changelog/` — Check the installed Codex CLI version and fetch/print the matching GitHub Releases changelog from `openai/codex/releases`.
-- `github/` — Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, and workflow operations only; default to the current git project unless another `owner/repo` is provided.
+- `github/` — Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, workflow, release, and tag operations; default to the current git project unless another `owner/repo` is provided.
 - `learn/` — Capture durable corrections or preferences and write confirmed learnings to `AGENTS.md` when the user sets lasting guidance.
 - `postgres/` — Connect to Postgres databases, run queries/diagnostics, and search official PostgreSQL docs only when explicitly requested.
 
