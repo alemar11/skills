@@ -3,6 +3,7 @@
 This directory contains reusable skills and project maintainer skills—task-specific packages of instructions, resources, and optional scripts that help agents follow workflows reliably.
 
 ## Skills
+- `commit/` — Create a well-formed git commit from current changes with rationale and summary when asked to commit, prepare a commit message, or finalize staged work.
 - `ask-questions-if-underspecified/` — Clarify requirements before implementing when a request is underspecified or the user asks for clarification.
 - `codex-changelog/` — Check the installed Codex CLI version and fetch/print the matching GitHub Releases changelog from `openai/codex/releases`.
 - `github/` — Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, workflow, release, and tag operations; default to the current git project unless another `owner/repo` is provided.
@@ -19,8 +20,9 @@ Project skills are repository-local and are not included in the reusable `skill-
 These prompts are for use inside Codex only.
 Copy/paste one of these prompts:
 
-- `Use $skill-installer to install skills from alemar11/skills --path ask-questions-if-underspecified codex-changelog github learn postgres`
+- `Use $skill-installer to install skills from alemar11/skills --path commit ask-questions-if-underspecified codex-changelog github learn postgres`
 - `Use $skill-installer to install skills from alemar11/skills --path github`
+- `Use $skill-installer to install skills from alemar11/skills --path commit`
 - `Use $skill-installer to install skills from alemar11/skills --path ask-questions-if-underspecified`
 - `Use $skill-installer to install skills from alemar11/skills --path codex-changelog`
 - `Use $skill-installer to install skills from alemar11/skills --path learn`
