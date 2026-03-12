@@ -214,4 +214,47 @@ if [[ -n "$REMOVE_REVIEWERS" ]]; then
   CMD+=(--remove-reviewer "$REMOVE_REVIEWERS")
 fi
 
-"${CMD[@]}"
+can_fallback_to_api=0
+if [[ -n "$TITLE" || -n "$BODY" || -n "$BASE" ]]; then
+  if [[ -z "$MILESTONE" && "$REMOVE_MILESTONE" -eq 0 && -z "$ADD_LABELS" && -z "$REMOVE_LABELS" && -z "$ADD_ASSIGNEES" && -z "$REMOVE_ASSIGNEES" && -z "$ADD_REVIEWERS" && -z "$REMOVE_REVIEWERS" ]]; then
+    can_fallback_to_api=1
+  fi
+fi
+
+if EDIT_OUTPUT="$("${CMD[@]}" 2>&1)"; then
+  if [[ -n "$EDIT_OUTPUT" ]]; then
+    printf '%s\n' "$EDIT_OUTPUT"
+  fi
+  exit 0
+fi
+
+edit_status=$?
+if [[ "$can_fallback_to_api" -eq 1 && "$EDIT_OUTPUT" == *"missing required scopes [read:project]"* ]]; then
+  API_CMD=(gh api -X PATCH "repos/$TARGET_REPO/pulls/$PR")
+  if [[ -n "$TITLE" ]]; then
+    API_CMD+=(-f "title=$TITLE")
+  fi
+  if [[ -n "$BODY" ]]; then
+    API_CMD+=(-f "body=$BODY")
+  fi
+  if [[ -n "$BASE" ]]; then
+    API_CMD+=(-f "base=$BASE")
+  fi
+
+  if API_OUTPUT="$("${API_CMD[@]}" 2>&1)"; then
+    echo "gh pr edit required read:project; retried with gh api for title/body/base." >&2
+    if SUMMARY_OUTPUT="$(gh pr view "$PR" --repo "$TARGET_REPO" --json number,title,baseRefName,url --jq '"#\(.number) \(.title) [base: \(.baseRefName)]\n\(.url)"' 2>&1)"; then
+      printf '%s\n' "$SUMMARY_OUTPUT"
+    else
+      printf '%s\n' "$API_OUTPUT"
+    fi
+    exit 0
+  fi
+
+  printf '%s\n' "$EDIT_OUTPUT" >&2
+  printf '%s\n' "$API_OUTPUT" >&2
+  exit $?
+fi
+
+printf '%s\n' "$EDIT_OUTPUT" >&2
+exit "$edit_status"

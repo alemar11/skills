@@ -4,6 +4,28 @@ Use this section for copy-paste, branch-safe operational flows.
 
 Note (2026-03): cross-repo issue transfers now use dedicated helper scripts so the repo context and source-closure behavior stay consistent.
 
+## pr-update-metadata
+
+Purpose: update a PR title, body, or base branch without getting blocked by the recent `gh pr edit` project-scope read behavior.
+
+### Preconditions
+
+- `gh` installed and authenticated.
+- Repository scope is known.
+- Run `scripts/preflight_gh.sh --expect-repo <owner/repo>` from the target repo root before mutation.
+
+### Operator policy
+
+- Prefer `scripts/prs_update.sh` over ad-hoc `gh pr edit` for PR metadata changes.
+- If `gh pr edit` fails with `missing required scopes [read:project]`, the helper retries through `gh api` for `--title`, `--body`, and `--base`.
+- Use direct `gh pr edit` or the helper's non-fallback path when you also need milestone, label, assignee, or reviewer changes.
+
+### Preferred helper
+
+```bash
+scripts/prs_update.sh --pr <number> [--title <text>] [--body <text>] [--base <branch>] [--repo <owner/repo>]
+```
+
 ## release-or-tag-create
 
 Purpose: create a release-backed tag or a tag-only ref without guessing the target branch or commit.

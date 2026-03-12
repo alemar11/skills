@@ -41,6 +41,7 @@ description: Use the GitHub CLI (`gh`) for repository-scoped issue, pull request
   - `scripts/issues_copy.sh` and `scripts/issues_move.sh` for cross-repo issue transfers
 - Pull request actions
   - `gh pr list`, `gh pr view`, `gh pr create`, `gh pr edit`, `gh pr comment`, `gh pr review`, `gh pr checkout`, `gh pr merge`, `gh pr checks`
+  - Prefer `scripts/prs_update.sh` for PR metadata updates; it can fall back to `gh api` for `--title`, `--body`, and `--base` when `gh pr edit` hits the `read:project` scope issue.
 - Workflow actions
   - `gh run list`, `gh run view`, `gh run watch`
 - Release actions
@@ -164,6 +165,8 @@ Note (2026-03): issue transfer is standardized with dedicated copy/move scripts 
   - Retry command: `scripts/preflight_gh.sh --host github.com --expect-repo owner/repo` from the target repo root, or use `scripts/issues_copy.sh` / `scripts/issues_move.sh` with explicit repo arguments for cross-repo transfers.
 - Invalid JSON field errors (for example `Unknown JSON field: "projects"`):
   - Retry command: replace with supported fields, e.g. `gh issue view <n> --json number,title,state,projectItems,projectCards`.
+- PR edit scope errors (`gh pr edit` fails with `missing required scopes [read:project]`):
+  - Retry command: `scripts/prs_update.sh --pr <n> [--title ...] [--body ...] [--base ...] [--repo owner/repo]` from the target repo root; this helper retries via `gh api` for title/body/base-only updates.
 - Transient API/network failures (502/503/timeouts):
   - Retry command: re-run the same `gh ...` command after a short delay; keep scope unchanged.
 
@@ -175,4 +178,5 @@ Note (2026-03): issue transfer is standardized with dedicated copy/move scripts 
   2. Update `github/SKILL.md` and `github/references/` docs in the same change set so the instructions stay current.
   3. Record the correction in a short note in the updated docs so future runs use the new behavior.
 - Correction note (2026-03): release creation now uses dedicated helper scripts and explicitly distinguishes user silence from explicit delegation when choosing release notes strategy.
+- Correction note (2026-03): `gh pr edit` may require `read:project` even for simple metadata updates; `scripts/prs_update.sh` now falls back to `gh api` for title/body/base-only changes when that scope is missing.
 - Keep user-facing guidance in `references/` and workflow logic in scripts aligned with tested real-world usage.

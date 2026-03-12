@@ -43,7 +43,7 @@ Use this as the authoritative script catalog referenced by `github/SKILL.md`.
 - `scripts/prs_list.sh [--state open|closed|merged|all] [--author <user>] [--label <label>] [--base <branch>] [--head <branch>] [--search <query>] [--limit N] [--repo <owner/repo>] [--allow-non-project]`
 - `scripts/prs_view.sh --pr <number> [--repo <owner/repo>] [--allow-non-project]`
 - `scripts/prs_create.sh --title <text> [--body <text>] [--base <branch>] [--head <branch>] [--draft] [--labels <label1,label2>] [--repo <owner/repo>] [--allow-non-project]`
-- `scripts/prs_update.sh --pr <number> [--title <text>] [--body <text>] [--base <branch>] [--milestone <name>] [--remove-milestone] [--add-labels <label1,label2>] [--remove-labels <label1,label2>] [--add-assignees <user1,user2>] [--remove-assignees <user1,user2>] [--add-reviewers <user1,user2>] [--remove-reviewers <user1,user2>] [--repo <owner/repo>] [--allow-non-project]`
+- `scripts/prs_update.sh --pr <number> [--title <text>] [--body <text>] [--base <branch>] [--milestone <name>] [--remove-milestone] [--add-labels <label1,label2>] [--remove-labels <label1,label2>] [--add-assignees <user1,user2>] [--remove-assignees <user1,user2>] [--add-reviewers <user1,user2>] [--remove-reviewers <user1,user2>] [--repo <owner/repo>] [--allow-non-project]`: Update PR metadata. When `gh pr edit` fails with `missing required scopes [read:project]`, this helper retries via `gh api` for title/body/base-only updates.
 - `scripts/prs_ready.sh --pr <number> [--repo <owner/repo>] [--allow-non-project]`
 - `scripts/prs_draft.sh --pr <number> [--repo <owner/repo>] [--allow-non-project]`
 - `scripts/prs_checkout.sh --pr <number> [--branch <name>] [--detach] [--force] [--recurse-submodules] [--repo <owner/repo>] [--allow-non-project]`
