@@ -12,7 +12,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 
 ## Project Skills
 - `.agents/skills/tools/` — Orchestrate maintenance, optimization, refactor, and upstream benchmark workflows for skills in this repository, including metadata/doc sync and consistency checks.
-Project skills are repository-local and are not included in the reusable `skill-installer` prompts below.
+Project skills are repository-local and are not included in the reusable install examples below.
 
 ## Codex
 
@@ -27,5 +27,35 @@ Copy/paste one of these prompts:
 - `Use $skill-installer to install skills from alemar11/skills --path codex-changelog`
 - `Use $skill-installer to install skills from alemar11/skills --path learn`
 - `Use $skill-installer to install skills from alemar11/skills --path postgres`
+
+### Install With `npx skills` (Vercel Skills CLI)
+These commands use the [`vercel-labs/skills`](https://github.com/vercel-labs/skills) CLI and target Codex directly.
+
+List the skills available in this repository:
+
+```sh
+npx skills add alemar11/skills --list
+```
+
+Install all reusable skills globally for Codex:
+
+```sh
+npx skills add alemar11/skills -a codex -g -y \
+  --skill commit \
+  --skill ask-questions-if-underspecified \
+  --skill codex-changelog \
+  --skill github \
+  --skill learn \
+  --skill postgres
+```
+
+Install a single skill globally for Codex:
+
+```sh
+npx skills add alemar11/skills -a codex -g -y --skill github
+```
+
+Omit `-g` to install into the current project's `.agents/skills/` instead of your global `~/.codex/skills/`.
+The repository-local `tools` maintainer skill is intentionally excluded from these commands.
 
 Restart Codex to pick up new skills.
