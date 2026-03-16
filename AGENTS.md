@@ -44,3 +44,4 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Keep `skill-audit` biased toward improving shared skills first, especially for broad reusable skills such as `postgres`.
 - When a gap is project-specific but lightweight, prefer project docs, `AGENTS.md`, repo references, or memory over proposing a project-local specialization.
 - Recommend a project-local specialization only as a last resort when the workflow is highly stable, repeatedly needed, and too project-specific to fit cleanly in the shared skill or repo docs.
+- When `skill-audit` is installed, require it to audit itself too and treat its own improvement opportunities as first-class findings.

@@ -15,6 +15,8 @@ Use repo evidence, Codex memory, past sessions, and current live context when av
 
 For broad reusable skills, prefer fixing the shared skill or relying on project docs and memory before proposing a repo-specific variant.
 
+If `skill-audit` itself is part of the installed portfolio, always audit it too and treat its own gaps as first-class findings.
+
 ## Audit Order
 
 1. Map the current repo surface.
@@ -61,6 +63,12 @@ For each installed skill, evaluate:
 - whether it duplicates or overlaps another installed skill
 - whether missing project-specific behavior should live in the shared skill, in project docs or memory, or only as a last-resort project-local specialization
 - whether it adds prompt weight without enough value when current context exposes that signal
+
+For `skill-audit` itself, also evaluate:
+
+- whether prior audit findings suggest changes to its own workflow or output shape
+- whether it is missing useful self-checks or learning loops
+- whether it is too weak or too broad in how it evaluates installed skills
 
 ## Evidence Workflow
 
@@ -133,6 +141,8 @@ Return a compact audit with these sections:
    - highest-value next update
    - whether the issue should be solved in the shared skill, in project docs or memory, or only as a last-resort project-local specialization
 
+   If `skill-audit` is installed, include an explicit entry for `skill-audit` in this section.
+
 4. `Add / merge / disable candidates`
    List only the candidates justified by evidence after reviewing the installed portfolio.
 
@@ -148,6 +158,7 @@ Return a compact audit with these sections:
 - Recommend a project-local specialization only when the workflow is highly stable, repeatedly needed, and too project-specific to fit cleanly in the shared skill or repo docs.
 - Recommend a new skill only after checking whether an installed skill could own the workflow cleanly.
 - Treat live context-window analysis as best-effort only; rely only on evidence exposed in the current runtime prompt.
+- If `skill-audit` is installed, do not skip its self-audit just because it is the current skill performing the audit.
 
 ## Failure Shields
 
@@ -158,6 +169,7 @@ Return a compact audit with these sections:
 - Do not flatten project-local and global skills into one bucket; keep ownership decisions explicit.
 - Do not jump to new-skill recommendations before evaluating installed skills as possible owners.
 - Do not propose a project-local specialization when the gap is better solved by improving a shared skill or strengthening project docs and memory.
+- Do not exempt `skill-audit` from critique; self-review is required when it is installed.
 - Do not bulk-load all rollout summaries or raw sessions; stay targeted.
 
 ## Follow-up
