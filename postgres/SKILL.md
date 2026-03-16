@@ -42,8 +42,10 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, r
    - Resolve helper scripts relative to the installed skill directory that contains this `SKILL.md`.
    - If not in a git repo, or if running outside the target project, set `DB_PROJECT_ROOT` explicitly.
    - When creating or loading `postgres.toml` and the target project is a git repo, verify `.skills/postgres/postgres.toml` is gitignored to avoid committing credentials.
-   - If `postgres.toml` exists, **first** ensure it is at the latest schema version. Run `./scripts/migrate_toml_schema.sh` only when an older schema is found, and run it from the skill dir only if `DB_PROJECT_ROOT` is set.
-   - Treat missing or pre-`1.0.0` `schema_version` as a hard stop for TOML profile usage. Legacy `1` / `1.0.0` is still readable, but migrate it to `1.1.0` before relying on it long-term.
+   - If `postgres.toml` exists, ensure it is at the latest schema version before using TOML profiles.
+   - Normal runtime entrypoints such as `./scripts/run_sql.sh`, `./scripts/test_connection.sh`, and other commands that resolve TOML profiles should auto-run `./scripts/migrate_toml_schema.sh` when they detect an older schema.
+   - You can still run `./scripts/migrate_toml_schema.sh` manually from the skill dir with `DB_PROJECT_ROOT` set when you want to migrate/repair the file explicitly.
+   - Treat invalid or newer-than-supported `schema_version` values as a hard stop for TOML profile usage. Legacy `1` / `1.0.0` and missing `schema_version` should be auto-migrated to `1.1.0` during normal runtime.
    - In `postgres.toml`, `sslmode` must be a boolean (`true`/`false`), not a string.
 2) Choose action:
    - Connect/run a query, inspect schema, review backend SQL/query usage, or run a helper script.
@@ -132,6 +134,7 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, r
 ## Trigger rules (summary)
 - If `<project-root>/.skills/postgres/postgres.toml` exists, do not scan by default; only scan when asked or missing.
 - If that TOML is under the current repo/root, use that root for scripts without asking for `DB_PROJECT_ROOT`.
+- If runtime commands detect an older TOML schema, auto-migrate it to the latest supported schema before resolving profiles.
 - If `./scripts/...` is missing in the current working directory, do not assume the skill is unavailable; resolve scripts from the installed skill directory and continue.
 - If `DB_PROFILE` is unset and multiple profiles exist, ask the user which profile to use before running queries. Show profile `name` + `description`, and include a context-based suggested default.
 - If `DB_PROFILE` is unset and exactly one profile exists, use it.

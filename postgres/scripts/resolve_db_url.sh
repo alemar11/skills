@@ -230,6 +230,96 @@ maybe_check_toml_gitignored() {
   resolve_gitignore_mark_seen "$project_root"
 }
 
+auto_migrate_toml_if_needed() {
+  local toml_path="$1"
+  local project_root="$2"
+
+  if [[ ! -f "$toml_path" ]]; then
+    return 0
+  fi
+
+  local python_bin=""
+  python_bin="$(postgres_runtime_resolve_python "$toml_path")" || return 1
+
+  local migration_state=""
+  migration_state="$("$python_bin" - "$toml_path" <<'PY'
+import sys
+import tomllib
+
+LATEST_SCHEMA = (1, 1, 0)
+LEGACY_SCHEMA = (1, 0, 0)
+
+
+def parse_schema_version(value):
+    if value is None:
+        return (0, 0, 0)
+    if isinstance(value, bool):
+        return (int(value), 0, 0)
+    if isinstance(value, int):
+        if value == 1:
+            return LEGACY_SCHEMA
+        raise ValueError(f"invalid integer schema_version: {value!r}")
+    text = str(value).strip()
+    if not text:
+        return (0, 0, 0)
+    if text == "1":
+        return LEGACY_SCHEMA
+    parts = text.split(".")
+    if len(parts) != 3 or not all(part.isdigit() for part in parts):
+        raise ValueError(f"invalid string schema_version: {value!r}")
+    return tuple(int(part) for part in parts)
+
+
+with open(sys.argv[1], "rb") as fh:
+    data = tomllib.load(fh)
+
+config = data.get("configuration")
+if config is None:
+    print("migrate")
+    sys.exit(0)
+if not isinstance(config, dict):
+    print("invalid")
+    sys.exit(0)
+
+try:
+    current = parse_schema_version(config.get("schema_version"))
+except ValueError:
+    print("invalid")
+    sys.exit(0)
+
+if current > LATEST_SCHEMA:
+    print("newer")
+elif current < LATEST_SCHEMA:
+    print("migrate")
+else:
+    print("current")
+PY
+  )" || return 1
+
+  case "$migration_state" in
+    current)
+      return 0
+      ;;
+    migrate)
+      echo "Auto-migrating postgres.toml to the latest supported schema..." >&2
+      DB_PROJECT_ROOT="$project_root" "$SCRIPT_DIR/migrate_toml_schema.sh" >&2
+      return 0
+      ;;
+    newer)
+      echo "postgres.toml schema_version is newer than this skill supports. Update the skill before using TOML profiles." >&2
+      return 1
+      ;;
+    invalid)
+      echo "postgres.toml has an invalid schema definition. Run ./scripts/migrate_toml_schema.sh manually or fix the file before using TOML profiles." >&2
+      return 1
+      ;;
+    *)
+      echo "Unexpected postgres.toml schema inspection result: $migration_state" >&2
+      return 1
+      ;;
+  esac
+}
+
 parse_resolved_output() {
   local output="$1"
   eval "$output"
@@ -343,6 +433,11 @@ if [[ -z "$ROOT_OVERRIDE" ]]; then
 fi
 
 TOML_PATH="$PROJECT_ROOT/.skills/postgres/postgres.toml"
+
+maybe_check_toml_gitignored "$PROJECT_ROOT"
+
+auto_migrate_toml_if_needed "$TOML_PATH" "$PROJECT_ROOT"
+
 TOML_MTIME="$(resolve_file_mtime "$TOML_PATH")"
 
 CACHE_SIG=""
@@ -352,8 +447,6 @@ if resolve_cache_enabled; then
     exit 0
   fi
 fi
-
-maybe_check_toml_gitignored "$PROJECT_ROOT"
 
 PYTHON_BIN="$(postgres_runtime_resolve_python "$TOML_PATH")" || exit 1
 
