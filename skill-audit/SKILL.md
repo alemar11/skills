@@ -28,12 +28,17 @@ If `skill-audit` itself is part of the installed portfolio, always audit it too 
    - `.codex/skills`
    - `skills`
    Read both `SKILL.md` and `agents/openai.yaml` when present.
+   - If none of these locations exist or they contain no skills, record that explicitly and move on instead of treating the audit as blocked.
 
 3. Audit relevant global and shared skills.
-   Resolve the base path as `$CODEX_HOME` when set, otherwise `~/.codex`.
-   Review relevant installed skills under:
-   - `$CODEX_HOME/skills/*/SKILL.md`
-   - `$CODEX_HOME/skills/.system/*/SKILL.md`
+   Resolve the shared-skill roots in this order:
+   - `$CODEX_HOME/skills` when `$CODEX_HOME` is set
+   - `~/.codex/skills`
+   - `~/.agents/skills`
+   Review relevant installed skills under each available root, including:
+   - `<root>/*/SKILL.md`
+   - `<root>/.system/*/SKILL.md`
+   - if a root is a symlink farm, resolve the real target path and audit the underlying skill once rather than double-counting the symlinked view and the source directory
    Only open shared skills that are relevant to the current repo or overlap with the local skill surface.
 
 4. Check cheap maintenance signals before deep history.
@@ -56,6 +61,7 @@ If `skill-audit` itself is part of the installed portfolio, always audit it too 
    - skill bodies or summaries injected into the current turn
    - project docs and other active context competing for prompt budget
    Treat this evidence as opportunistic. Use only what is visible in the current prompt context. Do not invent hidden telemetry or unsupported internal metrics.
+   - If the repo has no local skills and the current prompt already exposes relevant shared skill metadata or bodies, use that to narrow which shared skills need deeper review instead of insisting on a local-skill-first deep dive.
 
 ## What To Evaluate
 
