@@ -1,5 +1,5 @@
 interface:
   display_name: "Skill Audit"
-  short_description: "Audit installed skills using repo evidence, memory, and cheap staleness checks."
+  short_description: "Audit installed Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables."
   brand_color: "#C06C84"
   default_prompt: "Use $skill-audit to review the installed skills relevant to this repo and produce a one-by-one improvement roadmap using repo docs, git history, memory, and only targeted session evidence."
