@@ -1,11 +1,6 @@
 ---
 name: commit
-description:
-  Create a well-formed git commit from current changes using session history for
-  rationale and summary; prefer explicit pathspec staging and, in monorepos,
-  default to one subproject per commit unless the user asks for a cross-cutting
-  commit. Use when asked to commit, prepare a commit message, or finalize
-  staged work.
+description: Create a well-formed git commit from current changes using session history for rationale and summary; prefer explicit pathspec staging and, in monorepos, default to one subproject per commit unless the user asks for a cross-cutting commit. Use when asked to commit, prepare a commit message, or finalize staged work.
 ---
 
 # Commit
