@@ -64,6 +64,13 @@ In the fast path, keep the workflow lightweight:
 - stage explicit paths if needed
 - write a shorter but still well-formed commit message
 - skip extra ceremony that does not materially reduce risk
+- Example fast path:
+  - one or two already-validated files changed
+  - run `git status --short --branch`
+  - inspect the relevant `git diff -- <path>`
+  - stage only those paths with `git add -- <path>`
+  - commit with a short, well-formed message
+  - verify sequentially with `git status --short --branch` and `git log -1`
 
 ### Safe Path
 

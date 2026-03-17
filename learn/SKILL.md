@@ -32,6 +32,13 @@ description: Capture durable corrections or preferences and write confirmed lear
   - Project-specific: “Use `pnpm` in this repo,” “Update `docs/ARCHITECTURE.md` when changing auth.”
   - Global: “Always use `rg` for file search,” “Ask before writing to AGENTS.md.”
 
+## Docs vs Memory vs AGENTS
+- Before proposing an `AGENTS.md` write, check whether the guidance is better owned elsewhere.
+- Prefer repo docs when the guidance should be visible to humans, is tightly coupled to current tooling/workflows, or is likely to change with the codebase.
+- Prefer memory when the guidance helps future sessions in this environment but is still stabilizing, narrowly task-family specific, or not worth promoting into durable repo instructions yet.
+- Use `AGENTS.md` only when the rule is both durable and agent-facing for that scope.
+- If repo docs or memory are the better owner, recommend that path instead of writing `AGENTS.md`.
+
 ## AGENTS.md write
 - Use section `## Codex Learnings` (create if missing).
 - Bullets should be concise and specific ("Avoid X" / "Do Y instead of Z").

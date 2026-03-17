@@ -22,15 +22,22 @@ description: Use the GitHub CLI (`gh`) for repository-scoped issue, pull request
    - Allowed: repository-level read/write for issues, pull requests, runs, and repo labels.
    - Forbidden: organization-level or higher scope mutations (for example org settings, org rulesets, org membership, org secrets/variables, enterprise APIs).
    - If a request is forbidden, stop and ask for a repo-scoped alternative.
-3. Run preflight before any `gh` action:
+3. Use the read-only fast path when it is enough.
+   - Skip full preflight for clearly read-only inspection such as:
+     - `gh --help`, `<subcommand> --help`, `gh auth status`, `gh --version`
+     - `gh repo view`, `gh pr view`, `gh issue view`, `gh run view`
+     - read-only `gh api` or GraphQL lookups that inspect the current user, repository, or PR metadata
+   - For repo-scoped reads, run from the target repository when practical, or pass explicit `--repo owner/repo` when the repo is not the current working directory.
+   - If the command might mutate state, create side effects, or depends on project scripts/helpers, do not use the fast path; run full preflight instead.
+4. Run preflight before mutating or context-sensitive `gh` actions:
    - Run preflight from the target repository working directory, not from the skill directory or an unrelated repository.
    - `scripts/preflight_gh.sh [--host github.com] [--min-version <version>] [--expect-repo <owner/repo>]`
    - When the target repo is known, prefer `--expect-repo <owner/repo>` to catch working-directory mismatches early.
    - If preflight was run from the wrong working directory, treat it as invalid and rerun it from the target repository before proceeding.
    - Use `--allow-non-project` only when the user explicitly requests a non-project operation.
    - For cross-repo issue transfers, prefer the dedicated helper scripts instead of manual `gh issue create/edit/close` sequences.
-4. Run the narrowest `gh` command needed, then report only relevant output.
-5. If the operation fails, return the command error and propose the next retry command from the retry matrix below.
+5. Run the narrowest `gh` command needed, then report only relevant output.
+6. If the operation fails, return the command error and propose the next retry command from the retry matrix below.
 
 ## Common operations
 
