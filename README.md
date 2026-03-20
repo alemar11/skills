@@ -3,13 +3,13 @@
 This directory contains reusable skills and project maintainer skills—task-specific packages of instructions, resources, and optional scripts that help agents follow workflows reliably.
 
 ## Skills
-- `commit/` — Create a well-formed git commit from current changes with rationale and summary when asked to commit, prepare a commit message, or finalize staged work.
+- `commit/` — Create a well-formed git commit with rationale, explicit staging, and monorepo-safe scope.
 - `ask-questions-if-underspecified/` — Clarify requirements before implementing when a request is underspecified or the user asks for clarification.
 - `codex-changelog/` — Check the installed Codex CLI version and fetch/print the matching GitHub Releases changelog from `openai/codex/releases`.
 - `github/` — Use the GitHub CLI (`gh`) for repository-scoped issue, pull request, workflow, release, and tag operations; default to the current git project unless another `owner/repo` is provided.
 - `learn/` — Capture durable corrections or preferences and write confirmed learnings only to `AGENTS.md` when the user sets lasting guidance.
-- `postgres/` — Connect to Postgres databases, run queries/diagnostics, and search official PostgreSQL docs only when explicitly requested.
-- `skill-audit/` — Audit installed Codex skills using project history, memories, sessions, and current context to plan updates, additions, merges, or disables.
+- `postgres/` — Connect to Postgres databases, run queries/diagnostics, review backend SQL for performance, and search official PostgreSQL docs only when explicitly requested.
+- `skill-audit/` — Audit installed Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables.
 
 ## Project Skills
 - `.agents/skills/tools/` — Orchestrate targeted skill upgrades, metadata/doc sync, consistency checks, and upstream benchmark workflows for skills in this repository.
