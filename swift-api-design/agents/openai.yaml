@@ -1,0 +1,5 @@
+interface:
+  display_name: "Swift API Design"
+  short_description: "Design or review Swift APIs using the official Swift API Design Guidelines, with focus on naming, argument labels, documentation comments, side effects, and call-site clarity."
+  brand_color: "#0F766E"
+  default_prompt: "Design or review the Swift API surface, optimize for call-site clarity, and explain the recommended naming and signature choices using the Swift API Design Guidelines."
