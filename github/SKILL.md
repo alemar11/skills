@@ -27,7 +27,11 @@ description: Use the GitHub CLI (`gh`) for repository-scoped issue, pull request
      - `gh --help`, `<subcommand> --help`, `gh auth status`, `gh --version`
      - `gh repo view`, `gh pr view`, `gh issue view`, `gh run view`
      - read-only `gh api` or GraphQL lookups that inspect the current user, repository, or PR metadata
-   - For repo-scoped reads, run from the target repository when practical, or pass explicit `--repo owner/repo` when the repo is not the current working directory.
+   - For repo-scoped reads, run from the target repository when practical. If
+     the repo is not the current working directory, use the subcommand's
+     supported repo-targeting form explicitly:
+     - many `gh` subcommands accept `--repo owner/repo`
+     - `gh repo view` itself expects positional `gh repo view owner/repo`
    - If the command might mutate state, create side effects, or depends on project scripts/helpers, do not use the fast path; run full preflight instead.
 4. Run preflight before mutating or context-sensitive `gh` actions:
    - Run preflight from the target repository working directory, not from the skill directory or an unrelated repository.
@@ -42,7 +46,7 @@ description: Use the GitHub CLI (`gh`) for repository-scoped issue, pull request
 ## Common operations
 
 - Repository actions
-  - `gh repo view` and `gh repo clone <owner>/<repo>`
+  - `gh repo view [owner/repo]` and `gh repo clone <owner>/<repo>`
 - Issue actions
   - `gh issue list`, `gh issue view`, `gh issue create`, `gh issue edit`, `gh issue comment`, `gh issue close`
   - `scripts/issues_copy.sh` and `scripts/issues_move.sh` for cross-repo issue transfers
@@ -63,6 +67,13 @@ Use `--help` on the relevant command for options, and prefer `--json` and `--jq`
 
 - This skill must not perform organization-level management or settings actions.
 - Work on non-current repositories only when the user explicitly provides `owner/repo` (for commands or scripts that support `--repo`).
+- Work on non-current repositories only when the user explicitly provides
+  `owner/repo`.
+  - Use each command's supported repo-targeting form:
+    - `gh repo view owner/repo`
+    - `gh issue ... --repo owner/repo`
+    - `gh pr ... --repo owner/repo`
+    - helper scripts that accept `--repo owner/repo`
 
 ## Issue and pull request script reference
 
@@ -167,7 +178,9 @@ Note (2026-03): issue transfer is standardized with dedicated copy/move scripts 
 - Auth/session errors (`gh auth status` fails, 401/403 auth):
   - Retry command: `gh auth login && scripts/preflight_gh.sh --host github.com`
 - Repository context errors (not a git repo, cannot resolve repo):
-  - Retry command: `gh repo view --json nameWithOwner` in the target repo directory, or pass explicit `--repo owner/repo`.
+  - Retry command: `gh repo view --json nameWithOwner` in the target repo
+    directory, or `gh repo view owner/repo --json nameWithOwner` from
+    elsewhere.
 - Repository mismatch errors (`--expect-repo` does not match current directory):
   - Retry command: `scripts/preflight_gh.sh --host github.com --expect-repo owner/repo` from the target repo root, or use `scripts/issues_copy.sh` / `scripts/issues_move.sh` with explicit repo arguments for cross-repo transfers.
 - Invalid JSON field errors (for example `Unknown JSON field: "projects"`):
@@ -186,4 +199,7 @@ Note (2026-03): issue transfer is standardized with dedicated copy/move scripts 
   3. Record the correction in a short note in the updated docs so future runs use the new behavior.
 - Correction note (2026-03): release creation now uses dedicated helper scripts and explicitly distinguishes user silence from explicit delegation when choosing release notes strategy.
 - Correction note (2026-03): `gh pr edit` may require `read:project` even for simple metadata updates; `scripts/prs_update.sh` now falls back to `gh api` for title/body/base-only changes when that scope is missing.
+- Correction note (2026-03): repo targeting is command-specific. `gh repo
+  view` uses positional `owner/repo`, while many issue/PR/release commands and
+  helper scripts use `--repo owner/repo`.
 - Keep user-facing guidance in `references/` and workflow logic in scripts aligned with tested real-world usage.
