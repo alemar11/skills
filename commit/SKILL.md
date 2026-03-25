@@ -89,6 +89,9 @@ Use the safe path by default, and always use it when any of these apply:
    the commit.
    In monorepos, stage by subproject root by default and avoid mixing
    unrelated roots in one commit unless the user asked for that.
+   Do not run staging and staged-diff verification in parallel. Finish
+   `git add`, then inspect `git diff --staged` or `git diff --staged --stat`
+   sequentially so the verification reflects the actual index state.
 5. Sanity-check newly added files; if anything looks random or likely ignored
    (build artifacts, logs, temp files), flag it to the user before committing.
 6. If staging is incomplete or includes unrelated files, fix the index or ask
