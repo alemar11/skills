@@ -222,3 +222,9 @@ Return a compact audit with these sections:
 ## Follow-up
 
 If the user asks to create, merge, or update one of the recommendations, switch to `$skill-creator` and implement the chosen skill change rather than continuing the audit.
+
+## Examples
+
+- "Audit the installed skills in this repo and tell me which ones should be updated first."
+- "Review only the skills involved in the current workflow and suggest the highest-value improvements."
+- "Before we add a new skill, check whether an installed skill or repo docs should own this workflow instead."
