@@ -21,7 +21,7 @@ Use this file first to route maintenance requests to the right playbook.
 4. If the user asks to bootstrap a new skill, classify as `bootstrap` and use `skill_openai_metadata.md` then `metadata-sync.md`.
 5. If the user asks for repo health, policy compliance, structure checks, or pre-release validation, classify as `audit` and use `doc-consistency.md` plus `release-checklist.md`.
 6. If the user asks to refresh Postgres best-practices content, classify as `refresh` and use `postgres-refresh.md`.
-7. If the user asks to benchmark local skills against upstream repos (for example `openai/skills`, `openai/plugins`, `anthropics/skills`), classify as `benchmark` and use `openai-skill-benchmark.md` (download/update upstream repos first, then analyze top-level and plugin-packaged `SKILL.md` patterns and propose markdown optimization changes).
+7. If the user asks to benchmark local skills against upstream repos (for example `openai/skills`, `openai/plugins`, with optional comparison repos such as `anthropics/skills`), classify as `benchmark` and use `openai-skill-benchmark.md` (download/update the OpenAI upstream repos first, then analyze top-level and plugin-packaged `SKILL.md` patterns and propose markdown optimization changes).
 8. If a request mixes categories, run in this deterministic order:
    - `sync` -> `metadata-sync.md`
    - `upgrade` -> `skill-upgrade.md`

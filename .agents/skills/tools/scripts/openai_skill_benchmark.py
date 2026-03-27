@@ -20,9 +20,10 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-DEFAULT_REPOS = ["openai/skills", "openai/plugins", "anthropics/skills"]
+DEFAULT_REPOS = ["openai/skills", "openai/plugins"]
 DEFAULT_OUTPUT_DIR = ".agents/skills/tools/artifacts/openai-skill-benchmark"
 DEFAULT_CLONE_ROOT = ".cache/upstream-skills"
+PRIMARY_REPO_PREFIX = "openai/"
 
 
 @dataclass
@@ -32,6 +33,7 @@ class SkillMetrics:
     frontmatter_name: str
     frontmatter_description: str
     headings: list[str]
+    normalized_headings: list[str]
     line_count: int
     word_count: int
     has_workflow_section: bool
@@ -69,7 +71,7 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help=(
             "Upstream repo in owner/repo format; repeatable. "
-            "Default: openai/skills + openai/plugins + anthropics/skills"
+            "Default: openai/skills + openai/plugins"
         ),
     )
     parser.add_argument(
@@ -190,6 +192,7 @@ def parse_skill_markdown(content: str) -> SkillMetrics:
         frontmatter_name=name,
         frontmatter_description=description,
         headings=headings,
+        normalized_headings=normalized_headings,
         line_count=len(content.splitlines()),
         word_count=len(words),
         has_workflow_section=has_section(("workflow", "quick flow", "process", "steps", "execution flow")),
@@ -359,6 +362,10 @@ def summarize_upstream(records: list[dict[str, Any]]) -> dict[str, Any]:
                 "agents_dir_ratio": 0.0,
                 "workflow_section_ratio": 0.0,
                 "trigger_section_ratio": 0.0,
+                "overview_section_ratio": 0.0,
+                "output_section_ratio": 0.0,
+                "examples_section_ratio": 0.0,
+                "references_section_ratio": 0.0,
             }
         )
         return summary
@@ -367,18 +374,40 @@ def summarize_upstream(records: list[dict[str, Any]]) -> dict[str, Any]:
     line_counts: list[int] = []
     workflow_count = 0
     trigger_count = 0
+    overview_count = 0
+    output_count = 0
+    examples_count = 0
+    references_count = 0
     agents_count = 0
 
     for skill in skills_with_md:
         metrics = skill["skill_md"]
         line_counts.append(metrics["line_count"])
+        normalized_headings = metrics.get("normalized_headings") or [
+            normalize_heading(h) for h in metrics["headings"] if h.strip()
+        ]
+        heading_set = set(normalized_headings)
         if metrics["has_workflow_section"]:
             workflow_count += 1
         if metrics["has_trigger_section"]:
             trigger_count += 1
+        if any("overview" in heading or heading == "goal" for heading in heading_set):
+            overview_count += 1
+        if any(
+            phrase in heading_set
+            for phrase in ("output expectations", "output conventions", "reporting format", "output")
+        ):
+            output_count += 1
+        if any(phrase in heading_set for phrase in ("examples", "example requests")):
+            examples_count += 1
+        if any(
+            phrase in heading_set
+            for phrase in ("references", "official documentation", "usage references", "workflow templates")
+        ):
+            references_count += 1
         if skill["has_agents_dir"]:
             agents_count += 1
-        section_counter.update({normalize_heading(h) for h in metrics["headings"] if h.strip()})
+        section_counter.update(heading_set)
 
     def ratio(value: int, total: int) -> float:
         return round((value / total) if total else 0.0, 4)
@@ -394,6 +423,10 @@ def summarize_upstream(records: list[dict[str, Any]]) -> dict[str, Any]:
             "agents_dir_ratio": ratio(agents_count, len(skills_with_md)),
             "workflow_section_ratio": ratio(workflow_count, len(skills_with_md)),
             "trigger_section_ratio": ratio(trigger_count, len(skills_with_md)),
+            "overview_section_ratio": ratio(overview_count, len(skills_with_md)),
+            "output_section_ratio": ratio(output_count, len(skills_with_md)),
+            "examples_section_ratio": ratio(examples_count, len(skills_with_md)),
+            "references_section_ratio": ratio(references_count, len(skills_with_md)),
         }
     )
     return summary
@@ -412,12 +445,39 @@ def scan_command_coverage(repo_root: Path) -> bool:
     return False
 
 
+def split_primary_and_comparison_records(
+    records: list[dict[str, Any]], configured_repos: list[str]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str], list[str]]:
+    primary_repos = [repo for repo in configured_repos if repo.startswith(PRIMARY_REPO_PREFIX)]
+    if primary_repos:
+        primary_records = [record for record in records if record["baseline_repo"] in set(primary_repos)]
+    else:
+        primary_records = records[:]
+
+    comparison_records = [
+        record for record in records if record["baseline_repo"] not in {r["baseline_repo"] for r in primary_records}
+    ]
+    comparison_repos = sorted({record["baseline_repo"] for record in comparison_records})
+    return primary_records, comparison_records, primary_repos or sorted({r["baseline_repo"] for r in records}), comparison_repos
+
+
+def headings_match(metrics: dict[str, Any], candidates: tuple[str, ...]) -> bool:
+    normalized_headings = metrics.get("normalized_headings") or [
+        normalize_heading(h) for h in metrics.get("headings", []) if h.strip()
+    ]
+    return any(candidate in heading for heading in normalized_headings for candidate in candidates)
+
+
 def build_proposals(local_inventory: list[dict[str, Any]], upstream_summary: dict[str, Any], repo_root: Path) -> list[dict[str, Any]]:
     proposals: list[dict[str, Any]] = []
     pid = 1
 
     workflow_ratio = upstream_summary.get("workflow_section_ratio", 0.0)
     trigger_ratio = upstream_summary.get("trigger_section_ratio", 0.0)
+    overview_ratio = upstream_summary.get("overview_section_ratio", 0.0)
+    output_ratio = upstream_summary.get("output_section_ratio", 0.0)
+    examples_ratio = upstream_summary.get("examples_section_ratio", 0.0)
+    references_ratio = upstream_summary.get("references_section_ratio", 0.0)
     agents_ratio = upstream_summary.get("agents_dir_ratio", 0.0)
 
     for record in local_inventory:
@@ -471,6 +531,50 @@ def build_proposals(local_inventory: list[dict[str, Any]], upstream_summary: dic
                 "Trigger guidance may be underspecified",
                 "Add a `## Trigger rules` or `## When to use` section clarifying activation criteria.",
                 f"Trigger-oriented sections appear in {trigger_ratio:.0%} of upstream sampled skills.",
+            )
+
+        if not headings_match(metrics, ("overview", "goal", "about")) and overview_ratio >= 0.3 and metrics["line_count"] >= 80:
+            add(
+                "low",
+                "Opening orientation can be clearer",
+                "Add a concise `## Overview` or `## Goal` section near the top that frames scope, routing, and intended use.",
+                f"Orientation sections appear in {overview_ratio:.0%} of the primary OpenAI benchmark set.",
+            )
+
+        if (
+            not headings_match(metrics, ("output expectations", "output conventions", "reporting format", "output"))
+            and output_ratio >= 0.15
+            and metrics["line_count"] >= 120
+        ):
+            add(
+                "low",
+                "Output contract could be more explicit",
+                "Add an `## Output Expectations` or equivalent section when the skill has a non-trivial report, summary, or handoff shape.",
+                f"Output-oriented sections appear in {output_ratio:.0%} of the primary OpenAI benchmark set.",
+            )
+
+        if (
+            not headings_match(metrics, ("examples", "example requests"))
+            and examples_ratio >= 0.12
+            and metrics["line_count"] >= 140
+        ):
+            add(
+                "low",
+                "Examples may improve scanability",
+                "Consider adding a short `## Examples` or `## Example requests` section if it would clarify typical user asks without bloating the skill.",
+                f"Example sections appear in {examples_ratio:.0%} of the primary OpenAI benchmark set.",
+            )
+
+        if (
+            record["has_references_dir"]
+            and not headings_match(metrics, ("references", "official documentation", "usage references", "workflow templates"))
+            and references_ratio >= 0.25
+        ):
+            add(
+                "low",
+                "References are present but lightly surfaced",
+                "Add a short references-navigation section so readers can quickly tell which bundled docs to open and when.",
+                f"Reference-navigation sections appear in {references_ratio:.0%} of the primary OpenAI benchmark set.",
             )
 
         if metrics["line_count"] > 500 and not record["has_references_dir"]:
@@ -570,11 +674,15 @@ def build_per_skill_review(local_inventory: list[dict[str, Any]], proposals: lis
 def build_markdown_report(
     upstream_inventory: list[dict[str, Any]],
     local_inventory: list[dict[str, Any]],
+    primary_summary: dict[str, Any],
+    comparison_summary: dict[str, Any] | None,
     upstream_summary: dict[str, Any],
     proposals: list[dict[str, Any]],
     per_skill_review: list[dict[str, Any]],
     errors: list[str],
     configured_repos: list[str],
+    primary_repos: list[str],
+    comparison_repos: list[str],
 ) -> str:
     result = "PASS"
     if not upstream_inventory:
@@ -588,15 +696,33 @@ def build_markdown_report(
         f"- Result: `{result}`",
         f"- Upstream skills analyzed: `{upstream_summary.get('skills_with_skill_md', 0)}/{upstream_summary.get('total_skills', 0)}`",
         f"- Local skills analyzed: `{len(local_inventory)}`",
-        f"- Upstream repos: `{', '.join(configured_repos)}`",
+        f"- Primary benchmark focus: `{', '.join(primary_repos)}`",
+        f"- Configured upstream repos: `{', '.join(configured_repos)}`",
         "",
-        "## Baseline Patterns",
-        f"- Workflow section ratio (upstream): `{upstream_summary.get('workflow_section_ratio', 0.0):.0%}`",
-        f"- Trigger section ratio (upstream): `{upstream_summary.get('trigger_section_ratio', 0.0):.0%}`",
-        f"- `agents/` dir ratio (upstream): `{upstream_summary.get('agents_dir_ratio', 0.0):.0%}`",
-        f"- Median SKILL.md length (upstream): `{upstream_summary.get('line_count_median')}` lines",
+        "## OpenAI Baseline Patterns",
+        f"- Workflow section ratio: `{primary_summary.get('workflow_section_ratio', 0.0):.0%}`",
+        f"- Trigger section ratio: `{primary_summary.get('trigger_section_ratio', 0.0):.0%}`",
+        f"- Overview section ratio: `{primary_summary.get('overview_section_ratio', 0.0):.0%}`",
+        f"- Output section ratio: `{primary_summary.get('output_section_ratio', 0.0):.0%}`",
+        f"- Examples section ratio: `{primary_summary.get('examples_section_ratio', 0.0):.0%}`",
+        f"- Reference-navigation ratio: `{primary_summary.get('references_section_ratio', 0.0):.0%}`",
+        f"- `agents/` dir ratio: `{primary_summary.get('agents_dir_ratio', 0.0):.0%}`",
+        f"- Median SKILL.md length: `{primary_summary.get('line_count_median')}` lines",
         "",
     ]
+
+    if comparison_summary and comparison_repos:
+        lines.extend(
+            [
+                "## Additional Comparison Baselines",
+                f"- Comparison repos: `{', '.join(comparison_repos)}`",
+                f"- Workflow section ratio: `{comparison_summary.get('workflow_section_ratio', 0.0):.0%}`",
+                f"- Trigger section ratio: `{comparison_summary.get('trigger_section_ratio', 0.0):.0%}`",
+                f"- Overview section ratio: `{comparison_summary.get('overview_section_ratio', 0.0):.0%}`",
+                f"- Median SKILL.md length: `{comparison_summary.get('line_count_median')}` lines",
+                "",
+            ]
+        )
 
     if errors:
         lines.append("## Fetch/Analysis Notes")
@@ -626,8 +752,8 @@ def build_markdown_report(
                 lines.append(f"  - Linked proposals: `{', '.join(item['linked_proposal_ids'])}`")
     lines.append("")
 
-    lines.append("## Top Upstream Sections")
-    section_frequency = upstream_summary.get("section_frequency", {})
+    lines.append("## Top OpenAI Sections")
+    section_frequency = primary_summary.get("section_frequency", {})
     if not section_frequency:
         lines.append("- No section data available.")
     else:
@@ -654,8 +780,13 @@ def main() -> int:
         clone_root=clone_root,
     )
     local_inventory = collect_local_inventory(repo_root)
+    primary_records, comparison_records, primary_repos, comparison_repos = split_primary_and_comparison_records(
+        upstream_inventory, repos
+    )
+    primary_summary = summarize_upstream(primary_records)
+    comparison_summary = summarize_upstream(comparison_records) if comparison_records else None
     upstream_summary = summarize_upstream(upstream_inventory)
-    proposals = build_proposals(local_inventory, upstream_summary, repo_root)
+    proposals = build_proposals(local_inventory, primary_summary, repo_root)
     per_skill_review = build_per_skill_review(local_inventory, proposals)
 
     result = "PASS"
@@ -675,6 +806,8 @@ def main() -> int:
         },
         "summary": {
             "upstream": upstream_summary,
+            "primary_upstream": primary_summary,
+            "comparison_upstream": comparison_summary,
             "local_skill_count": len(local_inventory),
             "proposal_count": len(proposals),
             "per_skill_change_count": sum(1 for item in per_skill_review if item["decision"] == "CHANGE"),
@@ -706,11 +839,15 @@ def main() -> int:
     report = build_markdown_report(
         upstream_inventory=upstream_inventory,
         local_inventory=local_inventory,
+        primary_summary=primary_summary,
+        comparison_summary=comparison_summary,
         upstream_summary=upstream_summary,
         proposals=proposals,
         per_skill_review=per_skill_review,
         errors=upstream_errors,
         configured_repos=repos,
+        primary_repos=primary_repos,
+        comparison_repos=comparison_repos,
     )
     (output_dir / "comparison_report.md").write_text(report, encoding="utf-8")
 

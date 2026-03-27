@@ -36,7 +36,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Treat plain-language "upgrade this skill" requests as targeted-skill maintenance first; only expand to repo-wide benchmark or refresh flows when the user asks for them explicitly.
 - Treat generic `$tools` imperatives like "run" or "run your tasks" as the default mixed maintenance pass: `sync metadata/docs` -> `audit consistency` -> `release-checklist.md`; do not infer `bootstrap`, `refresh`, or `benchmark`. (Codex learning)
 - When delegation is explicitly requested and the runtime supports subagents, `tools` may spawn multiple subagents only for independent analysis or disjoint write scopes; keep routing, final synthesis, and git verification in the main agent. (Codex learning)
-- For `tools` benchmark work, include `openai/plugins` alongside `openai/skills` and `anthropics/skills`, and inspect plugin-packaged skills under `plugins/*/skills/*` in addition to top-level `skills/*`.
+- For `tools` benchmark work, make official OpenAI skills the primary benchmark source: use `openai/skills` and `openai/plugins` by default, inspect plugin-packaged skills under `plugins/*/skills/*`, and treat non-OpenAI repos only as optional comparison baselines.
 
 ### GitHub skill
 - Keep release/tag guidance in `github/SKILL.md` and `github/references/workflows.md`, not in repo-level fallback sections.
