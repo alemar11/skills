@@ -33,6 +33,8 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, r
   - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local /path/to/postgres-skill/scripts/test_connection.sh`
 - Find objects:
   - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local /path/to/postgres-skill/scripts/find_objects.sh users`
+- Release a pending migration file:
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local /path/to/postgres-skill/scripts/release_migration.sh --summary "Add agent-context prompt sections"`
 
 ## Workflow
 1) Confirm connection source:
@@ -54,7 +56,7 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, r
    - Connect/run a query, inspect schema, review backend SQL/query usage, or run a helper script.
    - If the user wants to copy data from a dev/local DB into a production migration or seed SQL, treat that as a data-copy migration workflow: inspect the source rows, inspect target table defaults/constraints, generate SQL in the pending migration file, and expect follow-up edits to adapt values for production.
    - Default query runner: use `./scripts/psql_with_ssl_fallback.sh` (or `./scripts/run_sql.sh` for SQL text/file/stdin).
-   - If the user says a migration is "migrated", "released", or "run in production", execute the release workflow in `references/postgres_guardrails.md` (move pending SQL to `released/` and transition changelog entries from `WIP` to `RELEASED`).
+   - If the user says a pending migration file is "migrated", "released", or "run in production", prefer `./scripts/release_migration.sh` to release that pending migration file into `released/` and transition changelog notes from `WIP` to `RELEASED`. Fall back to the manual release workflow in `references/postgres_guardrails.md` only when the helper cannot be used cleanly.
    - For official PostgreSQL docs lookup, use `./scripts/search_postgres_docs.sh` only when the user explicitly asks for docs search/verification.
    - If the failure is local-runtime or Docker-specific (for example port collisions, `PGDATA`/bind-mount mismatch, or corrupted local cluster startup), follow `references/postgres_local_recovery.md`.
 3) Execute and report:
@@ -124,7 +126,7 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, r
 - Slow/active query diagnostics: `./scripts/slow_queries.sh`, `./scripts/activity_overview.sh`, `./scripts/long_running_queries.sh`
 - Lock diagnostics: `./scripts/locks_overview.sh`
 - Official docs search (explicit request only): `./scripts/search_postgres_docs.sh`
-- Flag migration as migrated/run in production: follow release workflow in `references/postgres_guardrails.md`
+- Release a pending migration file: `./scripts/release_migration.sh` (preferred) or the manual release workflow in `references/postgres_guardrails.md`
 - Local/Docker startup or cluster recovery: follow `references/postgres_local_recovery.md`
 
 ## Config and schema (brief)
@@ -152,14 +154,15 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, r
 - When drafting copied data for production, do not preserve generated PK values by default; rewrite dependent inserts to resolve FK targets via returned IDs or stable keys.
 - If the user asks for backend query optimization or performance review, inspect the application query code and separate read paths from write paths before recommending changes.
 - For migrations path resolution and schema-change workflow, follow the guardrails reference.
-- If the user explicitly marks a migration as migrated/released/run in production, perform the release workflow in guardrails immediately (unless they ask for a dry run only).
+- If the user explicitly marks a pending migration file as migrated/released/run in production, perform the release flow immediately with `./scripts/release_migration.sh` unless they ask for a dry run only.
 - If `CHANGELOG.md` is not in `WIP/RELEASED` format, migrate it to that template before writing new migration notes.
 - If the user asks to refresh Postgres best-practices docs/references, treat that as maintainer-only workflow outside this runtime skill.
 
 ## Guardrails (summary)
 - Always ask for approval before making any database structure change (DDL like CREATE/ALTER/DROP).
 - Keep pending changes in prerelease migration files and maintain a changelog.
-- Do not edit existing released SQL files; only create a new released file by moving a pending prerelease file when the user explicitly confirms release.
+- Use "pending migration file" / "released migration file" as the canonical workflow terms. "SQL script" is fine for the file format, but the action is releasing a migration.
+- Do not edit existing released SQL files; only create a new released migration file by moving a pending prerelease file when the user explicitly confirms release.
 - Use released filename policy: `YYYYMMDDHHMMSS.sql`; add `_<slug>` only on same-second collision; add `_<slug>_01`, `_02`, ... if still colliding.
 - Maintain changelog sections as `## WIP` and `## RELEASED`; if the changelog is not in this template, migrate it first, then continue updates.
 - When releasing, remove related bullets from `WIP` and add one short summary under `RELEASED` (newest first).
@@ -169,6 +172,10 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, r
 ## Common requests
 - Bootstrap or refresh a saved profile (interactive):
   - `DB_PROJECT_ROOT=/path/to/repo /path/to/postgres-skill/scripts/bootstrap_profile.sh`
+- Release a pending migration file:
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local /path/to/postgres-skill/scripts/release_migration.sh --summary "Add agent-context prompt sections"`
+- Dry-run a pending migration release:
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local /path/to/postgres-skill/scripts/release_migration.sh --summary "Add agent-context prompt sections" --dry-run`
 - Run SQL safely (inline):
   - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local /path/to/postgres-skill/scripts/run_sql.sh -c "select 1;"`
 - Run SQL safely (heredoc):

@@ -6,6 +6,7 @@ Use this when making schema changes, migrations, or any potentially destructive 
 - Always ask for approval before making any database structure change (DDL like CREATE/ALTER/DROP).
 - Keep pending changes in `<migrations_path>/prerelease.sql` (or ordered `1_prerelease.sql`, `2_prerelease.sql` if splitting is needed).
 - Treat SQL files inside `<migrations_path>/released/` as immutable after release.
+- Use "pending migration file" / "released migration file" as the canonical workflow terms. "SQL script" is fine for the file format, but the release flow operates on migration files.
 - Maintain `<migrations_path>/CHANGELOG.md` with this template; if a legacy format is present, migrate it to this template before further updates:
 
 ```md
@@ -36,7 +37,16 @@ When a pending migration file already contains the object definition you are cha
 If a single migration file becomes too complex, propose splitting it into meaningful, ordered files.
 If the same view/table is changed multiple times on the same day across different migration files, check whether they should be compacted into a single file and ask the user. If approved, consolidate and remove the superseded migration files.
 
-## Release workflow (when user says "migrated", "released", or "run in production")
+## Release workflow (when the user says a pending migration file was "migrated", "released", or "run in production")
+Preferred helper:
+
+```sh
+DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local \
+  ./scripts/release_migration.sh --summary "Add agent-context prompt sections"
+```
+
+The helper resolves `<migrations_path>`, picks the released filename, moves the pending migration file, recreates an empty pending file, and updates `CHANGELOG.md`. Use the manual steps below when the helper cannot be used cleanly.
+
 1) Resolve `<migrations_path>` using the order above.
 2) Identify the pending file to release (default `prerelease.sql`; use explicit project variants like `prerelease_cdr.sql` when applicable).
 3) Ensure `<migrations_path>/released/` exists.
@@ -54,6 +64,7 @@ If the same view/table is changed multiple times on the same day across differen
      - `### YYYY-MM-DD — \`<released_filename>.sql\``
      - `- <short summary>`
    - Keep `## RELEASED` newest-first.
+   - Prefer an explicit summary, but the helper may derive one from the first bullet in the matching `## WIP` subsection when possible.
 
 ## Post-change verification
 After any schema change, run the least expensive query that confirms the change (e.g., check `information_schema` or `pg_catalog` for views/tables/columns) to ensure the update matches expectations.
