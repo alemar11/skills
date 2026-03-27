@@ -41,7 +41,7 @@ This skill bundles a local reference of the official Swift API Design Guidelines
    - Show before/after call sites.
    - Explain the change in terms of clarity, fluency, and guideline fit.
 
-## Reference map
+## References
 
 - Read [official-guidelines.md](references/official-guidelines.md) when you need the local reference of the official Swift API Design Guidelines, including the good/bad examples.
 - Read [core-principles.md](references/core-principles.md) first for the high-level design rules that should drive every decision.
