@@ -9,10 +9,10 @@ Use this playbook when asked to refresh Postgres best-practices references.
 
 ## Execution Flow (Mandatory Order)
 1. `syntax-check`: run `bash -n` on both scripts.
-2. `snapshot`: run `./.agents/skills/tools/scripts/postgres_best_practices_snapshot.sh <limit>`.
+2. `snapshot`: run `./.agents/skills/skills-maintainer/scripts/postgres_best_practices_snapshot.sh <limit>`.
 3. `review`: apply the meaningful-change gate to each category file.
 4. `optional-edits`: update only files with semantic improvements.
-5. `cleanup`: run `./.agents/skills/tools/scripts/postgres_best_practices_cleanup.sh`.
+5. `cleanup`: run `./.agents/skills/skills-maintainer/scripts/postgres_best_practices_cleanup.sh`.
 6. `final-report`: use the release checklist report schema and mark `PASS (NOOP)` if no persistent edits were required.
 
 ## Read-only Evaluation Mode
@@ -21,7 +21,7 @@ When a read-only verification is requested:
 - Run `snapshot` with output directed to a temporary/untracked path under `.cache/`.
 - Do not modify tracked Postgres reference files.
 - Run cleanup in preview mode:
-  - `./.agents/skills/tools/scripts/postgres_best_practices_cleanup.sh --dry-run`
+  - `./.agents/skills/skills-maintainer/scripts/postgres_best_practices_cleanup.sh --dry-run`
 - Report whether full refresh execution would require tracked-file edits.
 
 ## Guardrails

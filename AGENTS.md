@@ -25,18 +25,19 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
 ### Postgres skill
 - Keep Postgres runtime behavior and operator-facing rules in `postgres/SKILL.md` and `postgres/references/*` (not duplicated here).
-- Keep best-practices regeneration orchestration in `.agents/skills/tools` and use `.agents/skills/tools/references/postgres-best-practices-runbook.md` as the canonical refresh procedure.
-- Route maintainer-only Postgres best-practices refresh work through repo-level maintainer docs and the `tools` skill workflow, not through runtime skill instructions.
+- Keep best-practices regeneration orchestration in `.agents/skills/skills-maintainer` and use `.agents/skills/skills-maintainer/references/postgres-best-practices-runbook.md` as the canonical refresh procedure.
+- Route maintainer-only Postgres best-practices refresh work through repo-level maintainer docs and the `skills-maintainer` skill workflow, not through runtime skill instructions.
 
-### Tools skill
-- The `.agents/skills/tools` skill is the default orchestrator for maintenance, optimization, refactor, and upstream benchmark tasks affecting skills in this repository.
-- Keep `tools` self-contained: workflow markdown guidance must live under `.agents/skills/tools/references/`.
-- Keep the dependency direction one-way: runtime skills must not depend on or reference `.agents/skills/tools`; only repo-level maintainer docs may route work to `tools`.
-- When updating skill metadata/docs across the repo, route through the `tools` playbooks and keep README/openai metadata text aligned.
+### Skills Maintainer skill
+- The `.agents/skills/skills-maintainer` skill is the default maintainer for improving existing skills in this repository through shared upgrade tasks and skill-specific refresh workflows.
+- Keep `skills-maintainer` self-contained: workflow markdown guidance must live under `.agents/skills/skills-maintainer/references/`.
+- Keep the dependency direction one-way: runtime skills must not depend on or reference `.agents/skills/skills-maintainer`; only repo-level maintainer docs may route work to `skills-maintainer`.
+- When updating skill metadata/docs across the repo, route through the `skills-maintainer` playbooks and keep README/openai metadata text aligned.
 - Treat plain-language "upgrade this skill" requests as targeted-skill maintenance first; only expand to repo-wide benchmark or refresh flows when the user asks for them explicitly.
-- Treat generic `$tools` imperatives like "run" or "run your tasks" as the default mixed maintenance pass: `sync metadata/docs` -> `audit consistency` -> `release-checklist.md`; do not infer `bootstrap`, `refresh`, or `benchmark`. (Codex learning)
-- When delegation is explicitly requested and the runtime supports subagents, `tools` may spawn multiple subagents only for independent analysis or disjoint write scopes; keep routing, final synthesis, and git verification in the main agent. (Codex learning)
-- For `tools` benchmark work, make official OpenAI skills the primary benchmark source: use `openai/skills` and `openai/plugins` by default, inspect plugin-packaged skills under `plugins/*/skills/*`, and treat non-OpenAI repos only as optional comparison baselines.
+- Treat generic `$skills-maintainer` imperatives like "run" or "run your tasks" as a proactive maintenance pass across existing skills: inspect the repo, choose skills with clear actionable drift, upgrade them, then run sync, audit, and `release-checklist.md`; do not infer new-skill creation, `refresh`, or `benchmark`. (Codex learning)
+- For brand-new skill creation, use `$skill-creator` first; use `skills-maintainer` afterward only for repo integration or follow-up maintenance. (Codex learning)
+- When delegation is explicitly requested and the runtime supports subagents, `skills-maintainer` may spawn multiple subagents only for independent analysis or disjoint write scopes; keep routing, final synthesis, and git verification in the main agent. (Codex learning)
+- For `skills-maintainer` benchmark work, make official OpenAI skills the primary benchmark source: use `openai/skills` and `openai/plugins` by default, inspect plugin-packaged skills under `plugins/*/skills/*`, and treat non-OpenAI repos only as optional comparison baselines.
 
 ### GitHub skill
 - Keep release/tag guidance in `github/SKILL.md` and `github/references/workflows.md`, not in repo-level fallback sections.

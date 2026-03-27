@@ -1,19 +1,19 @@
 # Postgres Best Practices Runbook
 
-This runbook is the canonical procedure for refreshing Postgres best-practices references from within the `tools` project skill.
+This runbook is the canonical procedure for refreshing Postgres best-practices references from within the `skills-maintainer` project skill.
 
 ## Hard Rule: Postgres Runtime Skill Unawareness
 - The runtime `postgres` skill must remain unaware of regeneration internals.
-- Keep regeneration mechanics in this `tools` skill (`scripts/`, `references/`, `artifacts/`).
+- Keep regeneration mechanics in this `skills-maintainer` skill (`scripts/`, `references/`, `artifacts/`).
 - The runtime `postgres` skill should only consume final content under `postgres/references/postgres_best_practices/`.
 
 ## Scope
-- Refresh source snapshot artifacts under `.agents/skills/tools/artifacts/`.
+- Refresh source snapshot artifacts under `.agents/skills/skills-maintainer/artifacts/`.
 - Update best-practices category docs under `postgres/references/postgres_best_practices/`.
-- Keep the procedure and maintainer evidence in this `tools` skill.
+- Keep the procedure and maintainer evidence in this `skills-maintainer` skill.
 
 ## Temporary Data Policy
-- Use `.agents/skills/tools/artifacts/` for runbook artifacts.
+- Use `.agents/skills/skills-maintainer/artifacts/` for runbook artifacts.
 - Use `.cache/` for transient downloads or scratch files.
 - Treat both locations as temporary working areas; cleanup before final report unless explicitly asked to keep artifacts.
 
@@ -31,9 +31,9 @@ This runbook is the canonical procedure for refreshing Postgres best-practices r
   - Reordering equivalent points.
 
 ## Tooling
-- Snapshot script: `./.agents/skills/tools/scripts/postgres_best_practices_snapshot.sh`
-- Cleanup script: `./.agents/skills/tools/scripts/postgres_best_practices_cleanup.sh`
-- Artifacts directory: `./.agents/skills/tools/artifacts/`
+- Snapshot script: `./.agents/skills/skills-maintainer/scripts/postgres_best_practices_snapshot.sh`
+- Cleanup script: `./.agents/skills/skills-maintainer/scripts/postgres_best_practices_cleanup.sh`
+- Artifacts directory: `./.agents/skills/skills-maintainer/artifacts/`
 
 ## Prerequisites
 - Run commands from repository root.
@@ -41,9 +41,9 @@ This runbook is the canonical procedure for refreshing Postgres best-practices r
 
 ## Refresh Flow
 1. Regenerate source snapshot:
-   - `./.agents/skills/tools/scripts/postgres_best_practices_snapshot.sh 5`
+   - `./.agents/skills/skills-maintainer/scripts/postgres_best_practices_snapshot.sh 5`
 2. Review snapshot diff:
-   - `git diff -- .agents/skills/tools/artifacts/top-postgres-skills.md`
+   - `git diff -- .agents/skills/skills-maintainer/artifacts/top-postgres-skills.md`
 3. Re-evaluate and update only meaningful category files:
    - `query-performance.md`
    - `connection-management.md`
@@ -54,25 +54,25 @@ This runbook is the canonical procedure for refreshing Postgres best-practices r
    - `monitoring-diagnostics.md`
    - `advanced-features.md`
 4. If no meaningful changes are needed, leave `postgres/references/postgres_best_practices/` unchanged.
-5. Optionally update maintainer evidence files under `./.agents/skills/tools/artifacts/`:
+5. Optionally update maintainer evidence files under `./.agents/skills/skills-maintainer/artifacts/`:
    - `sources-reviewed.md`
    - `verification.md`
 6. Ensure runtime skill docs stay clean:
    - `postgres/SKILL.md` references final best-practices content only.
    - `postgres/references/postgres_usage.md` does not include regeneration mechanics.
 7. Optional cleanup preview:
-   - `./.agents/skills/tools/scripts/postgres_best_practices_cleanup.sh --dry-run`
+   - `./.agents/skills/skills-maintainer/scripts/postgres_best_practices_cleanup.sh --dry-run`
 8. Cleanup temporary artifacts:
-   - `./.agents/skills/tools/scripts/postgres_best_practices_cleanup.sh`
+   - `./.agents/skills/skills-maintainer/scripts/postgres_best_practices_cleanup.sh`
 9. If `.cache/` was used, remove stale task-specific scratch files before completion.
 
 ## Validation
 - Script syntax checks:
-  - `bash -n .agents/skills/tools/scripts/postgres_best_practices_snapshot.sh`
-  - `bash -n .agents/skills/tools/scripts/postgres_best_practices_cleanup.sh`
+  - `bash -n .agents/skills/skills-maintainer/scripts/postgres_best_practices_snapshot.sh`
+  - `bash -n .agents/skills/skills-maintainer/scripts/postgres_best_practices_cleanup.sh`
 - Diff review:
-  - `git diff -- .agents/skills/tools/references/postgres-best-practices-runbook.md .agents/skills/tools/scripts/postgres_best_practices_snapshot.sh .agents/skills/tools/scripts/postgres_best_practices_cleanup.sh`
+  - `git diff -- .agents/skills/skills-maintainer/references/postgres-best-practices-runbook.md .agents/skills/skills-maintainer/scripts/postgres_best_practices_snapshot.sh .agents/skills/skills-maintainer/scripts/postgres_best_practices_cleanup.sh`
 
 ## Notes
-- This runbook is self-contained within the `tools` skill.
+- This runbook is self-contained within the `skills-maintainer` skill.
 - `top-postgres-skills.md`, `sources-reviewed.md`, and `verification.md` are temporary artifacts and may be deleted after each refresh cycle.

@@ -13,7 +13,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 - `swift-api-design/` — Design or review Swift APIs using the official Swift API Design Guidelines, with focus on naming, argument labels, documentation, side effects, and call-site clarity.
 
 ## Project Skills
-- `.agents/skills/tools/` — Orchestrate targeted skill upgrades, metadata/doc sync, consistency checks, and upstream benchmark workflows for skills in this repository.
+- `.agents/skills/skills-maintainer/` — Maintain and improve one or more skills in this repository with shared upgrade workflows and skill-specific refresh tasks.
 Project skills are repository-local and are not included in the reusable install examples below.
 
 ## Codex
@@ -66,6 +66,6 @@ npx skills add alemar11/skills -a codex -g -y --skill swift-api-design
 ```
 
 Omit `-g` to install into the current project's `.agents/skills/` instead of your global `~/.codex/skills/`.
-The repository-local `tools` maintainer skill is intentionally excluded from these commands.
+The repository-local `skills-maintainer` skill is intentionally excluded from these commands.
 
 Restart Codex to pick up new skills.

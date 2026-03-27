@@ -7,7 +7,7 @@ if command -v git >/dev/null 2>&1 && git -C "$SCRIPT_DIR" rev-parse --show-tople
 else
   REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd -P)"
 fi
-ARTIFACT_DIR="$REPO_ROOT/.agents/skills/tools/artifacts"
+ARTIFACT_DIR="$REPO_ROOT/.agents/skills/skills-maintainer/artifacts"
 DRY_RUN=false
 
 usage() {

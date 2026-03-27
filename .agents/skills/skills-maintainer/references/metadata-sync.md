@@ -1,6 +1,6 @@
 # Metadata Sync Playbook
 
-Use this playbook to keep each skill's `SKILL.md`, `agents/openai.yaml`, and top-level docs aligned.
+Use this playbook to keep one or more targeted skills' `SKILL.md`, `agents/openai.yaml`, and top-level docs aligned.
 
 ## Task Boundary (Sync Only)
 - `sync` aligns metadata and docs only.
@@ -24,12 +24,12 @@ When fields drift, resolve in this order:
 1. Enumerate skill manifests:
    - `find . -type f -name 'SKILL.md' -not -path '*/.git/*' -not -path '*/.cache/*' | sort`
    - `find . -type f -path '*/agents/openai.yaml' -not -path '*/.git/*' -not -path '*/.cache/*' | sort`
-2. For each skill, compare:
+2. For each targeted skill, compare:
    - `SKILL.md` frontmatter `name` and `description`
    - `agents/openai.yaml` interface fields (`display_name`, `short_description`, `default_prompt`)
    - README entry wording for that skill
 3. Update mismatches with minimal wording drift.
-4. Reconcile README lists so added/removed skills are reflected.
+4. Reconcile README lists so added, removed, or renamed skills are reflected.
 5. Confirm descriptions remain one-line and user-facing in README/openai metadata.
 
 ## Parallel Subagent Pattern

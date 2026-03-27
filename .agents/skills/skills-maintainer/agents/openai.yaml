@@ -1,0 +1,5 @@
+interface:
+  display_name: "Skills Maintainer"
+  short_description: "Maintain and improve one or more skills in this repository with shared upgrade workflows and skill-specific refresh tasks."
+  brand_color: "#B85C00"
+  default_prompt: "Run the requested skill-maintenance workflow for one or more skills in this repository. If the user says `run` without naming a task or target, inspect the local skills, choose the ones with clear actionable drift, apply safe upgrades, then run sync, audit, and release-style checks."

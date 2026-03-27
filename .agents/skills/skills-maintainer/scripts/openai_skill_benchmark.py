@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 DEFAULT_REPOS = ["openai/skills", "openai/plugins"]
-DEFAULT_OUTPUT_DIR = ".agents/skills/tools/artifacts/openai-skill-benchmark"
+DEFAULT_OUTPUT_DIR = ".agents/skills/skills-maintainer/artifacts/openai-skill-benchmark"
 DEFAULT_CLONE_ROOT = ".cache/upstream-skills"
 PRIMARY_REPO_PREFIX = "openai/"
 
@@ -607,8 +607,8 @@ def build_proposals(local_inventory: list[dict[str, Any]], upstream_summary: dic
                 "id": f"P{pid:03d}",
                 "severity": "medium",
                 "title": "Hidden project skills may be skipped by audit commands",
-                "target": ".agents/skills/tools/references/*.md",
-                "skill_root": ".agents/skills/tools",
+                "target": ".agents/skills/skills-maintainer/references/*.md",
+                "skill_root": ".agents/skills/skills-maintainer",
                 "recommendation": "Use `find`-based skill discovery that includes hidden `.agents/skills/*` paths.",
                 "rationale": "Glob-based `rg` patterns can omit hidden project skills and reduce audit coverage.",
             }

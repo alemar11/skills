@@ -1,5 +1,0 @@
-interface:
-  display_name: "Tools"
-  short_description: "Orchestrate targeted skill upgrades, metadata/doc sync, consistency checks, and upstream benchmark workflows for skills in this repository."
-  brand_color: "#B85C00"
-  default_prompt: "Run the requested skill maintenance workflow for this repository. If the user does not name a specific task, default to sync metadata/docs, then audit consistency, then report the release-checklist result."

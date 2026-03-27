@@ -20,17 +20,17 @@ Both are required by default.
 - other upstream skill repositories explicitly requested by the user
 
 ## Script Entry Point
-- `./.agents/skills/tools/scripts/openai_skill_benchmark.py`
+- `./.agents/skills/skills-maintainer/scripts/openai_skill_benchmark.py`
 
 ## Command Contract
 ```bash
-./.agents/skills/tools/scripts/openai_skill_benchmark.py \
+./.agents/skills/skills-maintainer/scripts/openai_skill_benchmark.py \
   --ref main \
   --scope both \
   --repo openai/skills \
   --repo openai/plugins \
   --clone-root .cache/upstream-skills \
-  --output-dir .agents/skills/tools/artifacts/openai-skill-benchmark \
+  --output-dir .agents/skills/skills-maintainer/artifacts/openai-skill-benchmark \
   --format both
 ```
 
@@ -39,7 +39,7 @@ Both are required by default.
 - `--scope both`
 - `--repo openai/skills --repo openai/plugins`
 - `--clone-root .cache/upstream-skills`
-- `--output-dir .agents/skills/tools/artifacts/openai-skill-benchmark`
+- `--output-dir .agents/skills/skills-maintainer/artifacts/openai-skill-benchmark`
 - `--format both`
 
 ## Expected Outputs
@@ -107,7 +107,7 @@ Do not propose:
 
 ## Temporary Data Policy
 - Persistent benchmark artifacts go under:
-  - `.agents/skills/tools/artifacts/openai-skill-benchmark/`
+  - `.agents/skills/skills-maintainer/artifacts/openai-skill-benchmark/`
 - Optional transient scratch data may use:
   - `.cache/` (default clone root: `.cache/upstream-skills/`)
 - Clean stale temporary files before final report unless user asks to keep them.

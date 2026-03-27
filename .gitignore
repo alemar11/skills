@@ -2,7 +2,7 @@
 __pycache__/
 *.pyc
 .cache/
-.agents/skills/tools/artifacts/top-postgres-skills.md
-.agents/skills/tools/artifacts/sources-reviewed.md
-.agents/skills/tools/artifacts/verification.md
-.agents/skills/tools/artifacts/openai-skill-benchmark/
+.agents/skills/skills-maintainer/artifacts/top-postgres-skills.md
+.agents/skills/skills-maintainer/artifacts/sources-reviewed.md
+.agents/skills/skills-maintainer/artifacts/verification.md
+.agents/skills/skills-maintainer/artifacts/openai-skill-benchmark/

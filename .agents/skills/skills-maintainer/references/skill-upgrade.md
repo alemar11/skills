@@ -3,34 +3,34 @@
 Use this playbook when a user asks to upgrade, modernize, tighten, or improve an existing skill.
 
 ## Purpose
-- Improve one existing skill with meaningful, scoped documentation or metadata updates.
+- Improve one or more existing skills with meaningful, scoped documentation or metadata updates.
 - Preserve the skill's intent while making triggers, workflow, guardrails, or supporting docs easier to use and maintain.
 - Avoid silently expanding a targeted upgrade into repo-wide benchmark or refresh work.
 
 ## Task Boundary
-- `upgrade` is for an existing target skill only.
-- Default scope:
-  - the target skill's `SKILL.md`
-  - the target skill's `agents/openai.yaml`
-  - the target skill's `references/*.md`
+- `upgrade` is for one or more existing target skills.
+- Default scope per target skill:
+  - the skill's `SKILL.md`
+  - the skill's `agents/openai.yaml`
+  - the skill's `references/*.md`
   - directly coupled mentions in `README.md` or `AGENTS.md` when wording or durable repo guidance changes
 - Do not run repo-wide benchmark analysis unless the user explicitly asks for `benchmark`.
 - Do not refresh domain best-practices content unless the user explicitly asks for `refresh`.
 
 ## Workflow
-1. Identify the target skill and inspect its current package:
+1. Identify the target skill or skills and inspect each current package:
    - `SKILL.md`
    - `agents/openai.yaml`
    - any referenced `references/*.md` and `scripts/*`
    - related mentions in `README.md` and `AGENTS.md`
-2. Define the concrete upgrade goals before editing:
+2. Define the concrete upgrade goals for each target before editing:
    - trigger clarity
    - workflow structure
    - guardrail precision
    - metadata/doc sync
    - moving dense guidance into `references/` when that improves maintainability
-3. Apply minimal, meaningful edits that preserve the skill's current intent.
-4. Run a focused sync pass using `references/metadata-sync.md` for the touched skill and any directly coupled docs.
+3. Apply minimal, meaningful edits that preserve each skill's current intent.
+4. Run a focused sync pass using `references/metadata-sync.md` for the touched skills and any directly coupled docs.
 5. Run a focused consistency pass using the relevant checks from `references/doc-consistency.md`:
    - required files still exist
    - referenced scripts/docs exist
@@ -49,7 +49,7 @@ Use this playbook when a user asks to upgrade, modernize, tighten, or improve an
 - Keep upgrade-goal selection, final wording choices, and edit integration in the main agent.
 
 ## Quality Gates
-- The upgrade has a concrete rationale; avoid cosmetic rewrites with no practical gain.
+- Each upgraded skill has a concrete rationale; avoid cosmetic rewrites with no practical gain.
 - Touched docs stay aligned across `SKILL.md`, `agents/openai.yaml`, and `README.md`.
 - `AGENTS.md` changes happen only when the upgrade introduces durable repository guidance.
 - Return `PASS (NOOP)` when no meaningful improvement is needed after inspection.
