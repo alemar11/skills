@@ -12,7 +12,7 @@ Curated local references for the `swift-docc` skill.
 
 - [document-a-swift-package.md](document-a-swift-package.md): fastest path for documenting a package or library API end to end.
 - [document-public-symbols.md](document-public-symbols.md): fastest path for source comments on public APIs.
-- [document-async-and-stateful-apis.md](document-async-and-stateful-apis.md): fastest path for actors, async work, retries, sessions, and state-machine APIs.
+- [document-api-lifecycle-and-behavior.md](document-api-lifecycle-and-behavior.md): fastest path for actors, async work, retries, sessions, and state-machine APIs.
 - [add-a-docc-catalog.md](add-a-docc-catalog.md): fastest path for landing pages, articles, and topic groups.
 - [preview-and-publish.md](preview-and-publish.md): fastest path for local preview, archive generation, and hosting docs.
 - [tutorial-workflow.md](tutorial-workflow.md): fastest path for adding tutorials to an existing package.

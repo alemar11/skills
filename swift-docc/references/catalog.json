@@ -422,12 +422,12 @@
     },
     {
       "question": "How do I document async, actor, or state-machine APIs?",
-      "summary_page": "document-async-and-stateful-apis.md",
+      "summary_page": "document-api-lifecycle-and-behavior.md",
       "primary_topic_id": "writing-symbol-documentation-in-your-source-files"
     },
     {
       "question": "How do I document retries, reconnection, lifecycle, or state transitions?",
-      "summary_page": "document-async-and-stateful-apis.md",
+      "summary_page": "document-api-lifecycle-and-behavior.md",
       "primary_topic_id": "writing-symbol-documentation-in-your-source-files"
     },
     {

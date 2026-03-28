@@ -33,7 +33,7 @@ Do not use this skill for:
 2. Pick the summary page that matches the request:
    - [document-a-swift-package.md](references/document-a-swift-package.md)
    - [document-public-symbols.md](references/document-public-symbols.md)
-   - [document-async-and-stateful-apis.md](references/document-async-and-stateful-apis.md)
+   - [document-api-lifecycle-and-behavior.md](references/document-api-lifecycle-and-behavior.md)
    - [add-a-docc-catalog.md](references/add-a-docc-catalog.md)
    - [preview-and-publish.md](references/preview-and-publish.md)
    - [tutorial-workflow.md](references/tutorial-workflow.md)
@@ -64,7 +64,7 @@ Do not use this skill for:
 - Read the summary pages before opening local source files:
   - [references/document-a-swift-package.md](references/document-a-swift-package.md)
   - [references/document-public-symbols.md](references/document-public-symbols.md)
-  - [references/document-async-and-stateful-apis.md](references/document-async-and-stateful-apis.md)
+  - [references/document-api-lifecycle-and-behavior.md](references/document-api-lifecycle-and-behavior.md)
   - [references/add-a-docc-catalog.md](references/add-a-docc-catalog.md)
   - [references/preview-and-publish.md](references/preview-and-publish.md)
   - [references/tutorial-workflow.md](references/tutorial-workflow.md)

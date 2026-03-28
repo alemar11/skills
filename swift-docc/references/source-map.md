@@ -7,8 +7,8 @@ Task-language routing for the `swift-docc` skill.
 | How do I document a Swift package or library API? | [Summary](document-a-swift-package.md) | [Local source](../assets/DocCDocumentation.docc/documenting-a-swift-framework-or-package.md) |
 | How do I start documenting a Swift package or framework? | [Summary](document-a-swift-package.md) | [Local source](../assets/DocCDocumentation.docc/documenting-a-swift-framework-or-package.md) |
 | How do I document public symbols in source? | [Summary](document-public-symbols.md) | [Local source](../assets/DocCDocumentation.docc/writing-symbol-documentation-in-your-source-files.md) |
-| How do I document async, actor, or state-machine APIs? | [Summary](document-async-and-stateful-apis.md) | [Local source](../assets/DocCDocumentation.docc/writing-symbol-documentation-in-your-source-files.md) |
-| How do I document retries, reconnection, lifecycle, or state transitions? | [Summary](document-async-and-stateful-apis.md) | [Local source](../assets/DocCDocumentation.docc/writing-symbol-documentation-in-your-source-files.md) |
+| How do I document async, actor, or state-machine APIs? | [Summary](document-api-lifecycle-and-behavior.md) | [Local source](../assets/DocCDocumentation.docc/writing-symbol-documentation-in-your-source-files.md) |
+| How do I document retries, reconnection, lifecycle, or state transitions? | [Summary](document-api-lifecycle-and-behavior.md) | [Local source](../assets/DocCDocumentation.docc/writing-symbol-documentation-in-your-source-files.md) |
 | How do I write symbol documentation comments? | [Summary](document-public-symbols.md) | [Local source](../assets/DocCDocumentation.docc/writing-symbol-documentation-in-your-source-files.md) |
 | How do I add a .docc catalog, landing page, or articles? | [Summary](add-a-docc-catalog.md) | [Local source](../assets/DocCDocumentation.docc/adding-supplemental-content-to-a-documentation-catalog.md) |
 | How do I add articles or documentation extensions? | [Summary](add-a-docc-catalog.md) | [Local source](../assets/DocCDocumentation.docc/adding-supplemental-content-to-a-documentation-catalog.md) |

@@ -1,4 +1,4 @@
-# Document Async And Stateful APIs
+# Document API Lifecycle And Behavior
 
 Use this page when the API surface is driven by async work, actors,
 reconnection, retries, long-lived sessions, or explicit state transitions.
@@ -26,4 +26,3 @@ reconnection, retries, long-lived sessions, or explicit state transitions.
 | Cross-links between states, errors, and events | [Local source](../assets/DocCDocumentation.docc/linking-to-symbols-and-other-content.md) |
 | Package-level workflow | [Local](document-a-swift-package.md) |
 | Add lifecycle or architecture articles | [Local](add-a-docc-catalog.md) |
-

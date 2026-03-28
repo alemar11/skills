@@ -26,7 +26,7 @@ SUMMARY_FILES = [
     "README.md",
     "document-a-swift-package.md",
     "document-public-symbols.md",
-    "document-async-and-stateful-apis.md",
+    "document-api-lifecycle-and-behavior.md",
     "add-a-docc-catalog.md",
     "preview-and-publish.md",
     "tutorial-workflow.md",
