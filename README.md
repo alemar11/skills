@@ -9,7 +9,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 - `github/` — Use GitHub CLI (gh) for repository-scoped issues, pull requests, Actions runs/logs, releases, and tags; default to the current git project unless another `owner/repo` is provided.
 - `learn/` — Capture durable corrections or preferences and write confirmed learnings only to `AGENTS.md` when the user sets lasting guidance.
 - `postgres/` — Connect to Postgres databases, run queries/diagnostics, review backend SQL for performance, and search official PostgreSQL docs only when explicitly requested.
-- `skill-audit/` — Audit installed Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables.
+- `skill-audit/` — Audit installed or user-specified Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables.
 - `swift-api-design/` — Design or review Swift APIs using the official Swift API Design Guidelines, with focus on naming, argument labels, documentation, side effects, and call-site clarity.
 
 ## Project Skills

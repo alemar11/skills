@@ -1,6 +1,6 @@
 ---
 name: skill-audit
-description: Audit installed Codex skills using project history, memories, sessions, and current context to plan updates, additions, merges, or disables. Use when a user asks how their installed skills are performing, wants a one-by-one refinement roadmap, wants to improve project-local or global skills, or wants evidence-based recommendations before changing skills.
+description: Audit installed or user-specified Codex skills using project history, memories, sessions, and current context to plan updates, additions, merges, or disables. Use when a user asks how their installed skills are performing, wants a one-by-one refinement roadmap, asks to audit one or more named skills, or wants evidence-based recommendations before changing skills.
 ---
 
 # Skill Audit
@@ -15,16 +15,52 @@ Use repo evidence, Codex memory, past sessions, and current live context when av
 
 For broad reusable skills, prefer fixing the shared skill or relying on project docs and memory before proposing a repo-specific variant.
 
-If `skill-audit` itself is part of the installed portfolio, always audit it too and treat its own gaps as first-class findings.
+In full-portfolio audits, exclude `skill-audit` from the audited set by
+default even if it is installed. After presenting the suggestions for the other
+skills, explicitly ask the user whether they want a follow-up audit of
+`skill-audit` too.
 
 If the user asks for a narrow audit, such as only the skills used in the
 current workflow, honor that scope explicitly instead of expanding to the full
 installed portfolio.
 
+If the user explicitly names one or more skills, such as `audit skill $xxx` or
+`audit only $foo and $bar`, treat those named skills as the required audit
+scope and resolve them before any broader portfolio discovery.
+In that targeted mode, audit only the explicitly requested skills and do not
+add `skill-audit` unless the user named `skill-audit` too.
+
+## Scope Resolution
+
+- Resolve user-provided scope first.
+  - If the user names one or more skills explicitly, those names define the
+    primary audit target set.
+  - Accept singular or plural phrasing such as `audit skill $foo`, `audit
+    skills $foo and $bar`, or `review only $foo`.
+- Resolve named skills across both local and shared roots.
+  - Search project-local skill roots first, then shared/global roots.
+  - Match exact skill directory names first before considering obvious aliases
+    from injected skill summaries or metadata.
+- Keep targeted audits targeted.
+  - If the user names specific skills, do not expand to the full installed
+    portfolio.
+  - In that mode, do not auto-include `skill-audit` unless it was explicitly
+    requested.
+  - Only bring in non-requested skills when needed to explain overlap, merge
+    candidates, or ownership conflicts.
+- Keep full-portfolio audits scoped too.
+  - When auditing the installed portfolio, do not auto-include `skill-audit`
+    in the findings.
+  - After presenting the non-`skill-audit` recommendations, ask the user
+    whether they want to audit `skill-audit` too.
+- Be explicit about misses.
+  - If a named skill cannot be resolved, say so clearly.
+  - Do not silently substitute a near match or widen the audit scope.
+
 ## Audit Order
 
-1. Map the current repo surface.
-   Identify the repo root and read the most relevant project guidance first, such as `AGENTS.md`, `README.md`, roadmap or ledger files, and docs that define workflows or validation expectations.
+1. Resolve scope and map the current repo surface.
+   Identify whether the user named specific skills. If yes, treat them as the required audit targets and resolve those names first. In that targeted mode, do not add `skill-audit` unless it was explicitly named. If the user asked for a full installed-skill audit, keep `skill-audit` out of the audited set by default and plan to ask about it only after presenting the other recommendations. Then identify the repo root and read the most relevant project guidance first, such as `AGENTS.md`, `README.md`, roadmap or ledger files, and docs that define workflows or validation expectations.
 
 2. Audit installed project-local skills.
    Check these locations relative to the current repo root:
@@ -32,6 +68,7 @@ installed portfolio.
    - `.codex/skills`
    - `skills`
    Read both `SKILL.md` and `agents/openai.yaml` when present.
+   - If the user named specific skills, inspect only the requested skills found in these roots instead of auditing every local skill.
    - If none of these locations exist or they contain no skills, record that explicitly and move on instead of treating the audit as blocked.
 
 3. Audit relevant global and shared skills.
@@ -43,7 +80,7 @@ installed portfolio.
    - `<root>/*/SKILL.md`
    - `<root>/.system/*/SKILL.md`
    - if a root is a symlink farm, resolve the real target path and audit the underlying skill once rather than double-counting the symlinked view and the source directory
-   Only open shared skills that are relevant to the current repo or overlap with the local skill surface.
+   Only open shared skills that are relevant to the current repo, were explicitly requested by the user, or overlap with the local skill surface.
 
 4. Check cheap maintenance signals before deep history.
    For each skill you are seriously evaluating, inspect lightweight staleness signals before opening raw sessions:
@@ -93,7 +130,7 @@ For each installed skill, evaluate:
 - whether missing project-specific behavior should live in the shared skill, in project docs or memory, or only as a last-resort project-local specialization
 - whether it adds prompt weight without enough value when current context exposes that signal
 
-For `skill-audit` itself, also evaluate:
+When `skill-audit` is part of the audited scope, also evaluate:
 
 - whether prior audit findings suggest changes to its own workflow or output shape
 - whether it is missing useful self-checks or learning loops
@@ -171,7 +208,8 @@ For `skill-audit` itself, also evaluate:
 Return a compact audit with these sections:
 
 1. `Installed skills`
-   List the relevant installed project-local and global skills and the current role each one plays.
+   List the audited project-local and global skills and the current role each one plays.
+   If the user named skills explicitly, list only the resolved requested skills plus any directly relevant overlap needed to explain the recommendation.
 
 2. `Evidence summary`
    Summarize the strongest repo, memory, session, and live-context signals that informed the audit.
@@ -187,24 +225,38 @@ Return a compact audit with these sections:
    - highest-value next update
    - whether the issue should be solved in the shared skill, in project docs or memory, or only as a last-resort project-local specialization
 
-   If `skill-audit` is installed, include an explicit entry for `skill-audit` in this section.
+   In full-portfolio audits, do not include `skill-audit` in this section unless the user explicitly asked to audit it.
+   In user-targeted audits, include `skill-audit` only when it was explicitly requested.
 
 4. `Add / merge / disable candidates`
-   List only the candidates justified by evidence after reviewing the installed portfolio.
+   List only the candidates justified by evidence after reviewing the audited scope.
+   For user-targeted audits, do not introduce unrelated portfolio candidates.
 
 5. `Priority order`
    Rank the top recommendations by expected value, starting with the most useful update to make next.
 
+6. `Follow-up question`
+   In full-portfolio audits where `skill-audit` was not explicitly requested, end by asking the user whether they want a follow-up audit of `skill-audit` too.
+
 ## Decision Rules
 
 - Audit project-local skills before global/shared skills.
+- When the user names specific skills, treat those named skills as the primary
+  and usually exclusive audit scope.
+- Resolve user-named skills before broad portfolio discovery.
+- In full-portfolio audits, exclude `skill-audit` from the audited set unless
+  the user explicitly asks for it.
 - Prefer improving an existing installed skill before adding a new one.
 - Prefer improving a shared skill when the problem is broadly reusable across projects.
 - Prefer project docs, `AGENTS.md`, repo references, or memory when the missing context is project-specific but does not justify a dedicated local skill.
 - Recommend a project-local specialization only when the workflow is highly stable, repeatedly needed, and too project-specific to fit cleanly in the shared skill or repo docs.
 - Recommend a new skill only after checking whether an installed skill could own the workflow cleanly.
 - Treat live context-window analysis as best-effort only; rely only on evidence exposed in the current runtime prompt.
-- If `skill-audit` is installed, do not skip its self-audit just because it is the current skill performing the audit.
+- Do not substitute a near-match for a user-named skill without saying so explicitly.
+- Only widen beyond the user-passed skills when overlap, merge, or ownership evidence requires it.
+- In user-targeted audits, do not auto-append `skill-audit` unless it was explicitly requested.
+- In full-portfolio audits, after presenting the non-`skill-audit` findings,
+  explicitly ask whether the user wants to audit `skill-audit` too.
 
 ## Failure Shields
 
@@ -215,9 +267,12 @@ Return a compact audit with these sections:
 - Do not flatten project-local and global skills into one bucket; keep ownership decisions explicit.
 - Do not jump to new-skill recommendations before evaluating installed skills as possible owners.
 - Do not propose a project-local specialization when the gap is better solved by improving a shared skill or strengthening project docs and memory.
-- Do not exempt `skill-audit` from critique; self-review is required when it is installed.
+- When `skill-audit` is in scope, do not exempt it from critique.
 - Do not bulk-load all rollout summaries or raw sessions; stay targeted.
 - Do not skip cheap git-history checks and jump straight to raw sessions when staleness is the main question.
+- Do not silently expand a user-targeted audit into a full portfolio review.
+- Do not auto-append `skill-audit` to a user-targeted audit.
+- Do not silently include `skill-audit` findings in a full-portfolio audit.
 
 ## Follow-up
 
@@ -228,3 +283,5 @@ If the user asks to create, merge, or update one of the recommendations, switch 
 - "Audit the installed skills in this repo and tell me which ones should be updated first."
 - "Review only the skills involved in the current workflow and suggest the highest-value improvements."
 - "Before we add a new skill, check whether an installed skill or repo docs should own this workflow instead."
+- "Audit skill $postgres and tell me whether its triggers or references are stale."
+- "Audit only $github and $skill-audit and call out any overlap or weak guardrails."
