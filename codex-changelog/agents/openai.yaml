@@ -1,5 +1,5 @@
 interface:
   display_name: "Codex Changelog"
-  short_description: "Check the installed Codex CLI version and fetch/print the matching GitHub Releases changelog from https://github.com/openai/codex/releases. Use when users ask for their Codex version, release notes, or changelog for the installed CLI."
+  short_description: "Check the installed Codex CLI and Codex App versions, then print CLI notes from GitHub Releases and app notes from the OpenAI Codex changelog page."
   brand_color: "#D1495B"
-  default_prompt: "Use $codex-changelog to print the release notes for my installed Codex CLI version."
+  default_prompt: "Use $codex-changelog to print separate Codex CLI and Codex App changelog sections for my installed versions."

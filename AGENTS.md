@@ -39,6 +39,11 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - When delegation is explicitly requested and the runtime supports subagents, `skills-maintainer` may spawn multiple subagents only for independent analysis or disjoint write scopes; keep routing, final synthesis, and git verification in the main agent. (Codex learning)
 - For `skills-maintainer` benchmark work, make official OpenAI skills the primary benchmark source: use `openai/skills` and `openai/plugins` by default, inspect plugin-packaged skills under `plugins/*/skills/*`, and treat non-OpenAI repos only as optional comparison baselines.
 
+### Codex Changelog skill
+- Split `codex-changelog` output into `Codex CLI` and `Codex App` sections when reporting release notes. (Codex learning)
+- Always fetch Codex CLI notes from `openai/codex` GitHub releases, even if the OpenAI Codex changelog page also lists CLI entries. (Codex learning)
+- Fetch Codex App notes from `https://developers.openai.com/codex/changelog` and match the installed desktop app version when possible. (Codex learning)
+
 ### GitHub skill
 - Keep release/tag guidance in `github/SKILL.md` and `github/references/workflows.md`, not in repo-level fallback sections.
 - For release-backed tag creation, resolve the repository default branch explicitly and surface the exact target SHA before mutation; do not hardcode `main`.
