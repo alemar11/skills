@@ -22,16 +22,18 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Use this section only as a fallback when no more appropriate section exists in AGENTS.md.
 - In `references/` folders, keep `.md` filenames lowercase except for `README.md` and `AGENTS.md`.
 - If `brand_color` isn’t provided, pick a random hex color not already used by other skills in this repo and set it in `agents/openai.yaml`.
+- Runtime skills must stay unaware of `.agents/skills/skills-maintainer`: do not reference it, its runbooks, or maintainer-routing instructions from runtime `SKILL.md` files or runtime usage references. Keep that routing only in repo-level maintainer docs such as this `AGENTS.md`.
 
 ### Postgres skill
 - Keep Postgres runtime behavior and operator-facing rules in `postgres/SKILL.md` and `postgres/references/*` (not duplicated here).
+- The runtime `postgres` skill must not describe or perform self-upgrade, best-practices refresh, or other package-maintenance workflows. It may still expose runtime learnings that could later be promoted into durable runtime guidance.
 - Keep best-practices regeneration orchestration in `.agents/skills/skills-maintainer` and use `.agents/skills/skills-maintainer/references/postgres-best-practices-runbook.md` as the canonical refresh procedure.
 - Route maintainer-only Postgres best-practices refresh work through repo-level maintainer docs and the `skills-maintainer` skill workflow, not through runtime skill instructions.
 
 ### Skills Maintainer skill
 - The `.agents/skills/skills-maintainer` skill is the default maintainer for improving existing skills in this repository through shared upgrade tasks and skill-specific refresh workflows.
 - Keep `skills-maintainer` self-contained: workflow markdown guidance must live under `.agents/skills/skills-maintainer/references/`.
-- Keep the dependency direction one-way: runtime skills must not depend on or reference `.agents/skills/skills-maintainer`; only repo-level maintainer docs may route work to `skills-maintainer`.
+- Keep the dependency direction one-way: runtime skills must not depend on, reference, or route users to `.agents/skills/skills-maintainer`; only repo-level maintainer docs may route work to `skills-maintainer`.
 - When updating skill metadata/docs across the repo, route through the `skills-maintainer` playbooks and keep README/openai metadata text aligned.
 - Treat plain-language "upgrade this skill" requests as targeted-skill maintenance first; only expand to repo-wide benchmark or refresh flows when the user asks for them explicitly.
 - Treat generic `$skills-maintainer` imperatives like "run" or "run your tasks" as a proactive maintenance pass across existing skills: inspect the repo, choose skills with clear actionable drift, upgrade them, then run sync, audit, and `release-checklist.md`; do not infer new-skill creation, `refresh`, or `benchmark`. (Codex learning)

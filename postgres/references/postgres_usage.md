@@ -372,8 +372,3 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 - `update_sslmode.sh` — Updates `sslmode` for a profile in `postgres.toml` (used by the fallback flow).
 - `migrate_toml_schema.sh` — Migrates `postgres.toml` to the latest schema version (normalizes `sslmode`, renames legacy config keys, and writes `python_bin`).
 - `bootstrap_profile.py` — Helper for interactive profile setup (used by `bootstrap_profile.sh`).
-
-## Maintainer references
-Maintainer-only guidance lives in separate references:
-- `references/postgres_skill_maintenance.md`
-- `references/postgres_skill_learn.md`
