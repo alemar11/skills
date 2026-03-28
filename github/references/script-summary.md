@@ -19,7 +19,7 @@ Use this as the authoritative script catalog referenced by `github/SKILL.md`.
 - `scripts/release_create.sh --tag <tag> --target-ref <branch-or-sha> --notes-mode <infer|blank|user> [--repo <owner/repo>] [--title <text>|--title-file <path>] [--notes-file <path>|--notes-text <text>] [--previous-tag <tag>] [--allow-non-project]`: Create a release with an explicit target and explicit notes strategy. This helper refuses to run without `--notes-mode`.
 - `scripts/check_docs_script_refs.sh [--skill-dir <path>]`: Verify docs reference existing scripts and documented flags are present in `--help` output.
 - `scripts/issue_resolve_repo.sh [--repo <owner/repo>] [--allow-non-project]`: Resolve the target repository, defaulting to current git project.
-- `scripts/repos_list.sh [--owner <owner>] [--type all|public|private|forks|archived|sources|member] [--all] [--limit N] [--allow-non-project]`: List repositories available to current user or specified owner.
+- `scripts/repos_list.sh [--owner <owner>] [--type all|owner|member|public|private|forks|archived|sources] [--all] [--limit N] [--allow-non-project]`: List repositories available to current user or specified owner.
 - `scripts/actions_run_inspect.sh [--repo <owner/repo>] [--run-id <id>] [--job-id <id>] [--artifact-name <name>] [--download-dir <path>] [--branch <branch>] [--commit <sha>] [--workflow <name>] [--event <event>] [--status <status>] [--limit N] [--all] [--summary-only] [--allow-non-project]`: List recent non-PR workflow runs or inspect one run/job/artifact path in a single helper.
 
 ## Issue scripts

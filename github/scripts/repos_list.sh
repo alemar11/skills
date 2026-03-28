@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: repos_list.sh [--owner <owner>] [--type all|public|private|forks|archived|sources|member] [--all] [--limit N] [--allow-non-project]
+Usage: repos_list.sh [--owner <owner>] [--type all|owner|member|public|private|forks|archived|sources] [--all] [--limit N] [--allow-non-project]
 
 List repositories.
 - If --owner is omitted, list repositories for the authenticated user.
@@ -78,7 +78,7 @@ if [[ -n "$OWNER" ]]; then
   fi
 fi
 
-github_require_allowed_value "type" "$TYPE" all public private forks archived sources member
+github_require_allowed_value "type" "$TYPE" all owner member public private forks archived sources
 github_require_positive_int "limit" "$LIMIT"
 
 if [[ "$ALL" -eq 1 ]]; then
@@ -94,41 +94,30 @@ fi
 ENDPOINT=""
 API_TYPE="$TYPE"
 FILTER_MODE="$TYPE"
+SERVER_FILTERED=1
+ENDPOINT_KIND="self"
 
 if [[ -n "$OWNER" ]]; then
   ENDPOINT="users/$OWNER/repos"
 
   if gh api "orgs/$OWNER" --silent >/dev/null 2>&1; then
     ENDPOINT="orgs/$OWNER/repos"
-    if [[ "$TYPE" == "member" ]]; then
-      echo "--type member is only valid when listing repositories available to the authenticated user." >&2
-      exit 64
-    fi
+    ENDPOINT_KIND="org"
   else
-    case "$TYPE" in
-      member)
-        echo "--type member is only valid when listing repositories available to the authenticated user." >&2
-        exit 64
-        ;;
-      all)
-        API_TYPE=""
-        FILTER_MODE="all"
-        ;;
-      public|private|forks|sources|archived)
-        API_TYPE="all"
-        ;;
-    esac
+    ENDPOINT_KIND="user"
   fi
 else
   ENDPOINT="user/repos"
-  case "$TYPE" in
-    public|private|forks|sources|archived)
-      API_TYPE="all"
-      ;;
-  esac
 fi
 
-python3 - "$LIMIT" "$FILTER_MODE" "$ENDPOINT" "$API_TYPE" <<'PY'
+case "$ENDPOINT_KIND:$TYPE" in
+  self:public|self:private|self:forks|self:sources|self:archived|user:public|user:private|user:forks|user:sources|user:archived|org:archived)
+    API_TYPE="all"
+    SERVER_FILTERED=0
+    ;;
+esac
+
+python3 - "$LIMIT" "$FILTER_MODE" "$ENDPOINT" "$API_TYPE" "$SERVER_FILTERED" <<'PY'
 import json
 import subprocess
 import sys
@@ -137,6 +126,7 @@ limit = int(sys.argv[1])
 filter_mode = sys.argv[2]
 endpoint = sys.argv[3]
 api_type = sys.argv[4]
+server_filtered = bool(int(sys.argv[5]))
 
 def fetch_page(page: int, per_page: int) -> list[dict]:
     cmd = [
@@ -170,6 +160,8 @@ def fetch_page(page: int, per_page: int) -> list[dict]:
 def matches(repo):
     if filter_mode == "all":
         return True
+    if filter_mode == "owner":
+        return True
     if filter_mode == "public":
         return not repo.get("private", False)
     if filter_mode == "private":
@@ -184,8 +176,7 @@ def matches(repo):
         return True
     return True
 
-server_filtered_modes = {"all", "member"}
-per_page = min(limit, 100) if filter_mode in server_filtered_modes else 100
+per_page = min(limit, 100) if server_filtered else 100
 
 count = 0
 page = 1
