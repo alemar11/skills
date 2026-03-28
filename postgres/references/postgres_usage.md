@@ -373,8 +373,7 @@ DB_CONFIRM=YES ./scripts/terminate_backend.sh 12345
 - `migrate_toml_schema.sh` — Migrates `postgres.toml` to the latest schema version (normalizes `sslmode`, renames legacy config keys, and writes `python_bin`).
 - `bootstrap_profile.py` — Helper for interactive profile setup (used by `bootstrap_profile.sh`).
 
-## Skill maintenance
-If you discover or add meaningful scripts under `./scripts`, update this file to list them with a short purpose and example usage so they are easy to find and reuse.
-
-## Learn (skill evolution)
-When this skill uncovers useful **generic** queries or workflows, add them as scripts under `./scripts` and document them here. If new **critical** reusable rules emerge, update the guardrails reference.
+## Maintainer references
+Maintainer-only guidance lives in separate references:
+- `references/postgres_skill_maintenance.md`
+- `references/postgres_skill_learn.md`
