@@ -18,6 +18,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
 ## Rules
 - Keep README.md skill descriptions, list, and install prompts in sync with `agents/openai.yaml` and any skill adds/removes/renames.
+- Keep a `Skill Dependencies` section in `README.md` only when one or more skills explicitly require loading other skills at runtime; list each such skill and the required companion skills, update the section when those requirements change, and remove or omit the section entirely when no such requirements exist.
 - When new durable rules are discovered while creating or updating skills, add them to this AGENTS.md under the appropriate skill section.
 - Use this section only as a fallback when no more appropriate section exists in AGENTS.md.
 - In `references/` folders, keep `.md` filenames lowercase except for `README.md` and `AGENTS.md`.
