@@ -6,7 +6,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 - `commit/` — Create a well-formed git commit with rationale, explicit staging, and monorepo-safe scope.
 - `ask-questions-if-underspecified/` — Clarify requirements before implementing when a request is underspecified or the user asks for clarification.
 - `codex-changelog/` — Check the installed Codex CLI and Codex App versions, then print CLI notes from `openai/codex/releases` and app notes from the OpenAI Codex changelog page.
-- `github/` — Use GitHub CLI (gh) for repository-scoped issues, pull requests, Actions runs/logs, releases, and tags; default to the current git project unless another `owner/repo` is provided.
+- `github/` — Handle repo-scoped GitHub triage, review follow-up, CI, reactions, releases, tags, and opening a PR from an already-pushed branch through repo-owned `gh` helpers.
 - `learn/` — Capture durable corrections or preferences and write confirmed learnings only to `AGENTS.md` when the user sets lasting guidance.
 - `postgres/` — Connect to Postgres databases, run queries/diagnostics, review backend SQL for performance, and search official PostgreSQL docs only when explicitly requested.
 - `skill-audit/` — Audit installed or user-specified Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables.

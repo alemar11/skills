@@ -83,6 +83,52 @@ github_repo_from_remote_url() {
   echo "$repo"
 }
 
+github_require_git_repo() {
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "No git repository detected." >&2
+    exit 3
+  fi
+}
+
+github_current_branch() {
+  github_require_git_repo
+
+  local branch
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+  if [[ -z "$branch" || "$branch" == "HEAD" ]]; then
+    echo "Detached HEAD detected. Check out a branch first." >&2
+    exit 5
+  fi
+
+  echo "$branch"
+}
+
+github_tracking_remote_name() {
+  local branch="${1:-}"
+  if [[ -z "$branch" ]]; then
+    echo "github_tracking_remote_name requires a branch name." >&2
+    exit 64
+  fi
+
+  git config --get "branch.$branch.remote" 2>/dev/null || true
+}
+
+github_tracking_branch_name() {
+  local branch="${1:-}"
+  if [[ -z "$branch" ]]; then
+    echo "github_tracking_branch_name requires a branch name." >&2
+    exit 64
+  fi
+
+  local merge_ref
+  merge_ref="$(git config --get "branch.$branch.merge" 2>/dev/null || true)"
+  if [[ -z "$merge_ref" ]]; then
+    return 0
+  fi
+
+  echo "${merge_ref#refs/heads/}"
+}
+
 github_resolve_repo() {
   local script_dir="${1:-}"
   local repo_ref="${2:-}"

@@ -65,6 +65,8 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
 ### GitHub skill
 - Keep release/tag guidance in `github/SKILL.md` and `github/references/workflows.md`, not in repo-level fallback sections.
+- Keep the runtime `github` skill self-owned and self-sufficient; do not require the upstream GitHub plugin for runtime routing or execution.
+- Benchmark GitHub-skill parity work against the upstream `openai/plugins` GitHub bundle when useful, but keep runtime instructions and helper flows fully repo-local.
 - For release-backed tag creation, resolve the repository default branch explicitly and surface the exact target SHA before mutation; do not hardcode `main`.
 - For release creation, standardize the notes choice as three options: infer from the last published release tag, keep blank, or use user-provided notes; recommend infer when the user leaves it unspecified.
 - For tag-creation requests, distinguish "release-backed tag" (`gh release create`) from "tag-only" (`git tag` / `gh api`) before choosing commands.

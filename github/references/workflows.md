@@ -461,281 +461,123 @@ fi
 - auth failures: run `gh auth login`, then rerun preflight
 - repo resolution failures: run in repo root or pass explicit `owner/repo` (the template automatically enables non-project mode when `REPO` is set)
 
-## pr-comment-address
+## pr-patch-inspect
 
-Purpose: process pull-request comments for the PR associated with the current branch:
-open PR resolution, fetch conversation/review/thread context, summarize with selection, apply selected follow-ups.
+Purpose: inspect what changed in a pull request, either across all changed files or for one targeted file.
 
 ### Preconditions
 
 - `gh` installed and authenticated.
-- Repository scope resolves (`gh repo view` works).
-- Current branch has an open PR unless `{pr_number}` is explicitly provided.
-- Optional: `jq` if you want to inspect generated JSON manually.
+- Repository scope is known.
+- Run `scripts/preflight_gh.sh --expect-repo <owner/repo>` from the target repo root before mutation-adjacent work. Purely read-only inspection may use `--repo` directly.
 
-## Paste and run (Phase 1): resolve context
+### Operator policy
 
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
+- Prefer `scripts/prs_patch_inspect.sh` over ad hoc `gh api repos/.../pulls/.../files` calls so pagination, path filtering, and patch inclusion stay consistent.
+- Use the default summary output for quick triage.
+- Use `--path` when the user only cares about one file.
+- Use `--include-patch` only when the actual patch text is needed; the default summary is faster and easier to scan.
 
-REPO="{repo}"
-PR_NUMBER="{pr_number}"
-
-if ! gh auth status >/tmp/gh-pr-workflow-auth.txt 2>&1; then
-  cat /tmp/gh-pr-workflow-auth.txt
-  echo "Run: gh auth login"
-  exit 2
-fi
-
-if [[ "$REPO" == "{repo}" || -z "${REPO}" ]]; then
-  REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
-fi
-
-if [[ "$PR_NUMBER" == "{pr_number}" || -z "${PR_NUMBER}" ]]; then
-  BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-  PR_NUMBER="$(gh pr list --repo "$REPO" --state open --head "$BRANCH" --json number --jq '.[0].number' || true)"
-fi
-
-if [[ -z "${PR_NUMBER}" || "$PR_NUMBER" == "null" ]]; then
-  echo "No open PR found for branch '$BRANCH' in $REPO."
-  echo "Supply {pr_number}, or run:"
-  echo "  gh pr list --repo \"$REPO\" --state open"
-  exit 1
-fi
-
-WORKDIR="/tmp/gh-pr-comment-workflow-${REPO//\//-}-${PR_NUMBER}"
-mkdir -p "$WORKDIR"
-{
-  echo "REPO=$REPO"
-  echo "PR_NUMBER=$PR_NUMBER"
-  echo "WORKDIR=$WORKDIR"
-} > "$WORKDIR/context.env"
-echo "Context saved to $WORKDIR/context.env"
-cat "$WORKDIR/context.env"
-```
-
-## Paste and run (Phase 2): fetch comment and thread context
+### Preferred helper
 
 ```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-WORKDIR="{workdir}"
-if [[ "$WORKDIR" == "{workdir}" ]]; then
-  echo "Replace {workdir} with the value printed by Phase 1."
-  exit 1
-fi
-if [[ ! -f "$WORKDIR/context.env" ]]; then
-  echo "Missing context file: $WORKDIR/context.env"
-  exit 1
-fi
-source "$WORKDIR/context.env"
-
-gh api "repos/$REPO/pulls/$PR_NUMBER/comments" --paginate --jq '.' > "$WORKDIR/review_comments.json"
-gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate --jq '.' > "$WORKDIR/conversation_comments.json"
-
-OWNER="${REPO%%/*}"
-REPO_NAME="${REPO##*/}"
-cat > "$WORKDIR/review_threads.graphql" <<'GRAPHQL'
-query($owner: String!, $repo: String!, $number: Int!) {
-  repository(owner: $owner, name: $repo) {
-    pullRequest(number: $number) {
-      reviewThreads(first: 100) {
-        nodes {
-          id
-          isResolved
-          isOutdated
-          path
-          line
-          startLine
-          comments(first: 100) {
-            nodes {
-              id
-              body
-              createdAt
-              updatedAt
-              author { login }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-GRAPHQL
-
-gh api graphql \
-  -f owner="$OWNER" \
-  -f repo="$REPO_NAME" \
-  -F number="$PR_NUMBER" \
-  -f query="$(cat "$WORKDIR/review_threads.graphql")" \
-  --jq '.data.repository.pullRequest.reviewThreads.nodes' \
-  > "$WORKDIR/review_threads.json"
+scripts/prs_patch_inspect.sh --pr <number> [--repo <owner/repo>] [--path <file>] [--include-patch] [--json]
 ```
 
-## Paste and run (Phase 3): build compact numbered digest
+Examples:
 
 ```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-WORKDIR="{workdir}"
-if [[ "$WORKDIR" == "{workdir}" ]]; then
-  echo "Replace {workdir} with the value printed by Phase 1."
-  exit 1
-fi
-source "$WORKDIR/context.env"
-
-python3 - "$WORKDIR" <<'PY'
-import json, sys
-
-workdir = sys.argv[1]
-
-conversation = json.load(open(f"{workdir}/conversation_comments.json"))
-review_comments = json.load(open(f"{workdir}/review_comments.json"))
-review_threads = json.load(open(f"{workdir}/review_threads.json"))
-
-entries = []
-index = 1
-
-def _author(item):
-    if isinstance(item.get("user"), dict):
-        return item["user"].get("login", "")
-    if isinstance(item.get("author"), dict):
-        return item["author"].get("login", "")
-    return ""
-
-def _snippet(text):
-    text = (text or "").replace("\n", " ").strip()
-    return text[:220] + ("..." if len(text) > 220 else "")
-
-for item in conversation:
-    entries.append({
-        "index": index,
-        "comment_id": item.get("id"),
-        "type": "conversation_comment",
-        "author": _author(item),
-        "updated": item.get("updated_at") or item.get("updatedAt") or "",
-        "body": _snippet(item.get("body")),
-    })
-    index += 1
-
-for item in review_comments:
-    entries.append({
-        "index": index,
-        "comment_id": item.get("id"),
-        "type": "review_comment",
-        "author": _author(item),
-        "updated": item.get("updated_at") or item.get("updatedAt") or "",
-        "body": _snippet(item.get("body")),
-    })
-    index += 1
-
-for thread in review_threads:
-    for item in thread.get("comments", {}).get("nodes", []):
-        entries.append({
-            "index": index,
-            "comment_id": item.get("id"),
-            "type": "review_thread_comment",
-            "author": _author(item),
-            "updated": item.get("updatedAt") or "",
-            "body": _snippet(item.get("body")),
-            "path": thread.get("path"),
-            "line": thread.get("line"),
-            "startLine": thread.get("startLine"),
-            "is_resolved": thread.get("isResolved"),
-            "is_outdated": thread.get("isOutdated"),
-        })
-        index += 1
-
-with open(f"{workdir}/comment_rollup.json", "w", encoding="utf-8") as f:
-    json.dump(entries, f, indent=2)
-
-for item in entries:
-    print(f"[{item['index']:>3}] {item['type']} id={item['comment_id']} author={item['author']} updated={item['updated']}")
-    print(f"      {item['body']}")
-    if item["type"] == "review_thread_comment":
-        print(f"      file={item.get('path')} line={item.get('line')} startLine={item.get('startLine')} resolved={item.get('is_resolved')} outdated={item.get('is_outdated')}")
-print()
-print("Paste selected row numbers into {selection_input}, for example: 1,3,7")
-PY
+scripts/prs_patch_inspect.sh --pr 482 --repo owner/repo
+scripts/prs_patch_inspect.sh --pr 482 --repo owner/repo --path src/app.ts --include-patch
 ```
 
-## Paste and run (Phase 4): apply selected follow-ups
+## pr-comment-address
+
+Purpose: inspect actionable pull-request comments with thread-aware context and optionally reply to selected comments without hand-assembling GraphQL or rollup files.
+
+### Preconditions
+
+- `gh` installed and authenticated.
+- Repository scope is known.
+- The target PR number is known.
+
+### Operator policy
+
+- Prefer `scripts/prs_address_comments.sh` over manual GraphQL and temporary-file workflows.
+- The default mode is read-only and should be used first.
+- By default the helper prioritizes unresolved, non-outdated review-thread context before orphan review comments and PR conversation comments.
+- Use `--include-resolved` only when the user explicitly needs closed or outdated thread history.
+- When replying, preview with `--dry-run` first unless the user explicitly wants the write immediately.
+- The helper uses numeric comment IDs for reply endpoints so the reply path stays compatible with the REST API.
+
+### Preferred helper
 
 ```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-WORKDIR="{workdir}"
-if [[ "$WORKDIR" == "{workdir}" ]]; then
-  echo "Replace {workdir} with the value printed by Phase 1."
-  exit 1
-fi
-if [[ ! -f "$WORKDIR/context.env" ]]; then
-  echo "Missing context file: $WORKDIR/context.env"
-  exit 1
-fi
-source "$WORKDIR/context.env"
-
-SELECTION_INPUT="{selection_input}"
-COMMENT_IDS="{comment_ids}"
-RESPONSE_BODY="${response_body:-"Thanks, I will fix this and update the PR."}"
-
-if [[ "$COMMENT_IDS" == "{comment_ids}" || -z "$COMMENT_IDS" ]]; then
-  if [[ "$SELECTION_INPUT" == "{selection_input}" || -z "$SELECTION_INPUT" ]]; then
-    echo "Provide either {selection_input} (row numbers) or {comment_ids}."
-    exit 1
-  fi
-  COMMENT_IDS="$(python3 - "$WORKDIR" "$SELECTION_INPUT" <<'PY'
-import json, sys
-
-workdir, raw = sys.argv[1], sys.argv[2]
-idx_to_id = {str(item["index"]): item["comment_id"] for item in json.load(open(f"{workdir}/comment_rollup.json"))}
-selected = [x.strip() for x in raw.replace(",", " ").split() if x.strip()]
-ids = [idx_to_id[s] for s in selected if s in idx_to_id]
-if not ids:
-    raise SystemExit("No valid selection indices found.")
-print(",".join(ids))
-PY
-)"
-fi
-
-for COMMENT_ID in ${COMMENT_IDS//,/ }; do
-  KIND="$(python3 - "$WORKDIR" "$COMMENT_ID" <<'PY'
-import json, sys
-rows = json.load(open(f"{sys.argv[1]}/comment_rollup.json"))
-target = sys.argv[2]
-for item in rows:
-    if item["comment_id"] == target:
-        print(item["type"])
-        break
-PY
-)"
-
-  case "$KIND" in
-    conversation_comment)
-      # Follow-up only (safe default; does not require direct issue-comment patch permissions).
-      gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$RESPONSE_BODY (ref: $COMMENT_ID)"
-      ;;
-    review_comment|review_thread_comment)
-      # Try thread reply endpoint first, fallback to PR-level follow-up.
-      if ! gh api -X POST "repos/$REPO/pulls/comments/$COMMENT_ID/replies" -f body="$RESPONSE_BODY" >/dev/null; then
-        gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$RESPONSE_BODY (ref: $COMMENT_ID)"
-      fi
-      ;;
-    *)
-      echo "Unknown comment ID in rollup: $COMMENT_ID"
-      ;;
-  esac
-done
+scripts/prs_address_comments.sh --pr <number> [--repo <owner/repo>] [--include-resolved] [--json]
+scripts/prs_address_comments.sh --pr <number> --repo <owner/repo> --selection <rows> --reply-body "<text>" --dry-run
+scripts/prs_address_comments.sh --pr <number> --repo <owner/repo> --comment-ids <ids> --reply-body "<text>"
 ```
 
-### Workflow note
+### Fallbacks
 
-This is intentionally a template, not an all-in-one automation.
-If you want to promote this into a script, the next iteration is a dedicated `prs_address_comments.sh` helper that accepts `--pr`, `--selection`, `--repo`, and optional `--comment-ids`.
+- auth failures: run `gh auth login`, then rerun preflight
+- repo resolution failures: rerun from the target repo root or pass explicit `owner/repo`
+- reply endpoint failures: the helper already falls back to a PR-level comment when a review-comment reply endpoint fails
+
+## reactions-manage
+
+Purpose: list, add, or remove reactions on pull requests, issues, issue comments, or PR review comments through one normalized helper.
+
+### Preconditions
+
+- `gh` installed and authenticated.
+- Explicit repository scope is known.
+- Explicit target number or comment ID is known.
+
+### Operator policy
+
+- List first unless the user explicitly asked for a write.
+- Use `--dry-run` before add or remove when the user wants a preview.
+- Keep reaction changes repo-scoped; do not use this workflow for org-wide moderation or policy work.
+
+### Preferred helper
+
+```bash
+scripts/reactions_manage.sh --resource pr --repo owner/repo --number 482 --list
+scripts/reactions_manage.sh --resource pr-review-comment --repo owner/repo --comment-id 123456 --add +1 --dry-run
+scripts/reactions_manage.sh --resource issue-comment --repo owner/repo --comment-id 123456 --remove 789012 --dry-run
+```
+
+## pr-open-current-branch
+
+Purpose: open a pull request from the already-pushed current branch without staging, committing, or pushing.
+
+### Preconditions
+
+- You are inside a local git checkout of the target repository.
+- The current branch is not detached.
+- The current branch already exists on the remote with the same branch name.
+- `gh` installed and authenticated.
+
+### Operator policy
+
+- This workflow is intentionally narrower than a full publish flow.
+- Do not use it for branch creation, staging, commit authoring, or push orchestration.
+- If the current branch is not yet pushed, stop and push it first rather than extending this workflow.
+- If the user wants the full commit and publish sequence, use a separate git or commit workflow before this helper.
+
+### Preferred helper
+
+```bash
+scripts/prs_open_current_branch.sh --title "<title>" [--body "<text>"] [--base <branch>] [--draft] [--dry-run]
+```
+
+Examples:
+
+```bash
+scripts/prs_open_current_branch.sh --title "[codex] tighten github skill routing" --draft --dry-run
+scripts/prs_open_current_branch.sh --title "[codex] tighten github skill routing" --body "Adds new GitHub triage helpers." --draft
+```
 
 ## actions-run-inspect
 
