@@ -80,7 +80,8 @@ commits or orchestrate a full publish flow.
 7. Restate the resolved target repository, PR, issue, release, tag, run ID, or
    comment target before mutating anything.
 8. Run the narrowest helper or `gh` command needed, then report only relevant output.
-9. If the operation fails, return the command error and propose the next retry command from the retry matrix below.
+9. If the operation fails, return the command error and propose the next retry
+   command from `references/failure-retries.md`.
 
 ## Speed defaults
 
@@ -97,38 +98,6 @@ commits or orchestrate a full publish flow.
 - Prefer `scripts/actions_run_inspect.sh` for non-PR Actions run inspection.
 - Prefer `scripts/release_plan.sh`, `scripts/release_notes_generate.sh`, and `scripts/release_create.sh` for release flows instead of rebuilding the same API steps ad hoc.
 - Use `references/script-summary.md` as the first helper picker; open `references/workflows.md` only when no helper already covers the task.
-
-## Common operations
-
-- Repository actions
-  - `scripts/repos_view.sh [--repo <owner/repo>]`
-  - `scripts/repos_list.sh [--owner <owner>] [--type <scope>]`
-  - `gh repo view [owner/repo]` and `gh repo clone <owner>/<repo>`
-- Issue actions
-  - `scripts/issues_view.sh --issue <number> [--summary] [--repo <owner/repo>]`
-  - `gh issue list`, `gh issue view`, `gh issue create`, `gh issue edit`, `gh issue comment`, `gh issue close`
-  - `scripts/issues_copy.sh` and `scripts/issues_move.sh` for cross-repo issue transfers
-- Pull request actions
-  - `scripts/prs_view.sh --pr <number> [--summary] [--repo <owner/repo>]`
-  - `scripts/prs_patch_inspect.sh --pr <number> [--repo <owner/repo>] [--path <file>] [--include-patch]`
-  - `scripts/prs_address_comments.sh --pr <number> [--repo <owner/repo>]`
-  - `scripts/prs_open_current_branch.sh --title <text> [--draft]`
-  - `gh pr list`, `gh pr view`, `gh pr create`, `gh pr edit`, `gh pr comment`, `gh pr review`, `gh pr checkout`, `gh pr merge`, `gh pr checks`
-  - Prefer `scripts/inspect_pr_checks.py` for PR check triage when you need failing Actions snippets, run metadata, and a structured summary of the failing jobs.
-  - Prefer `scripts/prs_update.sh` for PR metadata updates; it can fall back to `gh api` for `--title`, `--body`, and `--base` when `gh pr edit` hits the `read:project` scope issue.
-- Reaction actions
-  - `scripts/reactions_manage.sh --resource <kind> --repo <owner/repo> ...`
-- Workflow actions
-  - `gh run list`, `gh run view`, `gh run watch`, `gh run download`
-  - For generic Actions investigation, prefer `gh run list` to resolve the run ID, then `gh run view <run-id> --log-failed`; use `gh run view --job <job-id> --log` for full job logs and `gh run download <run-id>` when artifacts matter.
-  - Prefer `scripts/actions_run_inspect.sh` when you want the generic non-PR Actions list/inspect/download flow in one reusable helper.
-- Release actions
-  - `gh release list`, `gh release view`, `gh release create`, `gh release edit`, `gh release delete`
-  - `scripts/release_plan.sh`, `scripts/release_notes_generate.sh`, `scripts/release_create.sh`
-- General
-  - `gh alias`, `gh api`, `gh extension`
-
-Use `--help` on the relevant command for options, and prefer `--json` and `--jq` when scripted output is needed.
 
 ## Actions triage standard
 
@@ -168,7 +137,6 @@ Use `--help` on the relevant command for options, and prefer `--json` and `--jq`
 ## Scope rules
 
 - This skill must not perform organization-level management or settings actions.
-- Work on non-current repositories only when the user explicitly provides `owner/repo` (for commands or scripts that support `--repo`).
 - Work on non-current repositories only when the user explicitly provides
   `owner/repo`.
   - Use each command's supported repo-targeting form:
@@ -177,16 +145,38 @@ Use `--help` on the relevant command for options, and prefer `--json` and `--jq`
     - `gh pr ... --repo owner/repo`
     - helper scripts that accept `--repo owner/repo`
 
-## Issue and pull request script reference
+## Issue mutation standard
 
-Use `references/script-summary.md` for the full list of reusable scripts (issues, pull requests, repo operations, and setup checks) with arguments and intent.
+- Choose the issue path before mutating:
+  - `close with evidence`: implementation is complete and the issue should be
+    closed
+  - `implementation update`: work is implemented or prepared, but the issue
+    should remain open
+  - `transfer`: work should continue in another repository
+- Prefer `issues_close_with_evidence.sh` for the close-with-evidence path.
+- Prefer `issues_copy.sh` when the source issue stays open and `issues_move.sh`
+  when work should continue only in the target repository.
+- Use `references/issue-workflows.md` for the exact comment templates, move
+  behavior, and `gh issue view --json` field pitfalls.
 
-## Workflow templates
+## Reference map
 
-- `references/workflows.md`: Reusable, helper-backed workflows for PR patch inspection, review-comment follow-up, reactions, open-PR-from-current-branch, generic Actions run/log inspection, PR metadata refresh from the latest commit, PR check triage, and release/tag creation with explicit default-branch and target-commit confirmation.
-- `references/github_workflow_behaviors.md`: Decision policy for issue label suggestion and commit issue-link workflows.
+- `references/script-summary.md`: authoritative helper catalog and documented
+  script flags.
+- `references/workflows.md`: reusable copy-paste workflows for PR, Actions,
+  reaction, and release tasks.
+- `references/issue-workflows.md`: issue close/update/transfer standards and
+  issue-view JSON field pitfalls.
+- `references/github_workflow_behaviors.md`: decision policy for issue label
+  suggestion and commit issue-link workflows.
+- `references/installation.md`: GitHub CLI installation, auth, and preflight
+  setup.
+- `references/failure-retries.md`: retry commands for common auth, repo,
+  Actions, and API failure modes.
 
-Note (2026-03): issue transfer is standardized with dedicated copy/move scripts after manual transfers proved too easy to run from the wrong repo context.
+Note (2026-03): issue transfer is standardized with dedicated copy/move
+scripts after manual transfers proved too easy to run from the wrong repo
+context.
 
 ## Output Expectations
 
@@ -198,8 +188,8 @@ Note (2026-03): issue transfer is standardized with dedicated copy/move scripts 
   and whether the run was a preview (`--dry-run`) or a real write.
 - For read-only requests, return the relevant facts and next useful command or
   action, not raw command noise.
-- For failed commands, report the concrete error and the retry command from the
-  retry matrix when one applies.
+- For failed commands, report the concrete error and the retry command from
+  `references/failure-retries.md` when one applies.
 
 ## Release and tag creation standard
 
@@ -240,117 +230,12 @@ Note (2026-03): issue transfer is standardized with dedicated copy/move scripts 
   - then use `gh release create <tag> --verify-tag --notes-from-tag`.
 - Always report the chosen notes strategy, the previous tag used for release-note generation when applicable, plus the final tag name, resolved target SHA, and release URL.
 
-## Issue close standard
-
-- For issue closure, follow this sequence:
-  1. verify issue state is open,
-  2. post a concise closure note referencing implementation evidence,
-  3. close the issue.
-- Prefer the dedicated helper script:
-  - `scripts/issues_close_with_evidence.sh --issue <number> --commit-sha <sha> [--commit-url <url>] [--pr-url <url>] [--repo <owner/repo>] [--allow-non-project]`
-- Closure note template:
-  - `Implemented in commit <short_sha> (<commit_url>).`
-  - `Implemented via PR <pr_url>.`
-- Prefer including both commit and PR links when available.
-
-## Issue implementation update standard
-
-- Use this when work has been implemented or partially implemented and the
-  issue should remain open.
-- Follow this sequence:
-  1. verify issue state is open,
-  2. gather implementation evidence,
-  3. post a concise update comment,
-  4. leave the issue open unless the user explicitly asks to close it.
-- Until a dedicated helper exists, prefer:
-  - `gh issue comment <number> --repo <owner/repo> --body-file <file>`
-  - `gh issue comment <number> --repo <owner/repo> --body <text>`
-- Standard implementation-update comment shape:
-  - short lead-in stating the work was implemented or prepared
-  - what has been done
-  - implementation evidence:
-    - branch name when useful
-    - commit SHA or commit URL
-    - PR URL when available
-  - validation run, if relevant
-  - manual follow-up or rollout steps, if any
-- Example evidence lines:
-  - `Implemented on branch <branch>.`
-  - `Implemented in commit <short_sha> (<commit_url>).`
-  - `Draft PR: <pr_url>.`
-  - `For existing databases, run:`
-  - fenced SQL block when schema catch-up is required
-- Do not use the issue-close workflow for this case.
-- If the comment includes operational follow-up steps, make those explicit and
-  separate from implementation evidence.
-
-## Issue transfer standard
-
-- Prefer `scripts/issues_copy.sh` when the source issue should stay open and work should continue in both places.
-- Prefer `scripts/issues_move.sh` when work should continue only in the target repository.
-- Standard target-body note for copies:
-  - `Copied from <source_repo>#<issue> (<source_url>).`
-- Standard target-body note for moves:
-  - `Moved from <source_repo>#<issue> (<source_url>).`
-- Standard source backlink comment for moves:
-  - `Moved to <target_repo>#<new_issue> (<new_url>). Continuing work there.`
-- Standard move behavior:
-  1. create the target issue,
-  2. add the backlink comment on the source issue,
-  3. close the source issue if it is still open.
-
-## `gh issue view --json` field pitfalls
-
-- `gh issue view --json projects` is invalid and returns `Unknown JSON field: "projects"`.
-- Use `projectItems` and/or `projectCards` instead.
-- If fields are uncertain, run once with an intentionally invalid field and use the CLI's returned “Available fields” list.
-
 ## Repository listing
 
 - Use `scripts/repos_list.sh` for repository discovery commands.
 - Use `scripts/repos_view.sh` for repository orientation in the current repo or
   an explicit `owner/repo`.
 - Outside a git repository, pass `--allow-non-project` explicitly for deliberate non-project discovery.
-
-## Installation and setup
-
-- `references/installation.md`: Check whether `gh` is installed and how to install it on common OSes.
-- `scripts/check_gh_installed.sh [--min-version <version>]`: Validate that `gh` exists and meets a minimum version.
-- `scripts/check_gh_authenticated.sh [--host github.com]`: Verify the active `gh` authentication session for the host.
-- `scripts/preflight_gh.sh [--host github.com] [--min-version <version>] [--expect-repo <owner/repo>] [--allow-non-project]`: Run prerequisite checks before other `gh` operations.
-- `scripts/repos_view.sh [--repo <owner/repo>] [--json] [--allow-non-project]`: Show a normalized repository summary.
-- `scripts/issues_view.sh --issue <number> [--summary] [--repo <owner/repo>] [--allow-non-project]`: View an issue as JSON or a compact summary.
-- `scripts/prs_view.sh --pr <number> [--summary] [--repo <owner/repo>] [--allow-non-project]`: View a PR as JSON or a compact summary.
-- `scripts/prs_patch_inspect.sh --pr <number> [--repo <owner/repo>] [--path <file>] [--include-patch] [--json] [--allow-non-project]`: Inspect changed files and patches for a PR.
-- `scripts/prs_address_comments.sh --pr <number> [--repo <owner/repo>] [--include-resolved] [--json] [--selection <rows>] [--comment-ids <ids>] [--reply-body <text>] [--dry-run] [--allow-non-project]`: Inspect or reply to PR comments with thread-aware context.
-- `scripts/reactions_manage.sh --resource pr|issue|issue-comment|pr-review-comment --repo <owner/repo> [--number <n>|--comment-id <id>] [--list|--add <reaction>|--remove <reaction-id>] [--dry-run] [--json] [--allow-non-project]`: List, add, or remove reactions.
-- `scripts/prs_open_current_branch.sh --title <text> [--body <text>] [--base <branch>] [--draft] [--repo <owner/repo>] [--dry-run] [--allow-non-project]`: Open a PR from the already-pushed current branch.
-- `scripts/release_plan.sh [--repo <owner/repo>] [--target-branch <branch>] [--allow-non-project]`: Resolve the default release target and latest published release tag before mutation.
-- `scripts/release_notes_generate.sh --tag <tag> --target-ref <branch-or-sha> [--repo <owner/repo>] [--previous-tag <tag>] [--workdir <path>] [--title-file <path>] [--notes-file <path>] [--allow-non-project]`: Generate draft release title and notes through GitHub's release-notes API before publishing.
-- `scripts/release_create.sh --tag <tag> --target-ref <branch-or-sha> --notes-mode <infer|blank|user> [--repo <owner/repo>] [--title <text>|--title-file <path>] [--notes-file <path>|--notes-text <text>] [--previous-tag <tag>] [--allow-non-project]`: Create a release with explicit target and explicit notes strategy.
-- `scripts/actions_run_inspect.sh [--repo <owner/repo>] [--run-id <id>] [--job-id <id>] [--artifact-name <name>] [--download-dir <path>] [--branch <branch>] [--commit <sha>] [--workflow <name>] [--event <event>] [--status <status>] [--limit N] [--all] [--summary-only] [--allow-non-project]`: List or inspect non-PR workflow runs with one helper.
-- `scripts/check_docs_script_refs.sh [--skill-dir <path>]`: Verify docs reference valid scripts and documented flags.
-
-## Failure retry matrix
-
-- Auth/session errors (`gh auth status` fails, 401/403 auth):
-  - Retry command: `gh auth login && scripts/preflight_gh.sh --host github.com`
-- Repository context errors (not a git repo, cannot resolve repo):
-  - Retry command: `gh repo view --json nameWithOwner` in the target repo
-    directory, or `gh repo view owner/repo --json nameWithOwner` from
-    elsewhere.
-- Repository mismatch errors (`--expect-repo` does not match current directory):
-  - Retry command: `scripts/preflight_gh.sh --host github.com --expect-repo owner/repo` from the target repo root, or use `scripts/issues_copy.sh` / `scripts/issues_move.sh` with explicit repo arguments for cross-repo transfers.
-- Invalid JSON field errors (for example `Unknown JSON field: "projects"`):
-  - Retry command: replace with supported fields, e.g. `gh issue view <n> --json number,title,state,projectItems,projectCards`.
-- PR edit scope errors (`gh pr edit` fails with `missing required scopes [read:project]`):
-  - Retry command: `scripts/prs_update.sh --pr <n> [--title ...] [--body ...] [--base ...] [--repo owner/repo]` from the target repo root; this helper retries via `gh api` for title/body/base-only updates.
-- Actions log retrieval limitations (`gh run view --log` shows missing log associations, `UNKNOWN STEP`, or fails to pair logs with jobs):
-  - Retry command: `gh run view <run-id> --job <job-id> --log`; if artifacts are more relevant than logs, use `gh run download <run-id> [ -n <artifact> ]`.
-- Current branch is not pushed or has no upstream when opening a PR:
-  - Retry command: `git push -u origin $(git branch --show-current)` from the target repo root, then rerun `scripts/prs_open_current_branch.sh`.
-- Transient API/network failures (502/503/timeouts):
-  - Retry command: re-run the same `gh ...` command after a short delay; keep scope unchanged.
 
 ## Learn
 
