@@ -1,0 +1,7 @@
+interface:
+  display_name: "GitHub CI"
+  short_description: "Inspect PR checks and GitHub Actions failures while keeping PR-check triage separate from generic run inspection."
+  brand_color: "#DC2626"
+  icon_small: "./assets/github-small.svg"
+  icon_large: "./assets/github.png"
+  default_prompt: "Use the repo-owned GitHub CI skill to inspect failing PR checks or GitHub Actions runs and summarize the likely root cause before proposing fixes."
