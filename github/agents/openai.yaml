@@ -1,7 +1,7 @@
 interface:
   display_name: "GitHub"
-  short_description: "Handle repo-scoped GitHub triage, review follow-up, CI, reactions, releases, tags, and opening a PR from an already-pushed branch through repo-owned `gh` helpers."
+  short_description: "Handle repo-scoped GitHub triage, issue lifecycle, reactions, and PR metadata inside the full GitHub skill suite."
   brand_color: "#1F9D55"
   icon_small: "./assets/github-small.svg"
   icon_large: "./assets/github.png"
-  default_prompt: "Use the repo-owned GitHub skill helpers to handle repository or PR triage, review comments, CI, reactions, release or tag work, or to open a PR from the current pushed branch."
+  default_prompt: "Use the repo-owned GitHub umbrella inside the full GitHub skill suite to summarize repositories, issues, or PRs, handle issue/reaction/PR metadata work, and route review, CI, release, and publish tasks to the required companion skills."

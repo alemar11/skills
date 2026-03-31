@@ -23,14 +23,6 @@ next retry command without re-deriving the fallback path.
   - Retry command: `scripts/prs_update.sh --pr <n> [--title ...] [--body ...] [--base ...] [--repo owner/repo]`
     from the target repo root; this helper retries via `gh api` for
     title/body/base-only updates.
-- Actions log retrieval limitations (`gh run view --log` shows missing log
-  associations, `UNKNOWN STEP`, or fails to pair logs with jobs):
-  - Retry command: `gh run view <run-id> --job <job-id> --log`; if artifacts
-    are more relevant than logs, use
-    `gh run download <run-id> [ -n <artifact> ]`.
-- Current branch is not pushed or has no upstream when opening a PR:
-  - Retry command: `git push -u origin $(git branch --show-current)` from the
-    target repo root, then rerun `scripts/prs_open_current_branch.sh`.
 - Transient API/network failures (502/503/timeouts):
   - Retry command: re-run the same `gh ...` command after a short delay; keep
     scope unchanged.

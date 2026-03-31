@@ -4,7 +4,8 @@ Use this reference when repeated runtime GitHub work uncovers a pattern that
 may deserve promotion into a durable script, routing rule, or reference update.
 
 ## Improve an existing script when
-- The repeated workflow already overlaps a current helper in `github/scripts/`.
+- The repeated workflow already overlaps a current helper in this GitHub skill
+  package or one of its companion GitHub skill packages.
 - The gap is about CLI flag drift, repo resolution, preflight, retries, output shape, or another natural extension of the current helper.
 - Extending the helper keeps its interface focused instead of turning it into a generic catch-all wrapper.
 - The new behavior can be explained briefly in `--help` and validated with the same script-level checks already used by this skill.
@@ -37,12 +38,16 @@ may deserve promotion into a durable script, routing rule, or reference update.
 - Favor explicit flags, predictable output, and one clear job per script.
 - When cross-repo or non-project use is valid, support `--repo` and `--allow-non-project` consistently with the rest of the skill.
 - Document every promoted helper in `references/script-summary.md`.
-- Update `github/SKILL.md` only when the promoted learning changes the runtime decision flow or the preferred fast path.
+- Update the owning skill's `SKILL.md` only when the promoted learning changes
+  the runtime decision flow or the preferred fast path.
 
 ## Current promoted learnings
-- Release creation now uses dedicated planning, notes-generation, and release-creation helpers with explicit notes strategy handling.
+- Release creation now uses dedicated planning, notes-generation, and
+  release-creation helpers with explicit notes strategy handling in
+  `github-releases`.
 - `gh pr edit` may require `read:project`; `scripts/prs_update.sh` should stay the fallback for title/body/base-only updates when that scope is missing.
-- Generic Actions triage is not always PR-based; reserve `gh pr checks` for PR-associated runs and use `gh run ...` for branch, SHA, workflow, schedule, manual, and explicit run-id investigations.
+- Generic Actions triage is not always PR-based; keep that split in
+  `github-ci` and reserve `gh pr checks` for PR-associated runs.
 - Repo resolution from git remotes must strip the trailing `.git`, and shared repo normalization should live in shared helpers rather than diverging per script.
 - Label helper scripts must stay aligned with live `gh --help` behavior.
 - `commit_issue_linker.sh` should preserve worker exit codes and treat an existing close token as safe to execute.

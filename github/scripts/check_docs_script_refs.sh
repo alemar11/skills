@@ -5,7 +5,7 @@ usage() {
   cat <<'EOF'
 Usage: check_docs_script_refs.sh [--skill-dir <path>]
 
-Validate script references and documented flags for the GitHub skill:
+Validate script references and documented flags for this GitHub skill package:
 1) every scripts/<name>.<ext> reference in docs points to an existing file
 2) every referenced script is executable as documented
 3) every --flag listed in references/script-summary.md appears in script --help output

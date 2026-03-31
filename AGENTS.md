@@ -65,13 +65,19 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Fetch Codex App notes from `https://developers.openai.com/codex/changelog` and match the installed desktop app version when possible. (Codex learning)
 
 ### GitHub skill
-- Keep release/tag guidance in `github/SKILL.md` and `github/references/workflows.md`, not in repo-level fallback sections.
+- Keep the runtime `github` skill as the umbrella entrypoint for repo triage, issue lifecycle, reactions, and PR metadata, and route specialist work to `github-reviews`, `github-ci`, `github-releases`, and `github-publish`.
+- Treat the GitHub split as intentionally breaking: the supported install path for specialist GitHub workflows is the full suite (`github`, `github-reviews`, `github-ci`, `github-releases`, and `github-publish`).
+- Do not reintroduce standalone `github` install prompts or `--skill github` / `--path github` examples while review, CI, release, and PR publish workflows remain companion-owned.
 - Keep the runtime `github` skill self-owned and self-sufficient; do not require the upstream GitHub plugin for runtime routing or execution.
 - Benchmark GitHub-skill parity work against the upstream `openai/plugins` GitHub bundle when useful, but keep runtime instructions and helper flows fully repo-local.
-- For release-backed tag creation, resolve the repository default branch explicitly and surface the exact target SHA before mutation; do not hardcode `main`.
-- For release creation, standardize the notes choice as three options: infer from the last published release tag, keep blank, or use user-provided notes; recommend infer when the user leaves it unspecified.
-- For tag-creation requests, distinguish "release-backed tag" (`gh release create`) from "tag-only" (`git tag` / `gh api`) before choosing commands.
-- For GitHub Actions investigations, distinguish PR-associated failures from generic branch, SHA, workflow, schedule, manual, or explicit run-id runs; use `gh pr checks` only for PR-associated runs and prefer `gh run list` / `gh run view` otherwise.
+- Keep PR review follow-up guidance in `github-reviews/SKILL.md` and `github-reviews/references/*`, not in the umbrella docs. (Codex learning)
+- Keep GitHub Actions investigation guidance in `github-ci/SKILL.md` and `github-ci/references/*`, not in the umbrella docs. (Codex learning)
+- Keep release/tag guidance in `github-releases/SKILL.md` and `github-releases/references/*`, not in the umbrella docs. (Codex learning)
+- Keep PR publish and lifecycle guidance in `github-publish/SKILL.md` and `github-publish/references/*`, not in the umbrella docs. (Codex learning)
+- For release-backed tag creation in `github-releases`, resolve the repository default branch explicitly and surface the exact target SHA before mutation; do not hardcode `main`.
+- For release creation in `github-releases`, standardize the notes choice as three options: infer from the last published release tag, keep blank, or use user-provided notes; recommend infer when the user leaves it unspecified.
+- For tag-creation requests in `github-releases`, distinguish "release-backed tag" (`gh release create`) from "tag-only" (`git tag` / `gh api`) before choosing commands.
+- For GitHub Actions investigations in `github-ci`, distinguish PR-associated failures from generic branch, SHA, workflow, schedule, manual, or explicit run-id runs; use `gh pr checks` only for PR-associated runs and prefer `gh run list` / `gh run view` otherwise.
 
 ### Learn skill
 - Keep `learn` scoped to `AGENTS.md` writes only; do not instruct it to write `MEMORY.md`, `memory_summary.md`, or other memory files.
