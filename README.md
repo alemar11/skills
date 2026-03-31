@@ -6,11 +6,11 @@ This directory contains reusable skills and project maintainer skills—task-spe
 - `git-commit/` — Create a well-formed git commit with rationale, explicit staging, and monorepo-safe scope.
 - `ask-questions-if-underspecified/` — Clarify requirements before implementing when a request is underspecified or the user asks for clarification.
 - `codex-changelog/` — Check the installed Codex CLI and Codex App versions, then print CLI notes from `openai/codex/releases` and app notes from the OpenAI Codex changelog page.
-- `github/` — Handle repo-scoped GitHub triage, issue lifecycle, reactions, and PR metadata inside the full GitHub suite.
-- `github-reviews/` — Inspect unresolved PR review feedback, draft or post replies, and submit reviews with thread-aware context.
-- `github-ci/` — Inspect PR checks and GitHub Actions failures while keeping PR-check triage separate from generic run inspection.
-- `github-releases/` — Plan and create GitHub releases and tags with explicit target resolution and notes strategy.
-- `github-publish/` — Open pull requests and manage PR lifecycle state without staging, committing, branching, or pushing.
+- `github/` (`GitHub`) — Triage repo-scoped GitHub work, handle issue lifecycle and PR metadata, and route specialist workflows.
+- `github-reviews/` (`GitHub Reviews`) — Inspect unresolved PR review feedback, draft or post replies, and submit reviews with thread-aware context.
+- `github-ci/` (`GitHub CI`) — Inspect PR checks and GitHub Actions failures while keeping PR-check triage separate from generic run inspection.
+- `github-releases/` (`GitHub Releases`) — Plan and create GitHub releases and tags with explicit target resolution and notes strategy.
+- `github-publish/` (`GitHub Publish`) — Open pull requests and manage PR lifecycle state without staging, committing, branching, or pushing.
 - `learn/` — Capture durable corrections or preferences and write confirmed learnings only to `AGENTS.md` when the user sets lasting guidance.
 - `postgres/` — Connect to Postgres databases, design schemas and indexes, review SQL/query performance, and use common PostGIS or pgvector patterns.
 - `skill-audit/` — Audit installed or user-specified Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables.

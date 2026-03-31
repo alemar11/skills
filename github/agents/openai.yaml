@@ -1,7 +1,7 @@
 interface:
   display_name: "GitHub"
-  short_description: "Handle repo-scoped GitHub triage, issue lifecycle, reactions, and PR metadata inside the full GitHub skill suite."
+  short_description: "Triage repo-scoped GitHub work, handle issue lifecycle and PR metadata, and route specialist workflows."
   brand_color: "#1F9D55"
   icon_small: "./assets/github-small.svg"
   icon_large: "./assets/github.png"
-  default_prompt: "Use the repo-owned GitHub umbrella inside the full GitHub skill suite to summarize repositories, issues, or PRs, handle issue/reaction/PR metadata work, and route review, CI, release, and publish tasks to the required companion skills."
+  default_prompt: "Use the repo-owned GitHub skill to summarize repositories, issues, or PRs, handle issue/reaction/PR metadata work, and route review, CI, release, and publish tasks to the required companion skills."
