@@ -1,0 +1,7 @@
+interface:
+  display_name: "GitHub Releases"
+  short_description: "Plan and create GitHub releases and tags with explicit target resolution and notes strategy."
+  brand_color: "#7C3AED"
+  icon_small: "./assets/github-small.svg"
+  icon_large: "./assets/github.png"
+  default_prompt: "Use the repo-owned GitHub Releases skill to resolve the exact target branch and commit, choose a notes strategy, and create a release or tag safely."
