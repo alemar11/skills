@@ -6,6 +6,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 - `git-commit/` — Create a well-formed git commit with rationale, explicit staging, and monorepo-safe scope.
 - `ask-questions-if-underspecified/` — Clarify requirements before implementing when a request is underspecified or the user asks for clarification.
 - `codex-changelog/` — Check the installed Codex CLI and Codex App versions, then print CLI notes from `openai/codex/releases` and app notes from the OpenAI Codex changelog page.
+- `plan-hard/` — Create a higher-rigor implementation plan with deeper clarification, a gotcha pass, and a saved `plans/<topic>-plan.md` output.
 - `github/` (`GitHub`) — Triage repo-scoped GitHub work, handle issue lifecycle and PR metadata, and route specialist workflows.
 - `github-reviews/` (`GitHub Reviews`) — Inspect unresolved PR review feedback, draft or post replies, and submit reviews with thread-aware context.
 - `github-ci/` (`GitHub CI`) — Inspect PR checks and GitHub Actions failures while keeping PR-check triage separate from generic run inspection.
@@ -30,7 +31,7 @@ Project skills are repository-local and are not included in the reusable install
 These prompts are for use inside Codex only.
 Copy/paste one of these prompts:
 
-- `Use $skill-installer to install skills from alemar11/skills --path git-commit ask-questions-if-underspecified codex-changelog github github-reviews github-ci github-releases github-publish learn postgres skill-audit swift-api-design swift-docc`
+- `Use $skill-installer to install skills from alemar11/skills --path git-commit ask-questions-if-underspecified codex-changelog plan-hard github github-reviews github-ci github-releases github-publish learn postgres skill-audit swift-api-design swift-docc`
 - `Use $skill-installer to install skills from alemar11/skills --path github github-reviews github-ci github-releases github-publish`
 - `Use $skill-installer to install skills from alemar11/skills --path github-reviews`
 - `Use $skill-installer to install skills from alemar11/skills --path github-ci`
@@ -39,6 +40,7 @@ Copy/paste one of these prompts:
 - `Use $skill-installer to install skills from alemar11/skills --path git-commit`
 - `Use $skill-installer to install skills from alemar11/skills --path ask-questions-if-underspecified`
 - `Use $skill-installer to install skills from alemar11/skills --path codex-changelog`
+- `Use $skill-installer to install skills from alemar11/skills --path plan-hard`
 - `Use $skill-installer to install skills from alemar11/skills --path learn`
 - `Use $skill-installer to install skills from alemar11/skills --path postgres`
 - `Use $skill-installer to install skills from alemar11/skills --path skill-audit`
@@ -61,6 +63,7 @@ npx skills add alemar11/skills -a codex -g -y \
   --skill git-commit \
   --skill ask-questions-if-underspecified \
   --skill codex-changelog \
+  --skill plan-hard \
   --skill github \
   --skill github-reviews \
   --skill github-ci \
@@ -113,6 +116,10 @@ npx skills add alemar11/skills -a codex -g -y --skill swift-api-design
 
 ```sh
 npx skills add alemar11/skills -a codex -g -y --skill swift-docc
+```
+
+```sh
+npx skills add alemar11/skills -a codex -g -y --skill plan-hard
 ```
 
 Omit `-g` to install into the current project's `.agents/skills/` instead of your global `~/.codex/skills/`.

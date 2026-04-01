@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Hard"
+  short_description: "Create a higher-rigor implementation plan with deeper clarification, a gotcha pass, and a reviewed `plans/<topic>-plan.md` output."
+  brand_color: "#4F46E5"
+  default_prompt: "Use $plan-hard to research the codebase, ask only the highest-signal clarifying questions, then save a deeper phased implementation plan to `plans/<topic>-plan.md` in the current working directory after a gotcha pass and review."

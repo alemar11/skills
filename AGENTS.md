@@ -47,6 +47,10 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Route maintainer-only Swift API Design refresh work through repo-level maintainer docs and the `skills-maintainer` skill workflow, not through runtime skill instructions.
 - Refresh `swift-api-design` from `swiftlang/swift-org-website/documentation/api-design-guidelines/index.md` until the live Swift.org page demonstrably migrates to a different substantive source. (Codex learning)
 
+### Plan Hard skill
+- Keep the runtime `plan-hard` skill planning-only: it must create and refine plans, not implement the requested work. (Codex learning)
+- By default, `plan-hard` must save generated plans inside `plans/` under the current working directory and create that directory if it does not exist. (Codex learning)
+
 ### Skills Maintainer skill
 - The `.agents/skills/skills-maintainer` skill is the default maintainer for improving existing skills in this repository through shared upgrade tasks and skill-specific refresh workflows.
 - `skills-maintainer` is the only maintainer skill that should orchestrate upgrades, metadata sync, reference refresh, and other repository maintenance for existing skills in this repository.
