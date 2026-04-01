@@ -158,6 +158,24 @@ Notes:
 - Prefer an explicit `--summary`, but the helper can derive one from the first bullet in the matching `## WIP` subsection when possible.
 - Use the manual steps from `references/postgres_guardrails.md` only when the helper cannot be used cleanly.
 
+## Scratch validation for pending migrations
+Use this when you want end-to-end validation of a pending migration file before touching the real target DB.
+
+- If the pending migration file already contains its own `BEGIN`/`COMMIT`, do not wrap it in an outer `BEGIN`/`ROLLBACK`. Let the file manage its own transaction boundaries.
+- For full-file validation, prefer a temporary clone database over wrapping the target DB in a rollback-only session.
+- Raw PostgreSQL CLI tools are acceptable for this workflow today because the skill does not yet provide a dedicated clone-and-validate helper.
+- Still prefer `./scripts/test_connection.sh` and `./scripts/run_sql.sh` for the actual target DB connection, execution, and verification steps.
+
+Example flow:
+```sh
+createdb -T source_db scratch_validation_db
+psql -d scratch_validation_db -v ON_ERROR_STOP=1 -f /path/to/prerelease.sql
+psql -d scratch_validation_db -c "select count(*) from some_table;"
+dropdb scratch_validation_db
+```
+
+When reporting results, say explicitly which steps used skill helpers on the real target DB and which steps used raw `psql`/`createdb`/`dropdb` on a scratch clone.
+
 ## Bootstrap a profile (interactive)
 This helper will optionally scan a project for existing config, recap candidates in TOML format, and let you save or use a one-off connection.
 Run it from the target project root, or set `DB_PROJECT_ROOT` explicitly if you are invoking it from the skill directory or another repo.

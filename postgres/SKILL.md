@@ -66,6 +66,9 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, d
 3) Execute and report:
    - Run the requested action and summarize results or errors.
    - If a connection test fails, run `./scripts/check_deps.sh` and/or `./scripts/connection_info.sh` to diagnose.
+   - Be explicit about how the work was executed:
+     - if the real target DB work used skill helpers such as `./scripts/test_connection.sh` or `./scripts/run_sql.sh`, say so plainly
+     - if part of the workflow used raw `psql`, `createdb`, or `dropdb` because the skill has no dedicated helper for that step (for example scratch clone validation), say that plainly too
 4) Persist only if asked:
    - Update TOML only with explicit user approval, except `[configuration].pg_bin_dir`, `[configuration].python_bin`, and `schema_version` which may be written by bootstrap/migration helpers. Prompt before changing an existing value outside those flows.
 
@@ -79,6 +82,9 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, d
   optimization path.
 - For migration or data-copy drafting, call out any values that were adapted or
   should be adapted before production use.
+- For execution details, clearly distinguish skill-helper runs on the real
+  target DB from any raw PostgreSQL CLI fallback used for scratch validation or
+  temporary clone workflows.
 
 ## Schema and feature design
 - Use this path when the user asks to design or revise Postgres tables,
@@ -192,6 +198,7 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, d
 - If the user asks about coordinates, SRIDs, radius search, nearest-neighbor search, or spatial indexes, route to the PostGIS reference.
 - If the user asks about embeddings, semantic search, similarity search, vector indexes, or retrieval/RAG in Postgres, route to the pgvector reference.
 - For migrations path resolution and schema-change workflow, follow the guardrails reference.
+- If a pending migration file contains its own `BEGIN`/`COMMIT`, do not wrap it in an outer rollback transaction during full-file validation; use the scratch-validation guidance in `references/postgres_usage.md`.
 - If the user explicitly marks a pending migration file as migrated/released/run in production, perform the release flow immediately with `./scripts/release_migration.sh` unless they ask for a dry run only.
 - If `CHANGELOG.md` is not in `WIP/RELEASED` format, migrate it to that template before writing new migration notes.
 - Do not use this runtime skill to refresh best-practices docs/references or otherwise upgrade the skill package itself.

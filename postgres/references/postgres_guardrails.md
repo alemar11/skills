@@ -24,6 +24,7 @@ Use this when making schema changes, migrations, or any potentially destructive 
 - Keep detailed in-progress notes in `## WIP` under the active pending-file subsection.
 - When a migration is released, remove its detailed notes from `## WIP` and add one short entry under `## RELEASED` (newest first).
 - Whenever you modify pending migration file(s), update the matching `## WIP` subsection in `<migrations_path>/CHANGELOG.md`.
+- Keep pending migration files focused on the desired target schema and behavior. Do not leave cleanup for abandoned draft-only objects unless that cleanup is intentionally required to support a documented rerun path.
 
 ## Important rule for DB structure changes
 After the change is approved and completed, ask where to save the migration SQL. Resolve `<migrations_path>` in this order:
