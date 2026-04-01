@@ -103,6 +103,23 @@ github_current_branch() {
   echo "$branch"
 }
 
+github_branch_is_long_lived() {
+  local branch="${1:-}"
+  if [[ -z "$branch" ]]; then
+    echo "github_branch_is_long_lived requires a branch name." >&2
+    exit 64
+  fi
+
+  case "$branch" in
+    main|master|stable|develop|development|trunk|next|integration|staging|release/*)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 github_tracking_remote_name() {
   local branch="${1:-}"
   if [[ -z "$branch" ]]; then

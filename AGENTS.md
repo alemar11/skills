@@ -89,6 +89,11 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Organize `github/scripts/` and `github/references/` into domain slices: `core`, `triage`, `reviews`, `ci`, `releases`, and `publish`. (Codex learning)
 - Future extractable GitHub plugin skills must map cleanly to one domain slice under `github/scripts/<domain>/` and `github/references/<domain>/`. (Codex learning)
 - Domain helpers may depend only on `github/scripts/core/` plus same-domain files; do not create cross-domain helper dependencies. (Codex learning)
+- Run `github` publish-domain helpers from the target repository root, even
+  when the helper path itself lives in another checkout. (Codex learning)
+- When `prs_open_current_branch.sh` is asked to use an explicit `--base`, do
+  not silently reuse an existing PR that targets a different base; surface the
+  mismatch and require an explicit base update instead. (Codex learning)
 - For release-backed tag creation in the `releases` domain, resolve the repository default branch explicitly and surface the exact target SHA before mutation; do not hardcode `main`.
 - For release creation in the `releases` domain, standardize the notes choice as three options: infer from the last published release tag, keep blank, or use user-provided notes; recommend infer when the user leaves it unspecified.
 - For tag-creation requests in the `releases` domain, distinguish "release-backed tag" (`gh release create`) from "tag-only" (`git tag` / `gh api`) before choosing commands.
@@ -97,6 +102,11 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 ### Yeet skill
 - Keep `yeet` focused on full publish from local checkout to draft PR while staying orchestration-only: branch strategy and push belong in `yeet`, commit discipline belongs in `git-commit`, and post-push PR logic belongs in `github`. (Codex learning)
 - Keep `yeet` dependency-aware rather than runtime-independent: it should require `git-commit` and `github` instead of vendoring a duplicate GitHub helper layer. (Codex learning)
+- Treat long-lived branches such as `stable`, `release/*`, `develop`, or
+  `main` as PR bases, not publish branches: create a fresh short-lived branch
+  from them and open the PR back against that long-lived branch. (Codex learning)
+- Prefer the active repo or runtime branch-prefix convention for new `yeet`
+  branches instead of hardcoding `topic/`. (Codex learning)
 
 ### Learn skill
 - Keep `learn` scoped to `AGENTS.md` writes only; do not instruct it to write `MEMORY.md`, `memory_summary.md`, or other memory files.

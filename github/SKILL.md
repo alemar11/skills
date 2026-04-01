@@ -89,7 +89,9 @@ skill, and keep full local-worktree publish in `yeet`.
 - Use `scripts/releases/release_plan.sh` for release or tag planning.
 - Use `scripts/publish/publish_context.sh` and
   `scripts/publish/prs_open_current_branch.sh` for PR publish or lifecycle
-  work after the branch is already ready.
+  work after the branch is already ready; pass `--base <branch>` when the
+  intended target is a long-lived branch or otherwise differs from the
+  repository default branch.
 - Use `references/script-summary.md` as the first helper picker; open
   `references/workflows.md` only when the chosen domain needs a fuller runbook.
 

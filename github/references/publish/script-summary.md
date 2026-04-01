@@ -5,9 +5,11 @@ Use this as the authoritative publish-domain script catalog referenced by
 
 ## Fast helper picks
 
-- Use `scripts/publish/publish_context.sh` for already-pushed current-branch context.
+- Use `scripts/publish/publish_context.sh` for already-pushed current-branch
+  context, including long-lived-branch detection and recommended PR base.
 - Use `scripts/publish/prs_open_current_branch.sh` for already-pushed current-branch
-  PR opening or reuse.
+  PR opening or reuse, especially when the intended base branch is already
+  known.
 - Use `scripts/publish/prs_create.sh` for explicit PR creation.
 - Use the PR lifecycle helpers for draft, ready, merge, close, reopen, and
   checkout flows.
@@ -22,8 +24,8 @@ Use this as the authoritative publish-domain script catalog referenced by
 
 ## Publish scripts
 
-- `scripts/publish/publish_context.sh [--repo <owner/repo>] [--json] [--allow-non-project]`: Show current repo, branch, upstream, change-count, and open-PR context for the local checkout.
-- `scripts/publish/prs_open_current_branch.sh [--title <text>] [--body <text>] [--body-from-head] [--base <branch>] [--draft] [--repo <owner/repo>] [--dry-run] [--allow-non-project]`: Open or reuse a PR from the already-pushed current branch without staging, committing, or pushing.
+- `scripts/publish/publish_context.sh [--repo <owner/repo>] [--json] [--allow-non-project]`: Show current repo, branch, upstream, change-count, long-lived-branch state, recommended PR base, and open-PR context for the local checkout.
+- `scripts/publish/prs_open_current_branch.sh [--title <text>] [--body <text>] [--body-from-head] [--base <branch>] [--draft] [--repo <owner/repo>] [--dry-run] [--allow-non-project]`: Open or reuse a PR from the already-pushed current branch without staging, committing, or pushing; when `--base` is explicit, refuse to silently reuse an existing PR targeting a different base.
 - `scripts/publish/prs_create.sh --title <text> [--body <text>] [--base <branch>] [--head <branch>] [--draft] [--labels <label1,label2>] [--repo <owner/repo>] [--allow-non-project]`
 - `scripts/publish/prs_draft.sh --pr <number> [--repo <owner/repo>] [--allow-non-project]`
 - `scripts/publish/prs_ready.sh --pr <number> [--repo <owner/repo>] [--allow-non-project]`

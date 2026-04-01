@@ -78,6 +78,11 @@ if [[ "$DETACHED_HEAD" -eq 0 && "$CURRENT_BRANCH" == "$DEFAULT_BRANCH" ]]; then
   ON_DEFAULT_BRANCH=1
 fi
 
+CURRENT_BRANCH_IS_LONG_LIVED=0
+if [[ "$DETACHED_HEAD" -eq 0 ]] && github_branch_is_long_lived "$CURRENT_BRANCH"; then
+  CURRENT_BRANCH_IS_LONG_LIVED=1
+fi
+
 UPSTREAM_REMOTE=""
 UPSTREAM_BRANCH=""
 UPSTREAM_CONFIGURED=0
@@ -133,6 +138,7 @@ PR_BASE=""
 PR_HEAD=""
 PR_DRAFT=""
 OPEN_PR=0
+RECOMMENDED_PR_BASE=""
 
 if [[ "$DETACHED_HEAD" -eq 0 ]]; then
   PR_ROW="$(gh pr list \
@@ -152,9 +158,13 @@ fi
 
 RECOMMENDED_STEP="Keep the current branch, push, then open or reuse the draft PR."
 if [[ "$DETACHED_HEAD" -eq 1 ]]; then
-  RECOMMENDED_STEP="Create a topic/<slug> branch before staging because the checkout is detached."
+  RECOMMENDED_STEP="Create a new short-lived branch before staging because the checkout is detached."
 elif [[ "$ON_DEFAULT_BRANCH" -eq 1 ]]; then
-  RECOMMENDED_STEP="Create a topic/<slug> branch before staging because the current branch is the default branch."
+  RECOMMENDED_PR_BASE="$DEFAULT_BRANCH"
+  RECOMMENDED_STEP="Create a new short-lived branch before staging because the current branch is the default branch, and open the PR against $DEFAULT_BRANCH."
+elif [[ "$CURRENT_BRANCH_IS_LONG_LIVED" -eq 1 ]]; then
+  RECOMMENDED_PR_BASE="$CURRENT_BRANCH"
+  RECOMMENDED_STEP="Create a new short-lived branch from $CURRENT_BRANCH before staging, and open the PR against $CURRENT_BRANCH."
 elif [[ "$OPEN_PR" -eq 1 ]]; then
   RECOMMENDED_STEP="Keep the current branch, push the next commit, and reuse the existing PR."
 elif [[ "$UPSTREAM_CONFIGURED" -eq 0 ]]; then
@@ -167,6 +177,7 @@ if [[ "$JSON" -eq 1 ]]; then
   CURRENT_BRANCH="$CURRENT_BRANCH" \
   DETACHED_HEAD="$DETACHED_HEAD" \
   ON_DEFAULT_BRANCH="$ON_DEFAULT_BRANCH" \
+  CURRENT_BRANCH_IS_LONG_LIVED="$CURRENT_BRANCH_IS_LONG_LIVED" \
   UPSTREAM_REMOTE="$UPSTREAM_REMOTE" \
   UPSTREAM_BRANCH="$UPSTREAM_BRANCH" \
   UPSTREAM_CONFIGURED="$UPSTREAM_CONFIGURED" \
@@ -185,6 +196,7 @@ if [[ "$JSON" -eq 1 ]]; then
   PR_BASE="$PR_BASE" \
   PR_HEAD="$PR_HEAD" \
   PR_DRAFT="$PR_DRAFT" \
+  RECOMMENDED_PR_BASE="$RECOMMENDED_PR_BASE" \
   RECOMMENDED_STEP="$RECOMMENDED_STEP" \
   python3 - <<'PY'
 import json
@@ -202,6 +214,7 @@ data = {
     "current_branch": os.environ["CURRENT_BRANCH"] or None,
     "detached_head": as_bool("DETACHED_HEAD"),
     "on_default_branch": as_bool("ON_DEFAULT_BRANCH"),
+    "current_branch_is_long_lived": as_bool("CURRENT_BRANCH_IS_LONG_LIVED"),
     "upstream": {
         "configured": as_bool("UPSTREAM_CONFIGURED"),
         "remote": os.environ["UPSTREAM_REMOTE"] or None,
@@ -226,6 +239,7 @@ data = {
         "head": os.environ["PR_HEAD"] or None,
         "is_draft": (os.environ["PR_DRAFT"] == "true") if os.environ["PR_DRAFT"] else None,
     },
+    "recommended_pr_base": os.environ["RECOMMENDED_PR_BASE"] or None,
     "recommended_next_step": os.environ["RECOMMENDED_STEP"],
 }
 
@@ -242,6 +256,7 @@ else
   echo "Current branch: $CURRENT_BRANCH"
 fi
 echo "On default branch: $([[ "$ON_DEFAULT_BRANCH" -eq 1 ]] && echo yes || echo no)"
+echo "Current branch is long-lived: $([[ "$CURRENT_BRANCH_IS_LONG_LIVED" -eq 1 ]] && echo yes || echo no)"
 if [[ "$UPSTREAM_CONFIGURED" -eq 1 ]]; then
   echo "Upstream: $UPSTREAM_REMOTE/$UPSTREAM_BRANCH (ahead $AHEAD, behind $BEHIND)"
 else
@@ -254,5 +269,8 @@ if [[ "$OPEN_PR" -eq 1 ]]; then
   echo "PR URL: $PR_URL"
 else
   echo "Open PR: none"
+fi
+if [[ -n "$RECOMMENDED_PR_BASE" ]]; then
+  echo "Recommended PR base: $RECOMMENDED_PR_BASE"
 fi
 echo "Recommended next step: $RECOMMENDED_STEP"

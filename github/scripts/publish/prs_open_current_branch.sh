@@ -128,6 +128,12 @@ PR_ROW="$(gh pr list \
 
 if [[ -n "$PR_ROW" ]]; then
   IFS=$'\t' read -r PR_NUMBER PR_URL PR_TITLE PR_BASE PR_HEAD PR_DRAFT <<<"$PR_ROW"
+  if [[ -n "$BASE" && "$PR_BASE" != "$BASE" ]]; then
+    echo "Existing PR #$PR_NUMBER targets '$PR_BASE', not requested base '$BASE'." >&2
+    echo "Update the PR base explicitly with scripts/triage/prs_update.sh --pr $PR_NUMBER --base $BASE before reusing it." >&2
+    exit 7
+  fi
+
   if [[ "$DRY_RUN" -eq 1 ]]; then
     echo "Dry run: would reuse existing PR for $CURRENT_BRANCH in $TARGET_REPO."
     echo "PR: #$PR_NUMBER $PR_TITLE"

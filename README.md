@@ -9,7 +9,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 - `xcode-changelog/` — Resolve the active Xcode or a requested version, then print the matching Apple Xcode release notes.
 - `plan-hard/` — Create a higher-rigor implementation plan with deeper clarification, a gotcha pass, and a saved `plans/<topic>-plan.md` output.
 - `github/` (`GitHub`) — Handle repo-scoped GitHub work across triage, reviews, CI, releases, and PR publish or lifecycle flows.
-- `yeet/` (`Yeet`) — Orchestrate full publish from a local checkout by choosing branch strategy, using `git-commit` for commit discipline, pushing, and handing off to `github` for PR opening or reuse.
+- `yeet/` (`Yeet`) — Orchestrate full publish from a local checkout by choosing branch strategy, using `git-commit` for commit discipline, pushing, and handing off to `github` for PR opening or reuse against the right base branch.
 - `learn/` — Capture durable corrections or preferences and write confirmed learnings only to `AGENTS.md` when the user sets lasting guidance.
 - `postgres/` — Connect to Postgres databases, design schemas and indexes, review SQL/query performance, and use common PostGIS or pgvector patterns.
 - `skill-audit/` — Audit installed or user-specified Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables.

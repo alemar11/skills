@@ -1,6 +1,6 @@
 ---
 name: yeet
-description: Orchestrate the full publish flow from a local checkout by choosing branch strategy, using `git-commit` for intentional commits, pushing, and handing off to `github` for draft PR opening or reuse.
+description: Orchestrate the full publish flow from a local checkout by choosing branch strategy, using `git-commit` for intentional commits, pushing, and handing off to `github` for draft PR opening or reuse against the right base branch.
 ---
 
 # Yeet
@@ -32,9 +32,14 @@ Keep v1 intentionally narrow:
   local checkout.
 - Use when the request is "commit, push, and open a PR", "publish my current
   branch", or "turn these local changes into a draft PR".
-- Keep the current branch when it is already a non-default local branch.
-- Create a new `topic/<slug>` branch only when starting from the repository
-  default branch or detached `HEAD`.
+- Keep the current branch only when it is already a non-default, non-long-lived
+  local branch.
+- Create a new short-lived branch when starting from the repository default
+  branch, detached `HEAD`, or a long-lived integration branch such as
+  `stable`, `release/*`, `develop`, or `main`.
+- Use the active repo or runtime branch-prefix convention for the new branch
+  instead of hardcoding `topic/`; if no repo-specific rule exists, use the
+  runtime default prefix.
 - Route directly to `github` when commit and push are already done, or when
   the request is PR-only lifecycle work.
 - If `git-commit` or `github` is unavailable, name the missing
@@ -47,11 +52,17 @@ Keep v1 intentionally narrow:
    - Start with `git status -sb`.
    - Resolve the current branch, detached-HEAD state, and whether you are still
      on the repository default branch.
+   - When useful, run `github/scripts/publish/publish_context.sh --json` from
+     the target repo root to confirm whether the current branch is long-lived
+     and what PR base should be carried forward.
 2. Pick branch strategy.
-   - If on the repo default branch or detached `HEAD`, create `topic/<slug>`
-     before staging.
-   - If already on a non-default local branch, keep that branch and keep all
-     current changes there.
+   - If on the repo default branch or detached `HEAD`, create a new short-lived
+     branch before staging and treat the repo default branch as the PR base.
+   - If on a long-lived non-default branch, create a new short-lived branch
+     from it before staging and remember that original long-lived branch as the
+     PR base.
+   - If already on a non-default, non-long-lived local branch, keep that branch
+     and keep all current changes there.
 3. Stage intentionally.
    - Hand off to `git-commit` for selective staging when the worktree is mixed.
    - Use `git add -A` only when the whole worktree is confirmed in scope.
@@ -65,6 +76,10 @@ Keep v1 intentionally narrow:
    - Hand off to `github` for its `publish` domain helpers:
      `scripts/publish/publish_context.sh` and
      `scripts/publish/prs_open_current_branch.sh --draft`.
+   - Execute those helpers from the target repo root even when the helper path
+     itself is absolute or lives in another checkout.
+   - If step 2 captured an explicit PR base, pass it with `--base <branch>`
+     instead of letting the helper fall back to the repository default branch.
    - Let `github` reuse an existing open PR for the current branch
      instead of creating a duplicate.
 
@@ -73,6 +88,8 @@ Keep v1 intentionally narrow:
 - Never stage unrelated user changes silently.
 - Never switch a non-default feature branch to a different local branch by
   default.
+- Never publish directly from a long-lived branch such as `stable` or
+  `release/*`; branch off it and keep that branch as the PR base.
 - Never push without confirming scope when the worktree is mixed.
 - Default to a draft PR unless the user explicitly asks for a ready PR.
 - Stop if the repo is not connected to an accessible same-repo GitHub remote.

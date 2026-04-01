@@ -1,7 +1,7 @@
 interface:
   display_name: "Yeet"
-  short_description: "Orchestrate full publish from a local checkout by choosing branch strategy, using git-commit for commit discipline, pushing, and handing off to github for PR opening or reuse."
+  short_description: "Orchestrate full publish from a local checkout by choosing branch strategy, using git-commit for commit discipline, pushing, and handing off to github for PR opening or reuse against the right base branch."
   brand_color: "#F97316"
   icon_small: "./assets/github-small.svg"
   icon_large: "./assets/github.png"
-  default_prompt: "Use the repo-owned Yeet skill to publish local checkout changes by confirming scope, branching if needed, using git-commit for staging and commit discipline, pushing, and handing off to github for publish-context inspection plus draft PR opening or reuse."
+  default_prompt: "Use the repo-owned Yeet skill to publish local checkout changes by confirming scope, creating a short-lived branch when needed, using git-commit for staging and commit discipline, pushing, and handing off to github for publish-context inspection plus draft PR opening or reuse against the correct base branch."
