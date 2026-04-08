@@ -116,6 +116,17 @@ skill, and keep full local-worktree publish in `yeet`.
 - `references/core/failure-retries.md`: retry commands for auth, repo, and
   helper failure modes.
 
+## References navigation
+
+- Start at `references/script-summary.md` to pick the smallest helper for the
+  request.
+- Open `references/workflows.md` when you need the full domain runbook before
+  executing the task.
+- When issue routing is the core problem, open
+  `references/triage/issue-workflows.md` first.
+- When authentication, CLI setup, or retry behavior is uncertain, open
+  `references/core/installation.md` or `references/core/failure-retries.md`.
+
 ## Output Expectations
 
 - Restate the resolved target repository, PR, issue, or reaction target before

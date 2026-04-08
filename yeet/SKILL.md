@@ -104,6 +104,15 @@ Keep v1 intentionally narrow:
   remaining step is PR opening or reuse.
 - Use `references/workflows.md` for the full local-checkout publish sequence.
 
+## References navigation
+
+- Read `references/workflows.md` for the complete publish checklist before
+  mutating state.
+- Open this file’s `Workflow` and `Guardrails` sections first for branching and
+  scope decisions.
+- If companion-skill availability changes, keep `github` and `git-commit`
+  readiness aligned before continuing.
+
 ## Reference map
 
 - `references/workflows.md`: composed full publish-from-worktree runbook and
