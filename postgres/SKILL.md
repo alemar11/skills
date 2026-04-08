@@ -61,6 +61,7 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, d
    - In `postgres.toml`, `sslmode` must be a boolean (`true`/`false`), not a string.
 2) Choose action:
    - Connect/run a query, inspect schema, design tables/constraints/indexes, review backend SQL/query usage, or run a helper script.
+   - For repos that use a `prerelease.sql` plus `released/` workflow, treat every new schema change as pending by default. Unless the user explicitly says the migration was released, migrated, or run in production, keep the SQL in the pending migration file instead of creating anything under `released/`.
    - For schema or table design, start with `references/postgres_best_practices/schema-design.md` and `references/postgres_best_practices/advanced-features.md`.
    - For geospatial tables, SRIDs, coordinates, radius search, nearest-neighbor lookups, or spatial indexing, use `references/postgres_best_practices/postgis.md`.
    - For embeddings, semantic search, similarity search, vector indexes, or retrieval/RAG in Postgres, use `references/postgres_best_practices/pgvector.md`.
@@ -206,6 +207,7 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, d
 - If the user asks about coordinates, SRIDs, radius search, nearest-neighbor search, or spatial indexes, route to the PostGIS reference.
 - If the user asks about embeddings, semantic search, similarity search, vector indexes, or retrieval/RAG in Postgres, route to the pgvector reference.
 - For migrations path resolution and schema-change workflow, follow the guardrails reference.
+- If you are about to create a new file under `released/`, stop and re-check whether the user explicitly asked for a release. Creating a new file in `released/` is a release action, not a generic pending-migration step.
 - If a pending migration file contains its own `BEGIN`/`COMMIT`, do not wrap it in an outer rollback transaction during full-file validation; use the scratch-validation guidance in `references/postgres_usage.md`.
 - If the user explicitly marks a pending migration file as migrated/released/run in production, perform the release flow immediately with `./scripts/release_migration.sh` unless they ask for a dry run only.
 - If `CHANGELOG.md` is not in `WIP/RELEASED` format, migrate it to that template before writing new migration notes.
@@ -216,7 +218,12 @@ Use this skill to connect to Postgres, run user-requested queries/diagnostics, d
 - Always ask for approval before making any database structure change (DDL like CREATE/ALTER/DROP).
 - Keep pending changes in prerelease migration files and maintain a changelog.
 - Use "pending migration file" / "released migration file" as the canonical workflow terms. "SQL script" is fine for the file format, but the action is releasing a migration.
-- Do not edit existing released SQL files; only create a new released migration file by moving a pending prerelease file when the user explicitly confirms release.
+- Do not edit existing released SQL files.
+- Do not create a new file under `released/` for pending work. A new file in `released/` is itself a release action.
+- Only create a new released migration file by moving a pending prerelease file when the user explicitly confirms release.
+- Quick check:
+  - wrong: create `released/2026....sql` for a change that will be deployed later
+  - right: append that change to the pending migration file until release is explicitly confirmed
 - Use released filename policy: `YYYYMMDDHHMMSS.sql`; add `_<slug>` only on same-second collision; add `_<slug>_01`, `_02`, ... if still colliding.
 - Maintain changelog sections as `## WIP` and `## RELEASED`; if the changelog is not in this template, migrate it first, then continue updates.
 - When releasing, remove related bullets from `WIP` and add one short summary under `RELEASED` (newest first).
