@@ -3,6 +3,11 @@
 Use this reference when a `gh` command or `ghops` command fails and you want the
 next retry command without re-deriving the fallback path.
 
+- Runtime path errors (`scripts/ghops`: no such file or directory):
+  - Retry command:
+    rerun the same command through the installed skill path,
+    `<skill-root>/scripts/ghops ...`, instead of assuming the current checkout
+    owns the `github` skill files.
 - Auth/session errors (`gh auth status` fails, 401/403 auth):
   - Retry command:
     `gh auth login && scripts/ghops --json doctor`

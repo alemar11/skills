@@ -20,6 +20,9 @@ skill, and keep full local-worktree publish in `yeet`.
 ## Runtime surface
 
 - `scripts/ghops` is the only supported runtime entrypoint.
+- When the current checkout does not contain `scripts/ghops`, resolve the
+  installed `github` skill root first and run `<skill-root>/scripts/ghops`
+  instead of falling back to legacy per-domain scripts.
 - `scripts/ghops --version` is the runtime version check.
 - `scripts/ghops --json doctor` is the runtime readiness check.
 - The maintained runtime implementation lives under `projects/ghops/src/ghops/`.
@@ -53,7 +56,8 @@ These still organize the implementation and references behind `ghops`:
 ## Quick workflow
 
 1. Determine whether the request is repository-scoped or authenticated-user scoped.
-2. Keep normal runtime execution on `scripts/ghops`.
+2. Resolve the shipped `ghops` artifact. Use `scripts/ghops` when the current
+   checkout has it; otherwise run `<resolved-skill-root>/scripts/ghops`.
 3. Start with `scripts/ghops --json doctor` when auth or repo context is uncertain.
 4. Choose the narrowest `ghops` noun/verb for the task.
 5. Use `--json` when parsing or relaying structured results.
@@ -171,7 +175,9 @@ These still organize the implementation and references behind `ghops`:
 
 ## CLI Maintenance
 
-- Keep normal execution on `scripts/ghops`.
+- Keep normal execution on the shipped `ghops` artifact: `scripts/ghops` from
+  the owning checkout, or `<skill-root>/scripts/ghops` when operating from a
+  different repository.
 - Treat `projects/ghops/` as the maintained Python project behind the shipped
   artifact at `scripts/ghops`.
 - Treat `projects/ghops/pyproject.toml` as the CLI semver source of truth, and

@@ -4,6 +4,7 @@
 
 - `projects/ghops/` is the maintained Python implementation behind the shipped runtime artifact at `github/scripts/ghops`.
 - Normal runtime usage must stay on `github/scripts/ghops`.
+- The shipped artifact is a Python executable zipapp, not a hand-written wrapper.
 
 ## Runtime Surface
 
@@ -22,10 +23,13 @@
 ## Safe Maintenance
 
 - Edit Python implementation under `projects/ghops/src/ghops/`.
-- Keep `scripts/ghops` as a thin wrapper only.
+- Keep `scripts/ghops` as a rebuilt executable artifact generated from this
+  project.
 - Do not treat any virtualenv or build directory as a supported runtime entrypoint.
 - Treat `projects/ghops/src/ghops/` as the runtime source of truth.
 - No legacy runtime helper layer should remain outside `projects/ghops/src/ghops/`.
+- When changing the runtime, rebuild `scripts/ghops` from this project before
+  considering the work done.
 
 ## Verify
 
@@ -37,5 +41,10 @@
 
 ## Rebuild
 
-- No bundling step is required right now.
-- If the runtime wrapper changes, keep `github/scripts/ghops` importing from `projects/ghops/src/`.
+- Rebuild the shipped artifact with:
+  - `python3 -m zipapp github/projects/ghops/src -o github/scripts/ghops -m 'ghops:main' -p '/usr/bin/env python3'`
+- After rebuilding, restore the executable bit with:
+  - `chmod +x github/scripts/ghops`
+- For local Python installs, `projects/ghops/pyproject.toml` also exposes a
+  native console-script entry point:
+  - `ghops = "ghops:main"`

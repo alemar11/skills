@@ -15,7 +15,7 @@ from ghops import runtime  # noqa: E402
 
 
 class ParseRootArgsTests(unittest.TestCase):
-    def test_project_wrapper_exports_main(self) -> None:
+    def test_project_package_exports_main(self) -> None:
         self.assertTrue(callable(ghops.main))
 
     def test_parse_global_json_doctor(self) -> None:

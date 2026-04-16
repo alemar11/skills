@@ -6,6 +6,8 @@ Use this as the top-level runtime and command-map index referenced by
 ## Public runtime
 
 - `scripts/ghops` is the only supported runtime entrypoint.
+- If the current checkout does not ship `scripts/ghops`, resolve the installed
+  `github` skill root and run `<skill-root>/scripts/ghops`.
 - Start with `scripts/ghops --version` and
   `scripts/ghops --json doctor`.
 - Treat the domain catalogs below as `ghops` command maps and runbooks, not as
