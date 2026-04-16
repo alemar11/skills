@@ -14,14 +14,13 @@ Run this checklist before finalizing maintainer updates.
 - Confirm Codex-dependent skills name their required Codex tools/runtime contracts explicitly, and portable skills keep Codex-only helpers optional.
 
 3. Domain-specific workflows
-- If Postgres docs were refreshed, confirm runbook compliance and meaningful-change rationale.
 - If upstream benchmarking was run, confirm benchmark artifacts and proposal report were generated under `.agents/skills/skills-maintainer/artifacts/openai-skill-benchmark/`.
 - If upstream benchmarking was run, confirm one-by-one local skill decisions were generated (`CHANGE`/`NOOP`) in `per_skill_review.json` (or in `proposals.json` equivalent field).
 
 ## Command Set (Typical)
 - `find . -type f -name 'SKILL.md' -not -path '*/.git/*' -not -path '*/.cache/*' | sort`
 - `find . -type f -path '*/agents/openai.yaml' -not -path '*/.git/*' -not -path '*/.cache/*' | sort`
-- `rg -n "postgres-best-practices-runbook|openai-skill-benchmark|\\.agents/skills/skills-maintainer|agents/openai.yaml|SKILL.md" -S`
+- `rg -n "openai-skill-benchmark|\\.agents/skills/skills-maintainer|agents/openai.yaml|SKILL.md" -S`
 - `rg -n "request_user_input|subagent|\\$CODEX_HOME|~/.codex|Codex CLI|Codex App|MEMORY.md|memory_summary.md" -S`
 - `test -f .agents/skills/skills-maintainer/artifacts/openai-skill-benchmark/per_skill_review.json`
 - `git diff --stat`

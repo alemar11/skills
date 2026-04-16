@@ -19,7 +19,6 @@ If the user asks what this skill can do, answer with these three capability grou
    - Audit which skills are Codex-dependent versus portable and tighten runtime-tool wording where needed.
    - Run consistency checks and report `PASS`, `PASS (NOOP)`, or `FAIL`.
 2) Run skill-specific maintainer workflows:
-   - Execute explicit specialist refresh tasks such as Postgres best-practices regeneration.
    - Refresh bundled Swift-DocC authored sources and validate the fast-path reference layer.
    - Refresh the bundled Swift API Design guideline source and validate the thin reference layer.
    - Keep regeneration mechanics and maintainer-only internals out of runtime skills.
@@ -43,13 +42,11 @@ When the user asks what this skill can do, offer this task list:
    - Run structure, rules, and reference checks across the repo or the touched skills.
 5) `audit codex dependencies`
    - Verify which skills are Codex-dependent versus portable, keep the repo inventory current, and ensure Codex-specific tools or filesystem contracts are named precisely.
-6) `refresh postgres references`
-   - Execute the maintainer-only Postgres best-practices refresh workflow.
-7) `refresh swift-docc references`
+6) `refresh swift-docc references`
    - Check the bundled Swift-DocC manifest, refresh the local `DocCDocumentation.docc` asset tree when stale, and validate or tighten the local `references/*.md` fast paths.
-8) `refresh swift-api-design references`
+7) `refresh swift-api-design references`
    - Check the bundled Swift API Design manifest, refresh the local guideline source file when stale, and validate the local `references/*.md` routing layer.
-9) `benchmark against OpenAI`
+8) `benchmark against OpenAI`
    - Compare local skills against official OpenAI skill ecosystems and generate per-skill `CHANGE` or `NOOP` decisions.
 
 ## Trigger Rules
@@ -60,7 +57,6 @@ Use this skill when users ask to:
 - Run a proactive skill maintenance pass before release
 - Sync `SKILL.md`, `agents/openai.yaml`, and repository docs for one or more skills
 - Audit which skills are Codex-dependent versus portable, or tighten Codex-tool/runtime wording for those skills
-- Refresh Postgres best-practices references
 - Refresh bundled Swift-DocC references and bundled source assets
 - Refresh bundled Swift API Design source and thin reference routes
 - Benchmark local skills against official OpenAI skill ecosystems
@@ -74,10 +70,9 @@ Use this skill when users ask to:
 5) For structure and rules checks, follow `references/doc-consistency.md`.
 6) For Codex dependency audits and portability-boundary checks, follow `references/codex-dependency-audit.md`.
 7) For upstream benchmarking and structure proposals, follow `references/openai-skill-benchmark.md`.
-8) For Postgres best-practices refresh, follow `references/postgres-refresh.md`.
-9) For Swift-DocC bundled-reference refresh, follow `references/swift-docc-refresh.md`.
-10) For Swift API Design bundled-reference refresh, follow `references/swift-api-design-refresh.md`.
-11) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
+8) For Swift-DocC bundled-reference refresh, follow `references/swift-docc-refresh.md`.
+9) For Swift API Design bundled-reference refresh, follow `references/swift-api-design-refresh.md`.
+10) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
 
 ## References
 
@@ -88,7 +83,6 @@ Use this skill when users ask to:
 - `references/doc-consistency.md`: use for repository-wide structure and policy checks.
 - `references/codex-dependency-audit.md`: use for Codex-dependency classification, portability-boundary checks, and Codex-tool wording audits.
 - `references/openai-skill-benchmark.md`: use for OpenAI-first benchmark analysis and proposal generation.
-- `references/postgres-refresh.md`: use for maintainer-only Postgres best-practices refresh work.
 - `references/swift-docc-refresh.md`: use for maintainer-only Swift-DocC bundled-reference refresh work.
 - `references/swift-docc-runbook.md`: canonical refresh and review procedure for the `swift-docc` skill.
 - `references/swift-api-design-refresh.md`: use for maintainer-only Swift API Design bundled-reference refresh work.

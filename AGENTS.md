@@ -40,8 +40,6 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 ### Postgres skill
 - Keep Postgres runtime behavior and operator-facing rules in `postgres/SKILL.md` and `postgres/references/*` (not duplicated here).
 - The runtime `postgres` skill must not describe or perform self-upgrade, best-practices refresh, or other package-maintenance workflows. It may still expose runtime learnings that could later be promoted into durable runtime guidance.
-- Keep best-practices regeneration orchestration in `.agents/skills/skills-maintainer` and use `.agents/skills/skills-maintainer/references/postgres-best-practices-runbook.md` as the canonical refresh procedure.
-- Route maintainer-only Postgres best-practices refresh work through repo-level maintainer docs and the `skills-maintainer` skill workflow, not through runtime skill instructions.
 
 ### Swift-DocC skill
 - Keep the runtime `swift-docc` skill focused on bundled authored content (`assets/DocCDocumentation.docc`), `references/*.md` fast paths, and manifest metadata only.
