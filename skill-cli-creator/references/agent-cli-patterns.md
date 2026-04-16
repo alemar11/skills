@@ -122,7 +122,7 @@ scripts/tool-name --json messages search "topic" --limit 50 --all-pages --max-pa
 scripts/tool-name --json drafts list --limit 20 --offset 40
 ```
 
-Return `next_cursor`, `next_url`, `offset`, `page_count`, or whatever is real for the provider.
+Return the provider's real pagination field names, such as `next_cursor`, `next_url`, `offset`, or `page_count`, and document that shape clearly.
 
 ## Raw escape hatch
 

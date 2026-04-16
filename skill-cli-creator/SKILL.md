@@ -16,7 +16,7 @@ Name the hosting skill, the CLI source material, and the first real jobs it shou
 - Host skill: the skill directory that will own the CLI surface.
 - Source: API docs, OpenAPI JSON, SDK docs, curl examples, browser app, existing internal script, article, or working shell history.
 - Jobs: literal reads/writes such as `list drafts`, `download failed job logs`, `search messages`, `upload media`, `read queue schedule`.
-- Entry name: a short script or wrapper name such as `scripts/ci-logs`, `scripts/slack-cli`, or `scripts/buildkite-logs`.
+- Entrypoint path: a short script or wrapper path such as `scripts/ci-logs`, `scripts/slack-cli`, or `scripts/buildkite-logs`.
 
 Before scaffolding, check whether the proposed entrypoint already exists inside the hosting skill:
 
@@ -28,7 +28,7 @@ If it exists, choose a clearer entry name or evolve the existing command instead
 
 ## Embedded Skill Layout
 
-Standardize the layout around two surfaces:
+Standardize the layout around two code surfaces plus a separate project-local config path:
 
 - `scripts/` is the public runtime surface. Run the embedded CLI from `scripts/...` during normal skill use.
 - `src/` is optional private implementation detail. Open `src/` only when fixing, improving, rebuilding, or extending the CLI implementation that supports the surface in `scripts/`.
@@ -118,7 +118,7 @@ Use screenshots to infer workflow, UI vocabulary, fields, and confirmation point
 1. Read the source just enough to inventory resources, auth, pagination, IDs, media/file flows, rate limits, and dangerous write actions. If the docs expose OpenAPI, download or inspect it before naming commands.
 2. Sketch the command list in chat. Keep names short and shell-friendly.
 3. Scaffold the CLI inside the hosting skill using the two-surface layout: `scripts/` for runtime, optional root `src/` for maintenance.
-   - If `src/` is introduced, create `src/AGENTS.md` with build, test, rebuild, runtime-prerequisite, and safe-maintenance instructions for the implementation behind `scripts/...`.
+   - If `src/` is introduced, create `src/AGENTS.md` with build, test, rebuild, runtime prerequisites, and safe-maintenance instructions for the implementation behind `scripts/...`.
 4. Implement `doctor`, discovery, resolve, read commands, one narrow draft or dry-run write path if requested, and the raw escape hatch.
 5. Expose the runtime surface as a stable runnable entrypoint under `scripts/`.
 6. Smoke test from the `scripts/...` surface, not only via toolchain wrappers. Run `scripts/<tool> --help` and `scripts/<tool> --json doctor`, and confirm the task can be completed without opening `src/`.
