@@ -8,7 +8,7 @@ The CLI is Codex's command layer inside a skill. It should turn a service, app, 
 
 Good CLIs for Codex expose composable primitives. Avoid a single command that tries to "do the whole investigation" when smaller discover, read, resolve, download, inspect, draft, and upload commands would compose better.
 
-When the CLI lives inside a skill, keep the shipped runnable artifact in `scripts/` and treat any root `src/` tree as maintenance-only implementation detail.
+When the CLI lives inside a skill, keep the shipped runnable artifact in `scripts/` and treat any `projects/<tool>/` directory as the maintenance/build project behind that runtime surface.
 
 ## Help is interface
 
@@ -25,7 +25,7 @@ Good top-level help should answer:
 
 Treat `--version` as part of that top-level interface, not an afterthought.
 Future Codex threads should be able to check whether the shipped CLI matches
-the latest built implementation without opening `src/`.
+the latest built implementation without opening `projects/<tool>/`.
 
 ## Prefer this command shape
 
@@ -61,10 +61,11 @@ When the CLI is embedded inside a skill:
 - Run the tool from `scripts/...` during normal skill execution.
 - Treat `scripts/<tool>` as the shipped runnable artifact for normal execution.
 - Use `scripts/<tool> --version` as the stable version check.
-- Do not inspect root `src/` during normal execution.
-- Open root `src/` only when fixing, improving, rebuilding, or extending the implementation behind the `scripts/...` surface.
+- Do not inspect `projects/<tool>/` during normal execution.
+- Open `projects/<tool>/` only when fixing, improving, rebuilding, or extending the implementation behind the `scripts/...` surface.
 - Keep the command shape stable even if the implementation language or internal layout changes.
 - Do not treat `target/`, `dist/`, virtualenv paths, or other build directories as supported runtime entrypoints.
+- Keep manifests, lockfiles, dependency installs, caches, intermediate build outputs, and project-local build/test config inside `projects/<tool>/` when a real maintenance project exists.
 
 Keep one semver source of truth. Use the runtime-native manifest version when
 available, otherwise keep one explicit version constant or file and have
@@ -74,14 +75,14 @@ If the runtime produces a compiled executable, copy, install, or generate the
 shipped artifact into `scripts/`. Script-native runtimes may keep the shipped
 script itself in `scripts/` when that script is the real artifact.
 
-When the scaffold also creates skill-local generated state, keep that ignore
-policy close to the hosting skill:
+When the scaffold also creates project-local generated state, keep that ignore
+policy close to `projects/<tool>/`:
 
-- create or update `<hosting-skill>/.gitignore` only when the CLI introduces
-  build, cache, module, or environment directories inside the skill folder
-- keep the local `.gitignore` limited to those skill-local generated paths
-- do not create a no-op local `.gitignore` when there is nothing skill-local to
-  ignore
+- create or update `projects/<tool>/.gitignore` only when the CLI introduces
+  build, cache, module, or environment directories inside that project
+- keep the local `.gitignore` limited to those project-local generated paths
+- do not create a no-op local `.gitignore` when there is nothing project-local
+  to ignore
 
 ## Useful shapes from mature CLIs
 
@@ -190,7 +191,7 @@ Rules:
 - Use --json when analyzing output.
 - Create drafts by default.
 - Do not publish/delete/retry/submit unless the user asked.
-- Do not inspect `src/` during normal execution.
+- Do not inspect `projects/<tool>/` during normal execution.
 - Use `request get ...` only when high-level commands are missing.
 ```
 
@@ -200,11 +201,12 @@ Add a `CLI Maintenance` section in the hosting skill when the tool has a
 maintained implementation behind `scripts/...`. That section should say:
 
 - normal runtime work stays on `scripts/...`
-- `src/` is for bug fixes, performance work, rebuilds, and feature additions
+- `projects/<tool>/` is for bug fixes, performance work, rebuilds, and feature additions
 - shipped CLI changes must update the implementation, rebuild the shipped
   artifact in `scripts/...`, and re-run `--help`, `--version`, and `--json doctor`
 - compiled outputs in `target/`, `dist/`, virtualenvs, or similar paths are
   build intermediates rather than supported runtime entrypoints
-- skill-local generated state should be ignored through the hosting skill's
-  `.gitignore` when those paths live inside the skill folder
+- project-local generated state should be ignored through
+  `projects/<tool>/.gitignore`, with a hosting-skill-root `.gitignore` reserved
+  for generated state that truly lives at the skill root
 - the CLI follows semver from one declared version source of truth

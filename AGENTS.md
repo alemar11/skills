@@ -80,19 +80,19 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Fetch Codex App notes from `https://developers.openai.com/codex/changelog` and match the installed desktop app version when possible. (Codex learning)
 
 ### Skill CLI Creator skill
-- Standardize embedded CLIs around a two-surface model: `scripts/` contains the shipped runnable artifacts used in normal execution, and root `src/` is optional maintenance-only implementation detail. (Codex learning)
-- For embedded skill CLIs, require normal runtime usage to execute from `scripts/...`; do not direct normal skill users to run code from `src/`. (Codex learning)
-- In embedded skill CLIs, inspect root `src/` only when fixing, improving, rebuilding, or extending the implementation behind the `scripts/...` surface. (Codex learning)
-- Use root `src/` only when the embedded CLI is large enough to benefit from a conventional implementation tree; keep script-native shipped artifacts entirely in `scripts/`. (Codex learning)
+- Standardize embedded CLIs around a two-surface model: `scripts/` contains the shipped runnable artifacts used in normal execution, and `projects/<tool>/` is the optional full maintenance/build project behind one shipped CLI. (Codex learning)
+- For embedded skill CLIs, require normal runtime usage to execute from `scripts/...`; do not direct normal skill users to run code from `projects/<tool>/`. (Codex learning)
+- In embedded skill CLIs, inspect `projects/<tool>/` only when fixing, improving, rebuilding, or extending the implementation behind the `scripts/...` surface. (Codex learning)
+- Use `projects/<tool>/` only when the embedded CLI is large enough to benefit from a conventional project layout; keep script-native shipped artifacts entirely in `scripts/`. (Codex learning)
 - Require all embedded skill CLIs to expose `scripts/<tool> --version` and keep one semver source of truth, using the runtime-native manifest version when available and a single explicit code or file source otherwise. (Codex learning)
 - Do not treat `target/`, `dist/`, virtualenv paths, or similar build locations as supported runtime entrypoints for embedded CLIs; compiled outputs must be restored into `scripts/` before normal use. (Codex learning)
-- When an embedded CLI introduces skill-local generated build, cache, module, or environment directories inside the hosting skill, create or update a skill-local `.gitignore`; keep it conditional and scoped to that skill's CLI artifacts rather than duplicating repo-wide ignore rules. (Codex learning)
+- When an embedded CLI introduces project-local generated build, cache, module, or environment directories inside `projects/<tool>/`, create or update `projects/<tool>/.gitignore`; keep it conditional and scoped to that tool's generated paths rather than duplicating repo-wide ignore rules. (Codex learning)
 - Hosting skills that own embedded CLIs must include a `CLI Maintenance` section that keeps normal runtime work on `scripts/...` and routes bug fixes, performance work, rebuilds, and feature additions through the maintained implementation. (Codex learning)
-- If root `src/` exists for an embedded CLI, require `src/AGENTS.md` with build, test, rebuild, runtime-prerequisite, safe-maintenance instructions, the version source of truth, the semver bump policy, and rebuild steps that restore the shipped artifact in `scripts/...`. (Codex learning)
-- Embedded CLI `src/AGENTS.md` files must define semver bumps as: major for breaking CLI contract changes, minor for backward-compatible new features or meaningful capability additions, and patch for backward-compatible bug fixes or corrections. (Codex learning)
+- If `projects/<tool>/` exists for an embedded CLI, require `projects/<tool>/AGENTS.md` with build, test, rebuild, runtime-prerequisite, safe-maintenance instructions, the version source of truth, the semver bump policy, and rebuild steps that restore the shipped artifact in `scripts/...`. (Codex learning)
+- Embedded CLI `projects/<tool>/AGENTS.md` files must define semver bumps as: major for breaking CLI contract changes, minor for backward-compatible new features or meaningful capability additions, and patch for backward-compatible bug fixes or corrections. (Codex learning)
 - Keep persisted embedded-CLI config in `<project-root>/.skills/<hosting-skill>/<hosting-skill>.toml`; treat `<project-root>/.skills/<hosting-skill>/` as config-only, not a place for helper scripts or implementation code. (Codex learning)
 - For embedded skill CLIs, prefer project-local `.skills/...` config first, allow environment variables for one-off runs, and use external config paths only when the user explicitly asks. (Codex learning)
-- Do not standardize alternative generic implementation folder names such as `code/`, `impl/`, or `source/` for embedded CLIs; prefer `src/` when a private implementation tree is needed. (Codex learning)
+- Do not standardize alternative generic maintenance folder names such as `src/`, `code/`, `impl/`, or `source/` for embedded CLIs; prefer `projects/<tool>/` when a private implementation tree is needed. (Codex learning)
 
 ### GitHub skill
 - Keep the runtime `github` skill as the single GitHub runtime entrypoint for repo-scoped work plus authenticated-user star and star-list workflows across triage, reviews, CI, releases, and PR publish or lifecycle work, and reserve `yeet` only for full local-worktree publish.

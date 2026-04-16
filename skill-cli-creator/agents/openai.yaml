@@ -1,5 +1,5 @@
 interface:
   display_name: "Skill CLI Creator"
   short_description: "Build embedded skill CLIs"
-  default_prompt: "Create or refactor an embedded CLI that lives inside a skill, keep the shipped runnable artifact in `scripts/`, reserve root `src/` for maintenance-only implementation code, require `--version` with one semver source of truth, and add a hosting-skill `CLI Maintenance` section."
+  default_prompt: "Create or refactor an embedded CLI that lives inside a skill, keep the shipped runnable artifact in `scripts/`, reserve `projects/<tool>/` for the maintenance/build project when the implementation grows, require `--version` with one semver source of truth, and add a hosting-skill `CLI Maintenance` section."
   brand_color: "#2563EB"
