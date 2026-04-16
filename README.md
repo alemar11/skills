@@ -5,6 +5,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 ## Skills
 - `git-commit/` — Create a well-formed git commit with rationale, explicit staging, and monorepo-safe scope.
 - `ask-questions-if-underspecified/` — Clarify requirements before implementing when a request is underspecified or the user asks for clarification.
+- `cli-creator/` — Create durable, composable CLIs for Codex from APIs, SDKs, curl traces, apps, or local scripts.
 - `codex-changelog/` — Check the installed Codex CLI and Codex App versions, then print CLI notes from `openai/codex/releases` and app notes from the OpenAI Codex changelog page.
 - `xcode-changelog/` — Resolve the active Xcode, look up a requested version, or list the available Apple Xcode release notes.
 - `plan-hard/` — Create a higher-rigor implementation plan with deeper clarification, a gotcha pass, and a saved `plans/<topic>-plan.md` output.
@@ -29,11 +30,12 @@ Project skills are repository-local and are not included in the reusable install
 These prompts are for use inside Codex only.
 Copy/paste one of these prompts:
 
-- `Use $skill-installer to install skills from alemar11/skills --path git-commit ask-questions-if-underspecified codex-changelog xcode-changelog plan-hard github yeet learn postgres skill-audit swift-api-design swift-docc`
+- `Use $skill-installer to install skills from alemar11/skills --path git-commit ask-questions-if-underspecified cli-creator codex-changelog xcode-changelog plan-hard github yeet learn postgres skill-audit swift-api-design swift-docc`
 - `Use $skill-installer to install skills from alemar11/skills --path github`
 - `Use $skill-installer to install skills from alemar11/skills --path git-commit github yeet`
 - `Use $skill-installer to install skills from alemar11/skills --path git-commit`
 - `Use $skill-installer to install skills from alemar11/skills --path ask-questions-if-underspecified`
+- `Use $skill-installer to install skills from alemar11/skills --path cli-creator`
 - `Use $skill-installer to install skills from alemar11/skills --path codex-changelog`
 - `Use $skill-installer to install skills from alemar11/skills --path xcode-changelog`
 - `Use $skill-installer to install skills from alemar11/skills --path plan-hard`
@@ -58,6 +60,7 @@ Install all reusable skills globally for Codex:
 npx skills add alemar11/skills -a codex -g -y \
   --skill git-commit \
   --skill ask-questions-if-underspecified \
+  --skill cli-creator \
   --skill codex-changelog \
   --skill xcode-changelog \
   --skill plan-hard \
@@ -85,6 +88,10 @@ star lists, and add `git-commit` plus
 `yeet` when full local-worktree publish is needed.
 
 Install an individual skill globally for Codex:
+
+```sh
+npx skills add alemar11/skills -a codex -g -y --skill cli-creator
+```
 
 ```sh
 npx skills add alemar11/skills -a codex -g -y --skill github
