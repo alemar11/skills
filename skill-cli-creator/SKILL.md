@@ -79,6 +79,7 @@ Keep these invariants explicit in the hosting skill and CLI docs:
 - Keep script-native runnable artifacts entirely in `scripts/`; introduce `projects/<tool>/` only when the implementation grows enough to justify a real maintenance project.
 - For larger multi-file implementations, keep the shipped runnable artifact in `scripts/` and the maintenance-oriented implementation in `projects/<tool>/`.
 - Keep the CLI project self-contained inside `projects/<tool>/`. Put manifests, lockfiles, dependency installs, caches, intermediate build outputs, project-local test/build config, and source there by default. Do not introduce repo-root or skill-root wrappers unless the user explicitly asks for that non-standard layout.
+- If `projects/<tool>/` exists, keep CLI-specific tests inside `projects/<tool>/tests/` or an equivalently project-local test directory. Do not leave that CLI's maintained test suite at the hosting-skill root or repo root.
 - Do not execute compiled CLIs from `target/`, `dist/`, virtualenv paths, or other build directories during normal skill usage.
 - If the runtime produces a compiled executable, copy, install, or generate the shipped artifact into `scripts/` before considering the CLI ready.
 - If `projects/<tool>/` exists, require `projects/<tool>/AGENTS.md` with build, test, rebuild, runtime prerequisites, safe-maintenance instructions, the version source of truth, the semver bump policy, and rebuild instructions for restoring the shipped artifact in `scripts/...`.
@@ -197,6 +198,7 @@ Use screenshots to infer workflow, UI vocabulary, fields, and confirmation point
 3. Scaffold the CLI inside the hosting skill using the two-surface layout: `scripts/` for runtime, optional `projects/<tool>/` for maintenance.
    - Add or wire the single semver source of truth before the CLI contract is considered complete.
    - Ensure the shipped runnable artifact lives in `scripts/`; treat build outputs elsewhere as intermediates only.
+   - If `projects/<tool>/` exists, put the CLI's maintained unit and integration tests under that project rather than at the hosting-skill root.
    - If the runtime produces a compiled executable, copy, install, or generate that executable into `scripts/`.
    - Inspect which project-local generated directories the chosen runtime will create and create or update `projects/<tool>/.gitignore` only when those directories should remain uncommitted.
    - If `projects/<tool>/` is introduced, create `projects/<tool>/AGENTS.md` with build, test, rebuild, runtime prerequisites, safe-maintenance instructions, the version source of truth, the semver bump policy, and exact steps to restore the shipped artifact in `scripts/...`.
@@ -277,6 +279,9 @@ source of truth; otherwise keep one explicit version constant or file and wire
 `--version` to it.
 Keep packaging metadata, lockfiles, virtualenvs, local caches, and build/test
 artifacts inside `projects/<tool>/`.
+If `projects/<tool>/` exists, keep Python test modules under
+`projects/<tool>/tests/` by default instead of a skill-root or repo-root test
+directory.
 If Python tooling creates project-local generated state, create or update
 `projects/<tool>/.gitignore` for entries such as `.venv/`, `.uv-cache/`,
 `__pycache__/`, `.pytest_cache/`, `.mypy_cache/`, and similar local tooling
@@ -310,6 +315,9 @@ Add a `CLI Maintenance` section to the hosting skill. Require that section to:
 - keep project-local ignore rules in `projects/<tool>/.gitignore`, and update a
   hosting-skill-root `.gitignore` only when new generated state is introduced at
   the skill root itself
+- keep CLI-specific tests and test config inside `projects/<tool>/` when that
+  maintenance project exists, rather than splitting them between the project and
+  the hosting skill root
 - define the bump policy explicitly:
   major for breaking CLI contract changes,
   minor for backward-compatible new features or meaningful capability
