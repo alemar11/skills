@@ -12,8 +12,8 @@ patterns, and manage migration release flow from one canonical CLI:
 - `./scripts/postgres --version` is the runtime version check.
 - Do not use or reintroduce per-task helper scripts from the pre-Rust runtime
   surface.
-- The implementation lives in root `src/` and is maintenance-only. Normal
-  usage stays on the `scripts/postgres` surface.
+- The implementation lives in `projects/postgres/` and is maintenance-only.
+  Normal usage stays on the `scripts/postgres` surface.
 
 ## Fast path
 
@@ -184,12 +184,22 @@ patterns, and manage migration release flow from one canonical CLI:
 ## CLI Maintenance
 
 - Keep normal execution on `./scripts/postgres`.
-- Treat `Cargo.toml` as the single source of truth for the CLI semver, and use
-  `./scripts/postgres --version` to verify the shipped runtime version.
-- Open `src/` only when fixing bugs, improving performance, rebuilding the
-  shipped binary, or extending the CLI contract.
-- Make maintenance changes in `src/`, then rebuild `scripts/postgres` so the
-  shipped artifact stays current.
+- Treat `projects/postgres/Cargo.toml` as the single source of truth for the
+  CLI semver, and use `./scripts/postgres --version` to verify the shipped
+  runtime version.
+- Open `projects/postgres/` only when fixing bugs, improving performance,
+  rebuilding the shipped binary, or extending the CLI contract.
+- Make maintenance changes in `projects/postgres/`, then rebuild
+  `scripts/postgres` so the shipped artifact stays current.
+- Treat compiled outputs in `projects/postgres/target/` as intermediates, not
+  supported runtime entrypoints.
+- Keep project-local ignore rules in `projects/postgres/.gitignore`. Only add a
+  skill-root `.gitignore` if new generated state truly lives at the skill root.
+- Follow semver for shipped CLI changes:
+  - major for breaking CLI contract changes
+  - minor for backward-compatible new features or meaningful capability
+    additions
+  - patch for backward-compatible bug fixes and corrections
 - After maintenance changes, re-verify through the shipped artifact with:
   - `./scripts/postgres --help`
   - `./scripts/postgres --version`

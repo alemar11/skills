@@ -6,7 +6,7 @@ command surface.
 ## Runtime model
 
 - `./scripts/postgres` is the only supported runtime entrypoint.
-- The CLI is implemented in Rust under `../src/`.
+- The CLI is implemented in Rust under `../projects/postgres/`.
 - Normal query / inspection paths use Rust-native PostgreSQL access.
 - Dump / restore / schema-diff paths prefer local PostgreSQL client tools when
   available and otherwise bootstrap managed PostgreSQL binaries automatically.
@@ -19,7 +19,7 @@ command surface.
 - Managed client-tools fallback needs outbound network access the first time it
   downloads PostgreSQL binaries.
 - `cargo` and a recent Rust toolchain are only required when maintaining or
-  rebuilding the shipped artifact from `../src/`.
+  rebuilding the shipped artifact from `../projects/postgres/`.
 
 ## Start here
 
