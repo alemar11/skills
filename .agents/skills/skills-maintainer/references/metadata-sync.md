@@ -5,7 +5,6 @@ Use this playbook to keep one or more targeted skills' `SKILL.md`, `agents/opena
 ## Task Boundary (Sync Only)
 - `sync` aligns metadata and docs only.
 - Do not run structure/policy compliance checks here (those belong to `audit`).
-- Do not run upstream comparison here (that belongs to `benchmark`).
 - Do not run bundled-reference refresh workflows here (those belong to their specific `refresh` tasks).
 
 ## Canonical Source Order

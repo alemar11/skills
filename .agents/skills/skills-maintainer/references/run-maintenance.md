@@ -16,7 +16,7 @@ Use this playbook when the user invokes the maintainer skill generically with `r
   - stale path or wording fixes
   - Codex-dependency labeling and optional-tool fallback clarity
   - directly coupled `README.md` or `AGENTS.md` wording drift
-- Do not infer upstream `benchmark`, domain `refresh`, or brand-new skill creation from bare `run`.
+- Do not infer domain `refresh` or brand-new skill creation from bare `run`.
 - If a candidate change is strategic, high-ambiguity, or likely to alter intent, report it as follow-up instead of auto-applying it here.
 
 ## Workflow

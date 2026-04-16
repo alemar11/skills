@@ -9,7 +9,6 @@ Use this file first to route maintenance requests to the right playbook.
 - `codex-deps`: audit which skills are Codex-dependent versus portable and tighten Codex-tool/runtime wording
 - `audit`: run consistency/release checks
 - `refresh`: refresh domain best-practices content or bundled skill reference content
-- `benchmark`: compare local skills against upstream skill ecosystems and propose meaningful markdown/structure updates
 
 ## Decision Tree
 1. If the user invokes `$skills-maintainer` generically with a bare imperative such as `run`, `run your tasks`, or `do a maintenance pass` and does not name a task, classify as `run` and use `run-maintenance.md`.
@@ -20,30 +19,28 @@ Use this file first to route maintenance requests to the right playbook.
      - sync touched docs
      - audit consistency
      - finish with `release-checklist.md`
-   - Do not infer `benchmark`, `refresh`, or new-skill creation.
+   - Do not infer `refresh` or new-skill creation.
 2. If the user asks to upgrade, modernize, tighten, or improve one or more existing skills, classify as `upgrade` and use `skill-upgrade.md`.
 3. If the user asks to align skill metadata, descriptions, or docs, classify as `sync` and use `metadata-sync.md`.
 4. If the user asks which skills are Codex-dependent versus portable, or asks to verify that Codex-dependent skills explicitly use the right Codex tools/runtime contracts, classify as `codex-deps` and use `codex-dependency-audit.md`.
 5. If the user asks for repo health, policy compliance, structure checks, or pre-release validation, classify as `audit` and use `doc-consistency.md` plus `release-checklist.md`.
 6. If the user asks to refresh bundled Swift-DocC references, review the `swift-docc` manifest, or re-sync the local DocC asset tree against upstream, classify as `refresh` and use `swift-docc-refresh.md`.
 7. If the user asks to refresh bundled Swift API Design references, review the `swift-api-design` manifest, or re-sync the local guideline source against upstream, classify as `refresh` and use `swift-api-design-refresh.md`.
-8. If the user asks to benchmark local skills against upstream repos (for example `openai/skills`, `openai/plugins`, with optional comparison repos), classify as `benchmark` and use `openai-skill-benchmark.md`.
-9. If the user asks to create or bootstrap a brand-new skill, route skill creation through `$skill-creator` first. Return to this maintainer skill only for repo integration or follow-up maintenance after the scaffold exists.
-10. If a request mixes categories, run in this deterministic order:
+8. If the user asks to create or bootstrap a brand-new skill, route skill creation through `$skill-creator` first. Return to this maintainer skill only for repo integration or follow-up maintenance after the scaffold exists.
+9. If a request mixes categories, run in this deterministic order:
    - `run` or `upgrade` -> `run-maintenance.md` or `skill-upgrade.md`
    - `sync` -> `metadata-sync.md`
    - `codex-deps` -> `codex-dependency-audit.md`
    - `refresh` -> the specific routed refresh playbook (`swift-docc-refresh.md` or `swift-api-design-refresh.md`)
-   - `benchmark` -> `openai-skill-benchmark.md`
    - `audit` -> `doc-consistency.md`, then `release-checklist.md`
-11. Always end with `release-checklist.md` for mixed or multi-step maintenance tasks.
+10. Always end with `release-checklist.md` for mixed or multi-step maintenance tasks.
 
 ## Task Isolation Rule
 - Generic bare imperatives map only to `run`.
 - Run only the routed task playbook unless the user explicitly requests a mixed workflow.
-- Do not silently expand `run` into `benchmark`, `refresh`, or new-skill creation.
-- Do not silently expand `upgrade` into repo-wide `benchmark` or `refresh`.
-- Do not silently expand `sync` into `audit`, `benchmark`, or `refresh`.
+- Do not silently expand `run` into `refresh` or new-skill creation.
+- Do not silently expand `upgrade` into repo-wide `refresh`.
+- Do not silently expand `sync` into `audit` or `refresh`.
 
 ## Parallel Delegation Rule
 - If subagent tools are available and the user explicitly asked for delegation or parallel agent work, spawn multiple subagents only after the request has been routed to a concrete playbook.

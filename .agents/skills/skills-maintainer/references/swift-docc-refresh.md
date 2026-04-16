@@ -7,7 +7,7 @@ the `swift-docc` manifest and local fast-path layer.
 - Keep `swift-docc` runtime behavior authoring-first and unaware of maintainer mechanics.
 - Use `references/swift-docc-runbook.md` as the canonical refresh and review procedure.
 - This task is a skill-specific refresh workflow; do not silently combine it with
-  repo-wide benchmark work or unrelated skill upgrades.
+  unrelated maintainer workflows or skill upgrades.
 
 ## Execution Flow (Mandatory Order)
 1. `syntax-check`: run `python3 -m py_compile` on both Swift-DocC maintainer scripts.

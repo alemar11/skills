@@ -5,4 +5,3 @@ __pycache__/
 .agents/skills/skills-maintainer/artifacts/top-postgres-skills.md
 .agents/skills/skills-maintainer/artifacts/sources-reviewed.md
 .agents/skills/skills-maintainer/artifacts/verification.md
-.agents/skills/skills-maintainer/artifacts/openai-skill-benchmark/

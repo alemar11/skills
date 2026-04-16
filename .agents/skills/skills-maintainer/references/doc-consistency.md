@@ -19,7 +19,6 @@ Use this playbook for repository-wide structure and policy checks.
 4. Policy alignment
 - AGENTS guidance matches current repository conventions.
 - Skill-specific rules (for example Postgres guardrails) are not contradicted by newer docs.
-- Benchmark playbook commands and script flags match the benchmark script contract.
 - Codex-dependent skills tracked in `AGENTS.md` match the current skill docs.
 - Portable skills do not accidentally hard-require Codex-only helpers when a generic fallback is intended.
 
@@ -47,7 +46,7 @@ Use this playbook for repository-wide structure and policy checks.
 - Safe explorer split:
   - one subagent for naming/layout and required-file checks
   - one subagent for script/reference integrity
-  - one subagent for policy alignment and benchmark-playbook contract review
+  - one subagent for policy alignment and guardrail review
 - Keep final severity assignment, duplicate-findings cleanup, and the user-facing PASS/FAIL/WARN report in the main agent.
 
 ## Reporting Format

@@ -8,10 +8,10 @@ description: Maintain and improve one or more skills in this repository with sha
 ## Goal
 Use this project-maintainer skill to maintain existing skills in this repository. Its primary job is to inspect one or more local skills, apply concrete docs, metadata, and workflow improvements, and keep repo-level maintainer docs aligned.
 When a user invokes `$skills-maintainer` with a bare imperative such as `run` or `run your tasks` and does not name a task or target, inspect the local skills, choose the ones with clear actionable drift, apply safe scoped upgrades, then run sync, audit, and release-style checks.
-Treat benchmark and domain-refresh work as explicit tasks, not default behavior. For brand-new skills, start with `$skill-creator`; this skill is for maintaining and integrating existing skill packages.
+Treat domain-refresh work as explicit tasks, not default behavior. For brand-new skills, start with `$skill-creator`; this skill is for maintaining and integrating existing skill packages.
 
 ## User-facing Capability Summary
-If the user asks what this skill can do, answer with these three capability groups:
+If the user asks what this skill can do, answer with these two capability groups:
 1) Maintain one or more existing skills:
    - Inspect reusable and project-local skills for actionable drift.
    - Upgrade targeted skills through `SKILL.md`, `agents/openai.yaml`, `references/*.md`, and directly coupled repo docs.
@@ -22,12 +22,6 @@ If the user asks what this skill can do, answer with these three capability grou
    - Refresh bundled Swift-DocC authored sources and validate the fast-path reference layer.
    - Refresh the bundled Swift API Design guideline source and validate the thin reference layer.
    - Keep regeneration mechanics and maintainer-only internals out of runtime skills.
-3) Benchmark local skills against official OpenAI ecosystems when explicitly asked:
-   - Download/update `openai/skills` and `openai/plugins`.
-   - Study official patterns and propose meaningful structure improvements.
-   - Use non-OpenAI repos only as optional comparison context.
-   - Do not auto-apply benchmark proposals unless the user explicitly asks.
-
 ## Available Tasks (User Menu)
 When the user asks what this skill can do, offer this task list:
 1) `run`
@@ -46,9 +40,6 @@ When the user asks what this skill can do, offer this task list:
    - Check the bundled Swift-DocC manifest, refresh the local `DocCDocumentation.docc` asset tree when stale, and validate or tighten the local `references/*.md` fast paths.
 7) `refresh swift-api-design references`
    - Check the bundled Swift API Design manifest, refresh the local guideline source file when stale, and validate the local `references/*.md` routing layer.
-8) `benchmark against OpenAI`
-   - Compare local skills against official OpenAI skill ecosystems and generate per-skill `CHANGE` or `NOOP` decisions.
-
 ## Trigger Rules
 Use this skill when users ask to:
 - Invoke `$skills-maintainer` generically to maintain existing skills in this repository
@@ -59,7 +50,6 @@ Use this skill when users ask to:
 - Audit which skills are Codex-dependent versus portable, or tighten Codex-tool/runtime wording for those skills
 - Refresh bundled Swift-DocC references and bundled source assets
 - Refresh bundled Swift API Design source and thin reference routes
-- Benchmark local skills against official OpenAI skill ecosystems
 - Integrate a newly scaffolded skill into repo metadata after `$skill-creator` has already created the package
 
 ## Workflow
@@ -69,10 +59,9 @@ Use this skill when users ask to:
 4) For metadata/docs alignment, follow `references/metadata-sync.md`.
 5) For structure and rules checks, follow `references/doc-consistency.md`.
 6) For Codex dependency audits and portability-boundary checks, follow `references/codex-dependency-audit.md`.
-7) For upstream benchmarking and structure proposals, follow `references/openai-skill-benchmark.md`.
-8) For Swift-DocC bundled-reference refresh, follow `references/swift-docc-refresh.md`.
-9) For Swift API Design bundled-reference refresh, follow `references/swift-api-design-refresh.md`.
-10) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
+7) For Swift-DocC bundled-reference refresh, follow `references/swift-docc-refresh.md`.
+8) For Swift API Design bundled-reference refresh, follow `references/swift-api-design-refresh.md`.
+9) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
 
 ## References
 
@@ -82,7 +71,6 @@ Use this skill when users ask to:
 - `references/metadata-sync.md`: use for `SKILL.md`, `agents/openai.yaml`, and repo-doc alignment.
 - `references/doc-consistency.md`: use for repository-wide structure and policy checks.
 - `references/codex-dependency-audit.md`: use for Codex-dependency classification, portability-boundary checks, and Codex-tool wording audits.
-- `references/openai-skill-benchmark.md`: use for OpenAI-first benchmark analysis and proposal generation.
 - `references/swift-docc-refresh.md`: use for maintainer-only Swift-DocC bundled-reference refresh work.
 - `references/swift-docc-runbook.md`: canonical refresh and review procedure for the `swift-docc` skill.
 - `references/swift-api-design-refresh.md`: use for maintainer-only Swift API Design bundled-reference refresh work.
@@ -94,7 +82,6 @@ Use this skill when users ask to:
 - Prefer explorer subagents for read-only inspection and worker subagents only when file ownership is clearly split.
 - Good candidates for parallel delegation in this skill:
   - `run`: split reusable skills, project-local skills, and coupled repo-doc inspection into disjoint analysis buckets.
-  - `benchmark`: split upstream repo analysis or shard per-skill review after baseline artifacts exist.
   - `sync` / `audit`: split metadata drift, README/install prompt drift, and script/reference or policy checks.
   - `upgrade`: split target skill packages from directly coupled repo docs only when write scopes do not overlap.
 - Keep routing, final edit integration, final severity/result synthesis, and final git verification in the main agent.
@@ -102,7 +89,7 @@ Use this skill when users ask to:
 ## Guardrails
 - Keep this skill focused on maintaining existing skills in this repository.
 - Prefer concrete skill-level improvements over neutral orchestration language.
-- Do not infer `benchmark`, `refresh`, or new-skill creation from bare `run`.
+- Do not infer `refresh` or new-skill creation from bare `run`.
 - Use `$skill-creator` first when the user wants to create a brand-new skill.
 - Keep changes scoped to the selected or discovered skills.
 - Only spawn subagents when delegation is explicitly allowed in the current run.

@@ -5,7 +5,7 @@ Use this playbook when a user asks to upgrade, modernize, tighten, or improve an
 ## Purpose
 - Improve one or more existing skills with meaningful, scoped documentation or metadata updates.
 - Preserve the skill's intent while making triggers, workflow, guardrails, or supporting docs easier to use and maintain.
-- Avoid silently expanding a targeted upgrade into repo-wide benchmark or refresh work.
+- Avoid silently expanding a targeted upgrade into repo-wide refresh work.
 
 ## Task Boundary
 - `upgrade` is for one or more existing target skills.
@@ -14,7 +14,6 @@ Use this playbook when a user asks to upgrade, modernize, tighten, or improve an
   - the skill's `agents/openai.yaml`
   - the skill's `references/*.md`
   - directly coupled mentions in `README.md` or `AGENTS.md` when wording or durable repo guidance changes
-- Do not run repo-wide benchmark analysis unless the user explicitly asks for `benchmark`.
 - Do not refresh domain best-practices content unless the user explicitly asks for `refresh`.
 
 ## Workflow
