@@ -1,0 +1,18 @@
+[project]
+name = "ghops"
+version = "1.0.0"
+description = "Embedded GitHub CLI runtime for the gitstack plugin"
+requires-python = ">=3.11"
+
+[project.scripts]
+ghops = "ghops:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

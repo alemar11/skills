@@ -1,0 +1,7 @@
+interface:
+  display_name: "GitHub CI"
+  short_description: "Use the shared ghops CLI for PR checks and generic GitHub Actions investigation."
+  brand_color: "#4338CA"
+  icon_small: "./assets/github-small.svg"
+  icon_large: "./assets/github.png"
+  default_prompt: "Use the bundled GitHub CI skill through the shared ghops CLI for PR checks, Actions runs, and log-oriented failure triage."

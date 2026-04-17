@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Overview
-This repository hosts reusable Codex skills and project maintainer skills. Reusable skills live in top-level directories, while project maintainer skills live under `.agents/skills/`. Every skill is documented by a `SKILL.md` entrypoint. Keep guidance lightweight and focused on building and evolving skills.
+This repository hosts reusable Codex skills, repo-local plugins, and project maintainer skills. Reusable skills live in top-level directories, repo-local plugins live under `plugins/`, and project maintainer skills live under `.agents/skills/`. Every skill is documented by a `SKILL.md` entrypoint. Keep guidance lightweight and focused on building and evolving skills.
 Agent skills follow the specification at `https://agentskills.io/specification`.
 Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
@@ -96,16 +96,26 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Embedded CLI `projects/<tool>/AGENTS.md` files must define semver bumps as: major for breaking CLI contract changes, minor for backward-compatible new features or meaningful capability additions, and patch for backward-compatible bug fixes or corrections. (Codex learning)
 - Keep persisted embedded-CLI config owner-aligned: skill-owned CLIs use `<project-root>/.skills/<skill>/config.toml`, shared plugin-owned CLIs use `<project-root>/.plugins/<plugin>/config.toml`, and plugin-owned single-skill CLIs stay under the owning skill's `.skills/...` namespace. (Codex learning)
 - Treat `<project-root>/.skills/<skill>/` and `<project-root>/.plugins/<plugin>/` as config-only; do not place helper scripts or implementation code there. (Codex learning)
+- Treat owner-level `config.toml` files under `.skills/...` or `.plugins/...` as local persisted operator config, not repo content; consuming repos should gitignore those files, and migrations from legacy `<skill>.toml` names must update ignore rules in the same rollout. (Codex learning)
 - For embedded CLIs, prefer owner-aligned project-local config first, allow environment variables for one-off runs, and use external config paths only when the user explicitly asks. (Codex learning)
 - Standardize persisted config on owner-level `config.toml` with required `schema_version` and optional non-authoritative `[meta]`; do not require top-level `version` or per-tool version fields as normative config state. (Codex learning)
 - When a plugin-owned single-skill CLI becomes shared across bundled skills, move the shipped artifact, maintenance project, and config namespace together, then document one deterministic read path instead of silently reading both old and new config locations. (Codex learning)
 - Treat plugin-root `scripts/` as a repo convention for plugin-owned shared CLIs, not as an officially documented Codex plugin manifest component. (Codex learning)
 - Do not standardize alternative generic maintenance folder names such as `src/`, `code/`, `impl/`, or `source/` for embedded CLIs; prefer `projects/<tool>/` when a private implementation tree is needed. (Codex learning)
+- In embedded-CLI docs, separate the artifact path from the public runtime noun: use `scripts/<tool>` for ownership or rebuild instructions, but prefer `<tool> ...` in normal user-facing examples when the CLI exposes that stable command name. (Codex learning)
+
+### GitStack plugin
+- Keep `plugins/gitstack/` as the preferred full-stack install surface for linked git authoring, GitHub operations, and publish orchestration.
+- Keep `plugins/gitstack/scripts/ghops` as the shared runtime for bundled GitHub skills; do not add bundled skill-local runtime copies.
+- Bundle `git-commit`, `github`, `github-triage`, `github-reviews`, `github-ci`, `github-releases`, and `yeet` under `plugins/gitstack/skills/`.
+- Keep `git-commit` bundled as skill-only in `gitstack`; do not add a `ghops commit ...` surface in v1.
+- Keep bundled `github` as the umbrella skill and allow the specialist bundled skills only when they map cleanly to one existing GitHub domain slice.
+- Do not add `github-publish`; keep publish or lifecycle work in bundled `github` and full local publish in bundled `yeet`. (Codex learning)
 
 ### GitHub skill
 - Keep the runtime `github` skill as the single GitHub runtime entrypoint for repo-scoped work plus authenticated-user star and star-list workflows across triage, reviews, CI, releases, and PR publish or lifecycle work, and reserve `yeet` only for full local-worktree publish.
 - Treat the GitHub consolidation as intentionally breaking: the supported install path for GitHub workflows is `github`, plus `git-commit` and `yeet` when full publish is needed.
-- Do not reintroduce `github-reviews`, `github-ci`, `github-releases`, or `github-publish` runtime install prompts or examples.
+- Do not reintroduce `github-reviews`, `github-ci`, `github-releases`, or `github-publish` as standalone top-level runtime install prompts or examples.
 - Keep the runtime `github` skill self-owned and self-sufficient; do not require the upstream GitHub plugin for runtime routing or execution.
 - Benchmark GitHub-skill parity work against the upstream `openai/plugins` GitHub bundle when useful, but keep runtime instructions and helper flows fully repo-local.
 - Keep authenticated-user star and star-list flows in the `triage` domain, not in a new top-level GitHub sub-skill. (Codex learning)
@@ -125,9 +135,13 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - For tag-creation requests in the `releases` domain, distinguish "release-backed tag" (`gh release create`) from "tag-only" (`git tag` / `gh api`) before choosing commands.
 - For GitHub Actions investigations in the `ci` domain, distinguish PR-associated failures from generic branch, SHA, workflow, schedule, manual, or explicit run-id runs; use `gh pr checks` only for PR-associated runs and prefer `gh run list` / `gh run view` otherwise.
 
+### Git Commit skill
+- `git-commit` may be bundled inside `plugins/gitstack`, but keep its contract unchanged: selective staging, commit authoring, and post-commit verification stay skill-owned rather than moving into `ghops`. (Codex learning)
+
 ### Yeet skill
 - Keep `yeet` focused on full publish from local checkout to draft PR while staying orchestration-only: branch strategy and push belong in `yeet`, commit discipline belongs in `git-commit`, and post-push PR logic belongs in `github`. (Codex learning)
 - Keep `yeet` dependency-aware rather than runtime-independent: it should require `git-commit` and `github` instead of vendoring a duplicate GitHub helper layer. (Codex learning)
+- Within `plugins/gitstack`, keep `yeet` wired to bundled `git-commit` plus the shared `ghops publish ...` runtime surface instead of legacy helper-script paths. (Codex learning)
 - Treat long-lived branches such as `stable`, `release/*`, `develop`, or
   `main` as PR bases, not publish branches: create a fresh short-lived branch
   from them and open the PR back against that long-lived branch. (Codex learning)

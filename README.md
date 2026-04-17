@@ -1,6 +1,10 @@
 # Skills
 
-This directory contains reusable skills and project maintainer skills—task-specific packages of instructions, resources, and optional scripts that help agents follow workflows reliably.
+This directory contains reusable skills, repo-local plugins, and project maintainer skills—task-specific packages of instructions, resources, and optional scripts that help agents follow workflows reliably.
+
+## Plugins
+- `plugins/gitstack/` — Preferred bundled install surface for linked git authoring, GitHub workflows, and Yeet around the shared `ghops` CLI.
+  Bundled skills: `git-commit`, `github`, `github-triage`, `github-reviews`, `github-ci`, `github-releases`, `yeet`.
 
 ## Skills
 - `git-commit/` — Create a well-formed git commit with rationale, explicit staging, and monorepo-safe scope.
@@ -25,14 +29,20 @@ Project skills are repository-local and are not included in the reusable install
 
 ## Codex
 
-### Install With skill-installer (Codex-only)
+### Preferred Plugin Install
+The preferred full-stack surface for linked git + GitHub workflows is the
+repo-local `plugins/gitstack/` plugin, registered through
+`.agents/plugins/marketplace.json`.
+
+Use the standalone `git-commit`, `github`, and `yeet` skill installs below
+only when you explicitly want the source-level standalone skills instead of the
+bundled plugin.
+
+### Install Standalone Skills With skill-installer (Codex-only)
 These prompts are for use inside Codex only.
 Copy/paste one of these prompts:
 
 - `Use $skill-installer to install skills from alemar11/skills --path git-commit skill-cli-creator codex-changelog xcode-changelog plan-harder github yeet learn postgres skill-audit swift-api-design swift-docc`
-- `Use $skill-installer to install skills from alemar11/skills --path github`
-- `Use $skill-installer to install skills from alemar11/skills --path git-commit github yeet`
-- `Use $skill-installer to install skills from alemar11/skills --path git-commit`
 - `Use $skill-installer to install skills from alemar11/skills --path skill-cli-creator`
 - `Use $skill-installer to install skills from alemar11/skills --path codex-changelog`
 - `Use $skill-installer to install skills from alemar11/skills --path xcode-changelog`
@@ -70,20 +80,6 @@ npx skills add alemar11/skills -a codex -g -y \
   --skill swift-docc
 ```
 
-Install the full GitHub publish stack globally for Codex:
-
-```sh
-npx skills add alemar11/skills -a codex -g -y \
-  --skill git-commit \
-  --skill github \
-  --skill yeet
-```
-
-Breaking change: the GitHub runtime surface is now `github` plus `yeet`.
-Install `github` for repo-scoped GitHub work plus authenticated-user stars and
-star lists, and add `git-commit` plus
-`yeet` when full local-worktree publish is needed.
-
 Install an individual skill globally for Codex:
 
 ```sh
@@ -91,15 +87,7 @@ npx skills add alemar11/skills -a codex -g -y --skill skill-cli-creator
 ```
 
 ```sh
-npx skills add alemar11/skills -a codex -g -y --skill github
-```
-
-```sh
 npx skills add alemar11/skills -a codex -g -y --skill xcode-changelog
-```
-
-```sh
-npx skills add alemar11/skills -a codex -g -y --skill git-commit --skill github --skill yeet
 ```
 
 ```sh
@@ -115,9 +103,8 @@ npx skills add alemar11/skills -a codex -g -y --skill plan-harder
 ```
 
 Omit `-g` to install into the current project's `.agents/skills/` instead of your global `~/.codex/skills/`.
-For GitHub workflows, install `github` for repo-scoped work plus
-authenticated-user stars/lists and add
-`git-commit + yeet` for full publish.
+For linked git + GitHub workflows, prefer the bundled `plugins/gitstack/`
+surface instead of assembling standalone `git-commit + github + yeet`.
 The repository-local `skills-maintainer` skill is intentionally excluded from these commands.
 
 Restart Codex to pick up new skills.

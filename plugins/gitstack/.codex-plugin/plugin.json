@@ -1,0 +1,41 @@
+{
+  "name": "gitstack",
+  "version": "1.0.0",
+  "description": "Bundle git authoring, GitHub operations, and publish workflows around a shared ghops CLI.",
+  "author": {
+    "name": "alemar11",
+    "email": "",
+    "url": "https://github.com/alemar11"
+  },
+  "homepage": "https://github.com/alemar11/skills",
+  "repository": "https://github.com/alemar11/skills",
+  "license": "MIT",
+  "keywords": [
+    "git",
+    "github",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "GitStack",
+    "shortDescription": "Bundle git commit, GitHub, and publish workflows in one plugin.",
+    "longDescription": "GitStack bundles git-commit, GitHub specialist skills, and Yeet around one shared ghops runtime so commit, review, release, and publish flows stay aligned.",
+    "developerName": "alemar11",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/alemar11/skills",
+    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
+    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+    "defaultPrompt": [
+      "Review this repo and summarize the open PRs.",
+      "Turn these local changes into a draft PR.",
+      "Create a clean commit and open or reuse the PR."
+    ],
+    "brandColor": "#111827",
+    "composerIcon": "./assets/github-small.svg",
+    "logo": "./assets/github.png"
+  }
+}

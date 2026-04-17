@@ -1,0 +1,7 @@
+interface:
+  display_name: "GitHub"
+  short_description: "Use the shared ghops CLI for mixed GitHub work, with bundled specialist skills for triage, reviews, CI, and releases."
+  brand_color: "#1F9D55"
+  icon_small: "./assets/github-small.svg"
+  icon_large: "./assets/github.png"
+  default_prompt: "Use the bundled GitHub skill through the plugin-owned ghops CLI for mixed GitHub work, publish lifecycle tasks, and routing into the triage, reviews, CI, or releases specialist skills when the request is focused."

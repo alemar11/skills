@@ -1,0 +1,7 @@
+interface:
+  display_name: "Yeet"
+  short_description: "Orchestrate full publish from a local checkout by choosing branch strategy, using git-commit for commit discipline, pushing, and handing off to github for PR opening or reuse against the right base branch."
+  brand_color: "#F97316"
+  icon_small: "./assets/github-small.svg"
+  icon_large: "./assets/github.png"
+  default_prompt: "Use the bundled Yeet skill to inspect a local worktree, hand commit creation to bundled git-commit, and use the plugin-owned ghops publish commands to open or reuse the PR."

@@ -127,6 +127,9 @@ Keep the layout model short and explicit:
 - `scripts/` contains the shipped runnable artifacts used during normal execution
 - `projects/<tool>/` is the maintenance-only build project behind one shipped CLI
 - `<project-root>/.skills/<skill>/` and `<project-root>/.plugins/<plugin>/` are config-only
+- separate the shipped artifact path from the public runtime noun:
+  `scripts/<tool>` is the artifact location, while `<tool>` is the preferred
+  user-facing command form when the runtime exposes a stable command name
 
 Keep these invariants explicit in the host docs and CLI docs:
 
@@ -148,6 +151,11 @@ Keep these invariants explicit in the host docs and CLI docs:
 - if the scaffold introduces project-local generated state that must not be committed, create or update `projects/<tool>/.gitignore` and keep it scoped to that tool's generated paths
 - do not create an empty or no-op `projects/<tool>/.gitignore` when the CLI introduces no project-local generated state
 - do not standardize alternative generic maintenance folders such as `src/`, `code/`, `impl/`, or `source/` for the full project layout
+- in user-facing skill docs, examples, and runbooks, prefer `<tool> ...` over
+  `scripts/<tool> ...` unless the instruction is explicitly about running from
+  the owning host root or about the artifact path itself
+- do not tell bundled skills to run `scripts/<tool>` unless that relative path
+  actually exists from that skill's runtime context
 
 For detailed command-shape, runtime-surface, JSON, and host-owned examples, read [references/agent-cli-patterns.md](references/agent-cli-patterns.md).
 
@@ -173,6 +181,15 @@ Keep config-only directories explicit:
 - `<project-root>/.plugins/<plugin>/`
 
 Do not place helper scripts or implementation code there.
+
+Treat owner-level `config.toml` as local persisted operator config:
+
+- consuming repos should gitignore `<project-root>/.skills/<skill>/config.toml`
+- consuming repos should gitignore `<project-root>/.plugins/<plugin>/config.toml`
+- when a skill or plugin migrates from a legacy config filename to
+  `config.toml`, update the consuming repo ignore rules in the same rollout
+- do not treat owner-level `config.toml` as normal repo content unless the user
+  explicitly wants a tracked example or fixture elsewhere
 
 The normative config format uses:
 
@@ -237,6 +254,9 @@ State the choice in one sentence before scaffolding, including the reason and th
 Sketch the command surface in chat before coding. Include the shipped artifact path, discovery commands, resolve or ID-lookup commands, read commands, write commands, raw escape hatch, auth/config choice, and any rebuild behavior needed to restore the shipped artifact in `scripts/`.
 
 Before finalizing the command contract, confirm that the CLI/tool name is the best runtime noun for the planned jobs rather than defaulting to the host name out of symmetry.
+Keep the distinction explicit in examples: document `scripts/<tool>` as the
+artifact location, but prefer the runtime noun `<tool> ...` for normal
+user-facing command examples when the CLI exposes that stable public name.
 
 Use [references/agent-cli-patterns.md](references/agent-cli-patterns.md) for the expected composable CLI shape, command ordering, JSON conventions, pagination patterns, and host-owned examples.
 
@@ -357,6 +377,9 @@ After the embedded CLI works, update the owning skill docs or plugin docs so fut
 - treat `projects/<tool>/` as the maintenance-only build project when one exists, not part of the normal runtime surface
 - know the safe read path, intended draft/write path, and raw escape hatch
 - have copy-pasteable examples that stay on the `scripts/...` surface
+- prefer the public command noun such as `<tool> ...` in normal runtime
+  examples when the CLI exposes one, and reserve `scripts/<tool>` for
+  ownership, rebuild, and host-root execution instructions
 
 Add a `CLI Maintenance` section to the owning runtime docs. Require that section to:
 

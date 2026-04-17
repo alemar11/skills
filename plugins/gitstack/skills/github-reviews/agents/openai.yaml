@@ -1,0 +1,7 @@
+interface:
+  display_name: "GitHub Reviews"
+  short_description: "Use the shared ghops CLI for review-thread triage, replies, and review submission."
+  brand_color: "#DC2626"
+  icon_small: "./assets/github-small.svg"
+  icon_large: "./assets/github.png"
+  default_prompt: "Use the bundled GitHub Reviews skill through the shared ghops CLI for review-thread triage, replies, top-level PR comment follow-up, and review submission."

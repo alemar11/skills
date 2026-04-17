@@ -1,0 +1,5 @@
+interface:
+  display_name: "Git Commit"
+  short_description: "Create a well-formed git commit with rationale, explicit staging, and monorepo-safe scope."
+  brand_color: "#0EA5E9"
+  default_prompt: "Create a git commit with a clear, accurate message that matches staged changes, using explicit pathspec staging and one-subproject-per-commit defaults in monorepos."
