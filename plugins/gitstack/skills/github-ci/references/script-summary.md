@@ -1,7 +1,7 @@
 # GitHub CI command summary
 
 Use this as the authoritative CI-domain `ghops` command map referenced by
-`github/SKILL.md`.
+the bundled `github` skill.
 
 ## Fast picks
 

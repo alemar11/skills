@@ -1,7 +1,7 @@
 # GitHub publish command summary
 
 Use this as the authoritative publish-domain `ghops` command map referenced by
-`github/SKILL.md`.
+the bundled `github` skill.
 
 ## Fast picks
 

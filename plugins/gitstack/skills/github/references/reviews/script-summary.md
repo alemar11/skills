@@ -1,7 +1,7 @@
 # GitHub review command summary
 
 Use this as the authoritative reviews-domain `ghops` command map referenced by
-`github/SKILL.md`.
+the bundled `github` skill.
 
 ## Fast picks
 

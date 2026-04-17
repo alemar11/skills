@@ -1,0 +1,5 @@
+interface:
+  display_name: "Maintainer"
+  short_description: "Maintain and improve one or more skills or plugins in this repository with shared upgrade workflows and skill-specific refresh tasks."
+  brand_color: "#B85C00"
+  default_prompt: "Run the requested maintenance workflow for one or more skills or plugins in this repository. Treat maintenance as one unified task: if the user gives no targets, do a repo-wide pass; if the user names skills or plugins, do targeted maintenance; if the user explicitly asks for metadata/docs alignment, stay in metadata-only mode."
