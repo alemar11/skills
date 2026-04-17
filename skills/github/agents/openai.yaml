@@ -1,7 +1,0 @@
-interface:
-  display_name: "GitHub"
-  short_description: "Handle repo-scoped GitHub work plus authenticated-user stars and star lists across triage, reviews, CI, releases, and PR publish or lifecycle flows, with Yeet reserved for full local-worktree publish."
-  brand_color: "#1F9D55"
-  icon_small: "./assets/github-small.svg"
-  icon_large: "./assets/github.png"
-  default_prompt: "Use the repo-owned GitHub skill through scripts/ghops to summarize repositories, issues, or PRs, manage authenticated-user stars and star lists, handle issue, review, reaction, checks, Actions, release, and PR publish or lifecycle work, and reserve Yeet only for full local-worktree publish."

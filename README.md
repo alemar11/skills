@@ -7,21 +7,15 @@ This directory contains reusable skills, repo-local plugins, and project maintai
   Bundled skills: `git-commit`, `github`, `github-triage`, `github-reviews`, `github-ci`, `github-releases`, `yeet`.
 
 ## Skills
-- `skills/git-commit/` — Create a well-formed git commit with rationale, explicit staging, and monorepo-safe scope.
 - `skills/skill-cli-creator/` — Build host-aware embedded CLIs that live inside a skill or plugin, run from `scripts/`, and can grow into a maintenance-only project at `projects/<tool>/`.
 - `skills/codex-changelog/` — Check the installed Codex CLI and Codex App versions, then print CLI notes from `openai/codex/releases` and app notes from the OpenAI Codex changelog page.
 - `skills/xcode-changelog/` — Resolve the active Xcode, look up a requested version, or list the available Apple Xcode release notes.
 - `skills/plan-harder/` — Create a higher-rigor implementation plan with minimal high-signal clarification, a gotcha pass, and a saved `plans/<topic>-plan.md` output.
-- `skills/github/` (`GitHub`) — Handle repo-scoped GitHub work plus authenticated-user stars and star lists across triage, reviews, CI, releases, and PR publish or lifecycle flows.
-- `skills/yeet/` (`Yeet`) — Orchestrate full publish from a local checkout by choosing branch strategy, using `git-commit` for commit discipline, pushing, and handing off to `github` for PR opening or reuse against the right base branch.
 - `skills/learn/` — Capture durable corrections or preferences and write confirmed learnings only to `AGENTS.md` when the user sets lasting guidance.
 - `skills/postgres/` — Connect to Postgres databases, run SQL and diagnostics, inspect schemas and migrations, review query performance, and use common PostGIS or pgvector patterns.
 - `skills/skill-audit/` — Audit installed or user-specified Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables.
 - `skills/swift-api-design/` — Design or review Swift APIs using curated local summaries and a bundled upstream copy of the official Swift API Design Guidelines.
 - `skills/swift-docc/` — Write, structure, review, and publish Swift-DocC documentation using curated local summaries and a bundled upstream DocC source tree.
-
-## Skill Dependencies
-- `skills/yeet/` requires `skills/git-commit/` and `skills/github/` as companion skills for commit discipline and post-push PR handling.
 
 ## Project Skills
 - `.agents/skills/Maintainer/` — Maintain and improve one or more skills or plugins in this repository with shared upgrade workflows and skill-specific refresh tasks.
@@ -41,15 +35,11 @@ the existing skill symlink behavior, creates per-plugin symlinks under
 marketplace file. Each marketplace entry points directly at the symlinked
 plugin path, which keeps the installed plugin paths live against this checkout.
 
-Use the standalone `git-commit`, `github`, and `yeet` skill installs below
-only when you explicitly want the source-level standalone skills instead of the
-bundled plugin.
-
-### Install Standalone Skills With skill-installer (Codex-only)
+### Install Reusable Skills With skill-installer (Codex-only)
 These prompts are for use inside Codex only.
 Copy/paste one of these prompts:
 
-- `Use $skill-installer to install skills from alemar11/skills --path skills/git-commit skills/skill-cli-creator skills/codex-changelog skills/xcode-changelog skills/plan-harder skills/github skills/yeet skills/learn skills/postgres skills/skill-audit skills/swift-api-design skills/swift-docc`
+- `Use $skill-installer to install skills from alemar11/skills --path skills/skill-cli-creator skills/codex-changelog skills/xcode-changelog skills/plan-harder skills/learn skills/postgres skills/skill-audit skills/swift-api-design skills/swift-docc`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/skill-cli-creator`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/codex-changelog`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/xcode-changelog`
@@ -73,13 +63,10 @@ Install all reusable skills globally for Codex:
 
 ```sh
 npx skills add alemar11/skills -a codex -g -y \
-  --skill git-commit \
   --skill skill-cli-creator \
   --skill codex-changelog \
   --skill xcode-changelog \
   --skill plan-harder \
-  --skill github \
-  --skill yeet \
   --skill learn \
   --skill postgres \
   --skill skill-audit \
@@ -110,8 +97,9 @@ npx skills add alemar11/skills -a codex -g -y --skill plan-harder
 ```
 
 Omit `-g` to install into the current project's `.agents/skills/` instead of your global `~/.codex/skills/`.
-For linked git + GitHub workflows, prefer the bundled `plugins/gitstack/`
-surface instead of assembling standalone `git-commit + github + yeet`.
+For linked git + GitHub workflows, install the bundled `plugins/gitstack/`
+surface instead of looking for separate standalone `git-commit`, `github`, or
+`yeet` skills in this repo.
 The repository-local `Maintainer` skill is intentionally excluded from these commands.
 
 Restart Codex to pick up new skills.

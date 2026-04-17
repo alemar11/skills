@@ -19,6 +19,8 @@ LEGACY_PLUGIN_TREE_DEST="$PERSONAL_MARKETPLACE_DIR/plugins"
 
 mkdir -p "$SKILLS_DEST_DIR" "$PERSONAL_MARKETPLACE_DIR" "$PERSONAL_PLUGIN_ROOT"
 
+DEPRECATED_BUNDLED_SKILLS="git-commit github github-ci github-releases github-reviews github-triage yeet"
+
 link_path() {
   source_path="$1"
   target_path="$2"
@@ -35,6 +37,21 @@ link_path() {
   echo "LINK $label -> $target_path"
 }
 
+prune_deprecated_skill_link() {
+  skill_name="$1"
+  target_path="$SKILLS_DEST_DIR/$skill_name"
+
+  [ -L "$target_path" ] || return 0
+
+  resolved_path="$(readlink "$target_path" || true)"
+  case "$resolved_path" in
+    "$ROOT_DIR"/*)
+      rm -f "$target_path"
+      echo "REMOVE deprecated bundled skill link -> $target_path"
+      ;;
+  esac
+}
+
 if ! command -v python3 >/dev/null 2>&1; then
   echo "python3 is required to merge the personal plugin marketplace." >&2
   exit 1
@@ -46,6 +63,10 @@ echo "Skills target directory: $SKILLS_DEST_DIR"
 echo "Plugin symlink root: $PERSONAL_PLUGIN_ROOT"
 echo "Personal marketplace file: $PERSONAL_MARKETPLACE_DEST"
 echo
+
+for skill_name in $DEPRECATED_BUNDLED_SKILLS; do
+  prune_deprecated_skill_link "$skill_name"
+done
 
 skill_count=0
 skill_linked_count=0

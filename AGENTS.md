@@ -137,23 +137,24 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Keep `plugins/gitstack/` as the preferred full-stack install surface for linked git authoring, GitHub operations, and publish orchestration.
 - Keep `plugins/gitstack/scripts/ghops` as the shared runtime for bundled GitHub skills; do not add bundled skill-local runtime copies.
 - Bundle `git-commit`, `github`, `github-triage`, `github-reviews`, `github-ci`, `github-releases`, and `yeet` under `plugins/gitstack/skills/`.
+- Do not keep standalone reusable copies of `git-commit`, `github`, or `yeet` under `skills/`; GitStack is the supported distributable surface for those workflows in this repo. (Codex learning)
 - Keep `git-commit` bundled as skill-only in `gitstack`; do not add a `ghops commit ...` surface in v1.
 - Keep bundled `github` as the umbrella skill and allow the specialist bundled skills only when they map cleanly to one existing GitHub domain slice.
 - Do not add `github-publish`; keep publish or lifecycle work in bundled `github` and full local publish in bundled `yeet`. (Codex learning)
 
 ### GitHub skill
-- Keep the runtime `github` skill as the single GitHub runtime entrypoint for repo-scoped work plus authenticated-user star and star-list workflows across triage, reviews, CI, releases, and PR publish or lifecycle work, and reserve `yeet` only for full local-worktree publish.
-- Treat the GitHub consolidation as intentionally breaking: the supported install path for GitHub workflows is `github`, plus `git-commit` and `yeet` when full publish is needed.
-- Do not reintroduce `github-reviews`, `github-ci`, `github-releases`, or `github-publish` as standalone top-level runtime install prompts or examples.
-- Keep the runtime `github` skill self-owned and self-sufficient; do not require the upstream GitHub plugin for runtime routing or execution.
+- Keep the bundled `github` skill under `plugins/gitstack/skills/github/` as the single GitHub runtime entrypoint for repo-scoped work plus authenticated-user star and star-list workflows across triage, reviews, CI, releases, and PR publish or lifecycle work, and reserve bundled `yeet` only for full local-worktree publish.
+- Treat the GitHub consolidation as intentionally breaking: the supported install surface for GitHub workflows in this repo is `plugins/gitstack`, not parallel reusable skills under `skills/`.
+- Do not reintroduce `github-reviews`, `github-ci`, `github-releases`, or `github-publish` as standalone reusable skills, install prompts, or examples.
+- Keep the bundled `github` skill self-owned and self-sufficient; do not require the upstream GitHub plugin for runtime routing or execution.
 - Benchmark GitHub-skill parity work against the upstream `openai/plugins` GitHub bundle when useful, but keep runtime instructions and helper flows fully repo-local.
 - Keep authenticated-user star and star-list flows in the `triage` domain, not in a new top-level GitHub sub-skill. (Codex learning)
 - Resolve GitHub star-list selectors by exact slug first, then exact name; require `--list-id` when the selector is ambiguous. (Codex learning)
 - For GitHub star-list membership changes, read current memberships first and send the full desired list id set to `updateUserListsForItem` so unrelated memberships are preserved. (Codex learning)
-- Keep full publish-from-worktree guidance in `skills/yeet/SKILL.md` and `skills/yeet/references/*`, not in `skills/github`. (Codex learning)
-- Organize `skills/github/scripts/` and `skills/github/references/` into domain slices: `core`, `triage`, `reviews`, `ci`, `releases`, and `publish`. (Codex learning)
-- Future extractable GitHub plugin skills must map cleanly to one domain slice under `skills/github/scripts/<domain>/` and `skills/github/references/<domain>/`. (Codex learning)
-- Domain helpers may depend only on `skills/github/scripts/core/` plus same-domain files; do not create cross-domain helper dependencies. (Codex learning)
+- Keep full publish-from-worktree guidance in `plugins/gitstack/skills/yeet/SKILL.md` and `plugins/gitstack/skills/yeet/references/*`, not in `plugins/gitstack/skills/github`. (Codex learning)
+- Organize bundled GitHub references under `plugins/gitstack/skills/github/references/` into domain slices: `core`, `triage`, `reviews`, `ci`, `releases`, and `publish`, and keep the shared runtime under `plugins/gitstack/scripts/ghops`. (Codex learning)
+- Future extractable GitHub plugin skills must map cleanly to one domain slice under `plugins/gitstack/skills/github/references/<domain>/`. (Codex learning)
+- Domain docs and helpers may depend only on the shared `plugins/gitstack/scripts/ghops` runtime plus same-domain reference material; do not create cross-domain helper dependencies. (Codex learning)
 - Run `github` publish-domain helpers from the target repository root, even
   when the helper path itself lives in another checkout. (Codex learning)
 - When `prs_open_current_branch.sh` is asked to use an explicit `--base`, do
