@@ -1,38 +1,63 @@
 # Codex CLI Patterns
 
-Use this reference when designing the command surface for an embedded CLI Codex should run from a skill's `scripts/` directory.
+Use this reference when designing the command surface for an embedded CLI Codex should run from a shipped artifact inside a skill or plugin bundle.
 
 ## Mental model
 
-The CLI is Codex's command layer inside a skill. It should turn a service, app, API, log source, or database into shell commands Codex can run repeatedly from the shipped runnable artifact stored in that skill's `scripts/` directory.
+The CLI is Codex's command layer inside its owning host. It should turn a service, app, API, log source, or database into shell commands Codex can run repeatedly from the shipped runnable artifact stored in that owner's `scripts/` directory.
 
 Good CLIs for Codex expose composable primitives. Avoid a single command that tries to "do the whole investigation" when smaller discover, read, resolve, download, inspect, draft, and upload commands would compose better.
 
-When the CLI lives inside a skill, keep the shipped runnable artifact in `scripts/` and treat any `projects/<tool>/` directory as the maintenance/build project behind that runtime surface.
+Keep one shared owner model:
 
-## Naming the skill vs the CLI
+- shipped runtime artifact in `scripts/`
+- optional maintenance project in `projects/<tool>/`
+- persisted working-project config under the matching owner namespace
+
+## Owner boundary
+
+Resolve the owner before designing the command surface.
+
+For skill-owned CLIs:
+
+- runtime artifact: `<skill-root>/scripts/<tool>`
+- maintenance project: `<skill-root>/projects/<tool>/`
+- working-project config: `<project-root>/.skills/<skill>/config.toml`
+
+For plugin-owned CLIs used by exactly one bundled skill:
+
+- runtime artifact: `<plugin-root>/skills/<skill>/scripts/<tool>`
+- maintenance project: `<plugin-root>/skills/<skill>/projects/<tool>/`
+- working-project config: `<project-root>/.skills/<skill>/config.toml`
+
+For plugin-owned CLIs shared by multiple bundled skills:
+
+- runtime artifact: `<plugin-root>/scripts/<tool>`
+- maintenance project: `<plugin-root>/projects/<tool>/`
+- working-project config: `<project-root>/.plugins/<plugin>/config.toml`
+
+Do not split ownership. `scripts/<tool>`, `projects/<tool>/`, and the persistent config namespace must stay under the same owner.
+
+Treat plugin-root `scripts/` as a repo convention, not as an official Codex plugin manifest component.
+
+## Naming the host vs the CLI
 
 Treat these as separate names:
 
-- skill name: the guidance/package container
-- CLI/tool name: the runtime command noun used in `scripts/<tool>` and
-  `projects/<tool>/`
+- host name: the skill or plugin guidance/package container
+- CLI/tool name: the runtime command noun used in `scripts/<tool>` and `projects/<tool>/`
 
-Default to different names when the runtime command is narrower than the skill.
-Only reuse the skill name when it is intentionally the clearest standard
-runtime noun.
+Default to different names when the runtime command is narrower than the host. Only reuse the host name when it is intentionally the clearest standard runtime noun.
 
 Good divergent examples:
 
 - `postgres` skill -> `scripts/pgops` with `projects/pgops/`
-- `github` skill -> `scripts/ghtriage` with `projects/ghtriage/` when the
-  embedded CLI focuses on repo triage, reviews, and CI
+- `github` skill -> `scripts/ghtriage` with `projects/ghtriage/` when the embedded CLI focuses on repo triage, reviews, and CI
+- `ops-toolkit` plugin -> `scripts/logs` with `projects/logs/` when multiple bundled skills share the same log-reading surface
 
 Allowed matching-name exception:
 
-- reuse the skill name when the runtime noun is already the clearest standard
-  surface and inventing a different command would be more awkward or more
-  misleading than helpful
+- reuse the host name when the runtime noun is already the clearest standard surface and inventing a different command would be more awkward or more misleading than helpful
 
 ## Help is interface
 
@@ -48,8 +73,6 @@ Good top-level help should answer:
 - What is the raw escape hatch?
 
 Treat `--version` as part of that top-level interface, not an afterthought.
-Future Codex threads should be able to check whether the shipped CLI matches
-the latest built implementation without opening `projects/<tool>/`.
 
 ## Prefer this command shape
 
@@ -78,39 +101,63 @@ scripts/tool-name --json request get /v2/me
 
 The important rule is consistency. Do not mix many styles unless the product vocabulary demands it.
 
-## Embedded skill runtime surface
+## Runtime surface
 
-When the CLI is embedded inside a skill:
+When the CLI is embedded inside a host:
 
-- Run the tool from `scripts/...` during normal skill execution.
-- Treat `scripts/<tool>` as the shipped runnable artifact for normal execution.
-- Use `scripts/<tool> --version` as the stable version check.
-- Choose the CLI/tool name intentionally; do not assume it must match the
-  hosting skill name.
-- Use the same CLI/tool name consistently for `scripts/<tool>` and
-  `projects/<tool>/`.
-- Do not inspect `projects/<tool>/` during normal execution.
-- Open `projects/<tool>/` only when fixing, improving, rebuilding, or extending the implementation behind the `scripts/...` surface.
-- Keep the command shape stable even if the implementation language or internal layout changes.
-- Do not treat `target/`, `dist/`, virtualenv paths, or other build directories as supported runtime entrypoints.
-- Keep manifests, lockfiles, dependency installs, caches, intermediate build outputs, and project-local build/test config inside `projects/<tool>/` when a real maintenance project exists. Do not introduce repo-root or skill-root wrappers unless the user explicitly asks for that non-standard layout.
+- run the tool from `scripts/...` during normal execution
+- treat `scripts/<tool>` as the shipped runnable artifact for normal execution
+- use `scripts/<tool> --version` as the stable version check
+- choose the CLI/tool name intentionally; do not assume it must match the host name
+- use the same CLI/tool name consistently for `scripts/<tool>` and `projects/<tool>/`
+- do not inspect `projects/<tool>/` during normal execution
+- open `projects/<tool>/` only when fixing, improving, rebuilding, or extending the implementation behind the `scripts/...` surface
+- keep the command shape stable even if the implementation language or internal layout changes
+- do not treat `target/`, `dist/`, virtualenv paths, or other build directories as supported runtime entrypoints
+- keep manifests, lockfiles, dependency installs, caches, intermediate build outputs, and project-local build/test config inside `projects/<tool>/` when a real maintenance project exists
 
-Keep one semver source of truth. Use the runtime-native manifest version when
-available, otherwise keep one explicit version constant or file and have
-`--version` read from it.
+Keep one semver source of truth. Use the runtime-native manifest version when available, otherwise keep one explicit version constant or file and have `--version` read from it.
 
-If the runtime produces a compiled executable, copy, install, or generate the
-shipped artifact into `scripts/`. Script-native runtimes may keep the shipped
-script itself in `scripts/` when that script is the real artifact.
+If the runtime produces a compiled executable, copy, install, or generate the shipped artifact into `scripts/`. Script-native runtimes may keep the shipped script itself in `scripts/` when that script is the real artifact.
 
-When the scaffold also creates project-local generated state, keep that ignore
-policy close to `projects/<tool>/`:
+If the scaffold also creates project-local generated state, keep that ignore policy close to `projects/<tool>/`:
 
-- create or update `projects/<tool>/.gitignore` only when the CLI introduces
-  build, cache, module, or environment directories inside that project
+- create or update `projects/<tool>/.gitignore` only when the CLI introduces build, cache, module, or environment directories inside that project
 - keep the local `.gitignore` limited to those project-local generated paths
-- do not create a no-op local `.gitignore` when there is nothing project-local
-  to ignore
+- do not create a no-op local `.gitignore` when there is nothing project-local to ignore
+
+## Working-project config
+
+Use one owner-level `config.toml` file, not one TOML file per tool.
+
+Normative shape:
+
+```toml
+schema_version = "1.0.0"
+
+[defaults]
+profile = "staging"
+
+[auth]
+source = "env"
+
+[tools.logs]
+workspace = "mobile"
+
+[meta]
+written_by = "logs"
+written_by_version = "0.9.0"
+```
+
+Rules:
+
+- `schema_version` is the config format version
+- `[tools.<tool>]` stores tool-specific persisted settings
+- `[meta]` is optional provenance only
+- do not use top-level `version` as normative config state
+- do not require per-tool version fields
+- write config only through explicit init/login/configure flows
+- never create config implicitly during reads or health checks
 
 ## Useful shapes from mature CLIs
 
@@ -148,27 +195,25 @@ Do not force Codex to repeatedly search when it already has a stable ID.
 
 Support human text by default if it helps. Support `--json` everywhere Codex will parse or pipe results.
 
-Version reporting stays separate from `--json`: running `scripts/<tool> --version`
-should print the current CLI semver cleanly, and `doctor --json` should include
-that same version in its structured diagnostics.
+Version reporting stays separate from `--json`: running `scripts/<tool> --version` should print the current CLI semver cleanly, and `doctor --json` should include that same version in its structured diagnostics.
 
 For `--json`:
 
-- Emit JSON to stdout only.
-- Send progress and diagnostics to stderr.
-- Keep success and error shapes documented.
-- Redact tokens, cookies, customer secrets, private headers, and unrelated payloads.
+- emit JSON to stdout only
+- send progress and diagnostics to stderr
+- keep success and error shapes documented
+- redact tokens, cookies, customer secrets, private headers, and unrelated payloads
 
 For downloads and exports:
 
-- Write files under a user-provided `--out` path when possible.
-- In JSON output, return the file path, byte count if cheap, source URL or ID, and follow-up command.
+- write files under a user-provided `--out` path when possible
+- in JSON output, return the file path, byte count if cheap, source URL or ID, and follow-up command
 
 For exit codes:
 
-- Exit zero when the command succeeded, including an empty result.
-- Exit nonzero for auth failure, invalid input, network failure, parse failure, API error, or incomplete upload/download.
-- Make `doctor --json` usable even when auth is missing. It should report missing auth rather than crashing.
+- exit zero when the command succeeded, including an empty result
+- exit nonzero for auth failure, invalid input, network failure, parse failure, API error, or incomplete upload/download
+- make `doctor --json` usable even when auth is missing; it should report missing auth rather than crashing
 
 ## Pagination and breadth
 
@@ -196,9 +241,9 @@ scripts/tool-name --json request get /v2/me
 
 Treat raw writes as live writes. Do not hide POST/PUT/PATCH/DELETE behind a "debug" command.
 
-## Hosting skill pattern
+## Host pattern
 
-The hosting skill should teach the path through the embedded tool:
+The owning skill docs or plugin docs should teach the path through the embedded tool:
 
 ```md
 Start with:
@@ -225,16 +270,11 @@ Rules:
 
 Include JSON shape notes only when Codex needs them to choose the next command.
 
-Add a `CLI Maintenance` section in the hosting skill when the tool has a
-maintained implementation behind `scripts/...`. That section should say:
+Add a `CLI Maintenance` section in the owning runtime docs when the tool has a maintained implementation behind `scripts/...`. That section should say:
 
 - normal runtime work stays on `scripts/...`
 - `projects/<tool>/` is for bug fixes, performance work, rebuilds, and feature additions
-- shipped CLI changes must update the implementation, rebuild the shipped
-  artifact in `scripts/...`, and re-run `--help`, `--version`, and `--json doctor`
-- compiled outputs in `target/`, `dist/`, virtualenvs, or similar paths are
-  build intermediates rather than supported runtime entrypoints
-- project-local generated state should be ignored through
-  `projects/<tool>/.gitignore`, with a hosting-skill-root `.gitignore` reserved
-  for generated state that truly lives at the skill root
+- shipped CLI changes must update the implementation, rebuild the shipped artifact in `scripts/...`, and re-run `--help`, `--version`, and `--json doctor`
+- compiled outputs in `target/`, `dist/`, virtualenvs, or similar paths are build intermediates rather than supported runtime entrypoints
+- project-local generated state should be ignored through `projects/<tool>/.gitignore`
 - the CLI follows semver from one declared version source of truth

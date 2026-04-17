@@ -4,7 +4,7 @@ This directory contains reusable skills and project maintainer skills—task-spe
 
 ## Skills
 - `git-commit/` — Create a well-formed git commit with rationale, explicit staging, and monorepo-safe scope.
-- `skill-cli-creator/` — Build composable embedded CLIs that live inside a skill, run from `scripts/`, and can grow into a maintenance-only project at `projects/<tool>/`.
+- `skill-cli-creator/` — Build host-aware embedded CLIs that live inside a skill or plugin, run from `scripts/`, and can grow into a maintenance-only project at `projects/<tool>/`.
 - `codex-changelog/` — Check the installed Codex CLI and Codex App versions, then print CLI notes from `openai/codex/releases` and app notes from the OpenAI Codex changelog page.
 - `xcode-changelog/` — Resolve the active Xcode, look up a requested version, or list the available Apple Xcode release notes.
 - `plan-harder/` — Create a higher-rigor implementation plan with minimal high-signal clarification, a gotcha pass, and a saved `plans/<topic>-plan.md` output.
