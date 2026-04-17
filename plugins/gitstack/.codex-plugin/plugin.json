@@ -35,7 +35,7 @@
       "Create a clean commit and open or reuse the PR."
     ],
     "brandColor": "#111827",
-    "composerIcon": "./assets/github-small.svg",
-    "logo": "./assets/github.png"
+    "composerIcon": "./assets/git-small.svg",
+    "logo": "./assets/git.png"
   }
 }
