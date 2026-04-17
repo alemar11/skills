@@ -1,7 +1,7 @@
 # Postgres Rust CLI
 
 This `projects/postgres/` directory is the maintenance/build project behind the
-public runtime entrypoint at `postgres/scripts/postgres`.
+public runtime entrypoint at `skills/postgres/scripts/postgres`.
 
 ## Runtime surface
 
@@ -13,13 +13,13 @@ public runtime entrypoint at `postgres/scripts/postgres`.
 
 ## Build and test
 
-- Build: `cargo build --release --manifest-path postgres/projects/postgres/Cargo.toml`
+- Build: `cargo build --release --manifest-path skills/postgres/projects/postgres/Cargo.toml`
 - Rebuild runtime binary:
-  `cargo build --release --manifest-path postgres/projects/postgres/Cargo.toml && cp postgres/projects/postgres/target/release/postgres postgres/scripts/postgres && chmod +x postgres/scripts/postgres`
-- Run tests: `cargo test --manifest-path postgres/projects/postgres/Cargo.toml`
-- Verify help: `postgres/scripts/postgres --help`
-- Verify version: `postgres/scripts/postgres --version`
-- Verify JSON doctor: `DB_PROJECT_ROOT=/path/to/repo postgres/scripts/postgres --json doctor`
+  `cargo build --release --manifest-path skills/postgres/projects/postgres/Cargo.toml && cp skills/postgres/projects/postgres/target/release/postgres skills/postgres/scripts/postgres && chmod +x skills/postgres/scripts/postgres`
+- Run tests: `cargo test --manifest-path skills/postgres/projects/postgres/Cargo.toml`
+- Verify help: `skills/postgres/scripts/postgres --help`
+- Verify version: `skills/postgres/scripts/postgres --version`
+- Verify JSON doctor: `DB_PROJECT_ROOT=/path/to/repo skills/postgres/scripts/postgres --json doctor`
 
 ## Semver policy
 
@@ -44,6 +44,6 @@ public runtime entrypoint at `postgres/scripts/postgres`.
   behavior or operator-facing output, then verify through that shipped artifact
   rather than `target/` binaries.
 - Keep project-local generated state scoped to `projects/postgres/.gitignore`.
-- Delete stale root-level artifacts from the pre-migration layout if they
-  reappear, including `postgres/.build/`, `postgres/target/`, `postgres/src/`,
+- Delete stale pre-`skills/` layout artifacts if they
+  reappear, including `skills/postgres/.build/`, `skills/postgres/target/`, `skills/postgres/src/`,
   and root-level Cargo files.
