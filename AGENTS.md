@@ -16,6 +16,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
 ## How to Create a Plugin
 - Prefer [$plugin-creator](/Users/alessandro/.codex/skills/.system/plugin-creator/SKILL.md) as the canonical scaffold and marketplace-entry workflow reference for new plugins or substantial plugin reshapes; follow it for normalized naming, manifest shape, optional folders, and marketplace generation before repo-specific cleanup.
+- Use the specification at `https://developers.openai.com/codex/plugins` when creating new plugins.
 - Create a dedicated directory under `plugins/<name>/` with a clear, stable plugin name.
 - Add `.codex-plugin/plugin.json` and treat it as the plugin manifest source of truth for bundled metadata, assets, and bundled skill exposure.
 - Register each repo-local plugin in `.agents/plugins/marketplace.json` in the same change that adds, removes, or renames the plugin.
