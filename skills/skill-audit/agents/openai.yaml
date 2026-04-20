@@ -1,5 +1,5 @@
 interface:
   display_name: "Skill Audit"
-  short_description: "Audit installed or user-specified Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables."
+  short_description: "Audit repo-maintained or user-specified Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables."
   brand_color: "#C06C84"
-  default_prompt: "Use $skill-audit to review either the installed skills relevant to this repo, excluding `skill-audit` unless the user explicitly asks for it, or only the skills explicitly named by the user, then produce a one-by-one improvement roadmap using repo docs, git history, memory, and only targeted session evidence."
+  default_prompt: "Use $skill-audit to review the repo-maintained skills relevant to the current workflow in this repo, optionally include project-maintained skills when explicitly requested or clearly in scope, exclude `skill-audit` unless the user explicitly asks for it, and produce a one-by-one improvement roadmap using repo docs, git history, memory, and only targeted session evidence."

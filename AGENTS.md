@@ -44,7 +44,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
 ### Codex Dependency Classification
 - In this section, `portable` means "not dependent on Codex-only runtime features"; it does not necessarily mean the skill is repository-agnostic or broadly reusable unchanged.
-- Current Codex-dependent skills are `codex-changelog`, `learn`, and `skill-audit`.
+- Current Codex-dependent skills are `codex-changelog`, `learn`, `plugin-audit`, and `skill-audit`.
 - Treat `plan-harder` as Codex-aware but portable because Codex-only helpers such as `request_user_input` or subagents are optional and have a non-Codex fallback path.
 - Treat `.agents/skills/Maintainer` as a portable project-local maintainer skill because it relies on this repository layout and local shell/docs workflows, while any subagent usage remains optional.
 - Treat `xcode-changelog` as portable and runtime-dependent on macOS plus network access: it requires `python3`, `xcodebuild`, `xcode-select`, `plutil`, and outbound access to Apple’s documentation endpoints.
@@ -103,6 +103,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - For brand-new skill creation, use `$skill-creator` first; use `Maintainer` afterward only for repo integration or follow-up maintenance. (Codex learning)
 - When delegation is explicitly requested and the runtime supports subagents, `Maintainer` may spawn multiple subagents only for independent analysis or disjoint write scopes; keep routing, final synthesis, and git verification in the main agent. (Codex learning)
 - Keep an explicit `audit codex dependencies` task in `Maintainer` for verifying which skills are Codex-dependent versus portable, updating this `AGENTS.md` inventory when that boundary changes, and tightening Codex-tool/runtime wording in affected `SKILL.md` files.
+- Keep an explicit `refresh tanstack intent coverage` task in `Maintainer` for `plugins/tanstack/` so alpha-era upstream TanStack Intent additions can be reviewed without silently broadening generic maintenance runs. (Codex learning)
 - During Codex dependency audits, require Codex-dependent skills to name their required Codex tools or runtime contracts precisely, and require portable skills to keep Codex-only helpers optional with a generic fallback.
 
 ### Codex Changelog skill
@@ -183,8 +184,15 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - When `learn` writes to `AGENTS.md`, place entries in the most appropriate existing section when possible, otherwise create a fitting section; use `## Codex Learnings` only as a fallback, and suffix each inserted bullet with ` (Codex learning)`.
 
 ### Skill Audit skill
-- Keep `skill-audit` biased toward improving shared skills first, especially for broad reusable skills such as `postgres`.
+- Keep `skill-audit` focused on repo-maintained skills first, with reusable `skills/*` as the primary surface and `.agents/skills/*` as an opt-in or workflow-driven scope.
 - When a gap is project-specific but lightweight, prefer project docs, `AGENTS.md`, repo references, or memory over proposing a project-local specialization.
-- Recommend a project-local specialization only as a last resort when the workflow is highly stable, repeatedly needed, and too project-specific to fit cleanly in the shared skill or repo docs.
+- Recommend a project-local specialization only as a last resort when the workflow is highly stable, repeatedly needed, and too project-specific to fit cleanly in the reusable skill or repo docs.
 - In full-portfolio audits, require `skill-audit` to ignore itself by default, propose suggestions for the other audited skills first, then ask the user whether they want a follow-up audit of `skill-audit` too.
 - In user-targeted audits, require `skill-audit` to audit only the explicitly requested skills and ignore itself unless `skill-audit` was explicitly requested too.
+- Do not make `skill-audit` scan `$CODEX_HOME/skills`, `~/.codex/skills`, or `~/.agents/skills` by default; only resolve out-of-repo skills when the user explicitly asks for a specific external target. (Codex learning)
+
+### Plugin Audit skill
+- Keep `plugin-audit` focused on repo-maintained plugins first, using `.agents/plugins/marketplace.json` and `plugins/*` as the primary discovery and ownership surfaces.
+- Treat Codex plugin cache copies under `~/.codex/plugins/cache/...` as verification only; do not route fixes or edits to cache paths. (Codex learning)
+- Require `plugin-audit` to audit the plugin package itself, not only bundled skills: manifest, marketplace registration, bundled-skill coherence, shared runtimes, maintenance projects, assets, and version/cache behavior are all in scope.
+- When plugin issues are actually bundled-skill issues, prefer recommending the narrowest owning surface: bundled skill, plugin package, repo docs, or `Maintainer`.

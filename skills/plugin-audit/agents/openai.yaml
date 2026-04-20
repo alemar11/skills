@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plugin Audit"
+  short_description: "Audit repo-maintained or user-specified Codex plugins using repo evidence, memory, and current context to plan updates, merges, or disables."
+  brand_color: "#8B5CF6"
+  default_prompt: "Use $plugin-audit to review the repo-maintained plugins relevant to the current workflow in this repo, audit the plugin package itself rather than only bundled skills, treat any Codex cache copy as evidence only, and produce a one-by-one improvement roadmap using repo docs, git history, memory, and only targeted session evidence."

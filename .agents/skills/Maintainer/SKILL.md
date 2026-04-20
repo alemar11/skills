@@ -27,6 +27,7 @@ If the user asks what this skill can do, answer with these two capability groups
 2) Run skill-specific maintainer workflows:
    - Refresh bundled Swift-DocC authored sources and validate the fast-path reference layer.
    - Refresh the bundled Swift API Design guideline source and validate the thin reference layer.
+   - Review TanStack Intent alpha coverage for `plugins/tanstack/` and update local plugin guidance when new first-party Intent surfaces appear.
    - Keep regeneration mechanics and maintainer-only internals out of runtime skills.
 
 ## Available Tasks (User Menu)
@@ -45,6 +46,10 @@ When the user asks what this skill can do, offer this task list:
    - Check the bundled Swift-DocC manifest, refresh the local `DocCDocumentation.docc` asset tree when stale, and validate or tighten the local `references/*.md` fast paths.
 5) `refresh swift-api-design references`
    - Check the bundled Swift API Design manifest, refresh the local guideline source file when stale, and validate the local `references/*.md` routing layer.
+6) `refresh tanstack intent coverage`
+   - Review the current TanStack Intent registry and relevant TanStack package skill pages for `plugins/tanstack/`.
+   - Update local plugin metadata, verification wording, and related docs only when newly shipped first-party Intent coverage materially changes the right guidance.
+   - Keep this task explicit; do not fold it into generic repo-wide maintenance.
 
 ## Trigger Rules
 Use this skill when users ask to:
@@ -57,6 +62,7 @@ Use this skill when users ask to:
 - Audit which skills are Codex-dependent versus portable, or tighten Codex-tool/runtime wording for those skills
 - Refresh bundled Swift-DocC references and bundled source assets
 - Refresh bundled Swift API Design source and thin reference routes
+- Refresh TanStack Intent coverage for the local `plugins/tanstack/` plugin when upstream alpha coverage changes
 - Integrate a newly scaffolded skill or plugin into repo metadata after `$skill-creator` or `$plugin-creator` has already created the package
 
 ## Workflow
@@ -69,7 +75,8 @@ Use this skill when users ask to:
 4) For Codex dependency audits and portability-boundary checks, follow `references/codex-dependency-audit.md`.
 5) For Swift-DocC bundled-reference refresh, follow `references/swift-docc-refresh.md`.
 6) For Swift API Design bundled-reference refresh, follow `references/swift-api-design-refresh.md`.
-7) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
+7) For TanStack Intent coverage refresh on `plugins/tanstack/`, follow `references/tanstack-intent-refresh.md`.
+8) Before finishing, run `references/release-checklist.md` and report pass/fail with actionable findings.
 
 ## References
 
@@ -83,6 +90,7 @@ Use this skill when users ask to:
 - `references/swift-docc-runbook.md`: canonical refresh and review procedure for the `swift-docc` skill.
 - `references/swift-api-design-refresh.md`: use for maintainer-only Swift API Design bundled-reference refresh work.
 - `references/swift-api-design-runbook.md`: canonical refresh and review procedure for the `swift-api-design` skill.
+- `references/tanstack-intent-refresh.md`: use for maintainer-only review of new TanStack Intent coverage relevant to `plugins/tanstack/`.
 - `references/release-checklist.md`: use at the end of mixed or multi-step maintenance tasks.
 
 ## Subagent Usage
