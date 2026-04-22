@@ -14,9 +14,8 @@ This directory contains reusable skills, repo-local plugins, and project maintai
 - `skills/xcode-changelog/` — Resolve the active Xcode, look up a requested version, or list the available Apple Xcode release notes.
 - `skills/plan-harder/` — Create a higher-rigor implementation plan with minimal high-signal clarification, a gotcha pass, and a saved `plans/<topic>-plan.md` output.
 - `skills/learn/` — Capture durable corrections or preferences and write confirmed learnings only to `AGENTS.md` when the user sets lasting guidance.
-- `skills/plugin-audit/` — Audit repo-maintained or user-specified Codex plugins using repo evidence, memory, and current context to plan updates, merges, or disables.
 - `skills/postgres/` — Connect to Postgres databases, run SQL and diagnostics, inspect schemas and migrations, review query performance, and use common PostGIS or pgvector patterns.
-- `skills/skill-audit/` — Audit repo-maintained or user-specified Codex skills using repo evidence, memory, and current context to plan updates, merges, or disables.
+- `skills/skill-audit/` — Audit installed Codex skills, plugin packages, and bundled plugin skills using repo evidence, memory, sessions, and current context to plan updates, merges, or disables.
 - `skills/swift-api-design/` — Design or review Swift APIs using curated local summaries and a bundled upstream copy of the official Swift API Design Guidelines.
 - `skills/swift-docc/` — Write, structure, review, and publish Swift-DocC documentation using curated local summaries and a bundled upstream DocC source tree.
 
@@ -52,13 +51,12 @@ plugin path, which keeps the installed plugin paths live against this checkout.
 These prompts are for use inside Codex only.
 Copy/paste one of these prompts:
 
-- `Use $skill-installer to install skills from alemar11/skills --path skills/skill-cli-creator skills/codex-changelog skills/xcode-changelog skills/plan-harder skills/learn skills/plugin-audit skills/postgres skills/skill-audit skills/swift-api-design skills/swift-docc`
+- `Use $skill-installer to install skills from alemar11/skills --path skills/skill-cli-creator skills/codex-changelog skills/xcode-changelog skills/plan-harder skills/learn skills/postgres skills/skill-audit skills/swift-api-design skills/swift-docc`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/skill-cli-creator`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/codex-changelog`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/xcode-changelog`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/plan-harder`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/learn`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/plugin-audit`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/postgres`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/skill-audit`
 - `Use $skill-installer to install skills from alemar11/skills --path skills/swift-api-design`
@@ -82,7 +80,6 @@ npx skills add alemar11/skills -a codex -g -y \
   --skill xcode-changelog \
   --skill plan-harder \
   --skill learn \
-  --skill plugin-audit \
   --skill postgres \
   --skill skill-audit \
   --skill swift-api-design \
@@ -109,10 +106,6 @@ npx skills add alemar11/skills -a codex -g -y --skill swift-docc
 
 ```sh
 npx skills add alemar11/skills -a codex -g -y --skill plan-harder
-```
-
-```sh
-npx skills add alemar11/skills -a codex -g -y --skill plugin-audit
 ```
 
 Omit `-g` to install into the current project's `.agents/skills/` instead of your global `~/.codex/skills/`.

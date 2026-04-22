@@ -46,7 +46,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
 ### Codex Dependency Classification
 - In this section, `portable` means "not dependent on Codex-only runtime features"; it does not necessarily mean the skill is repository-agnostic or broadly reusable unchanged.
-- Current Codex-dependent skills are `codex-changelog`, `learn`, `plugin-audit`, and `skill-audit`.
+- Current Codex-dependent skills are `codex-changelog`, `learn`, and `skill-audit`.
 - Treat `plan-harder` as Codex-aware but portable because Codex-only helpers such as `request_user_input` or subagents are optional and have a non-Codex fallback path.
 - Treat `.agents/skills/Maintainer` as a portable project-local maintainer skill because it relies on this repository layout and local shell/docs workflows, while any subagent usage remains optional.
 - Treat `xcode-changelog` as portable and runtime-dependent on macOS plus network access: it requires `python3`, `xcodebuild`, `xcode-select`, `plutil`, and outbound access to Apple’s documentation endpoints.
@@ -186,15 +186,14 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - When `learn` writes to `AGENTS.md`, place entries in the most appropriate existing section when possible, otherwise create a fitting section; use `## Codex Learnings` only as a fallback, and suffix each inserted bullet with ` (Codex learning)`.
 
 ### Skill Audit skill
-- Keep `skill-audit` focused on repo-maintained skills first, with reusable `skills/*` as the primary surface and `.agents/skills/*` as an opt-in or workflow-driven scope.
+- Keep `skill-audit` as the single audit surface for installed Codex surfaces: standalone skills, plugin packages, and bundled plugin skills.
+- Keep `skill-audit` workflow-first and mixed by default: start with relevant local discovery surfaces, then widen to shared/global surfaces only when the current workflow or explicit user scope requires it.
 - When a gap is project-specific but lightweight, prefer project docs, `AGENTS.md`, repo references, or memory over proposing a project-local specialization.
 - Recommend a project-local specialization only as a last resort when the workflow is highly stable, repeatedly needed, and too project-specific to fit cleanly in the reusable skill or repo docs.
 - In full-portfolio audits, require `skill-audit` to ignore itself by default, propose suggestions for the other audited skills first, then ask the user whether they want a follow-up audit of `skill-audit` too.
 - In user-targeted audits, require `skill-audit` to audit only the explicitly requested skills and ignore itself unless `skill-audit` was explicitly requested too.
-- Do not make `skill-audit` scan `$CODEX_HOME/skills`, `~/.codex/skills`, or `~/.agents/skills` by default; only resolve out-of-repo skills when the user explicitly asks for a specific external target. (Codex learning)
-
-### Plugin Audit skill
-- Keep `plugin-audit` focused on repo-maintained plugins first, using `.agents/plugins/marketplace.json` and `plugins/*` as the primary discovery and ownership surfaces.
+- Do not make `skill-audit` jump straight to `$CODEX_HOME/skills`, `~/.codex/skills`, `~/.agents/skills`, or cache snapshots before checking project-local discovery surfaces and current workflow evidence first; widen only when needed for the audit scope. (Codex learning)
+- When auditing a bundled plugin skill, require `skill-audit` to inspect both the bundled skill contract and the owning plugin package, including `.codex-plugin/plugin.json` when available. (Codex learning)
 - Treat Codex plugin cache copies under `~/.codex/plugins/cache/...` as verification only; do not route fixes or edits to cache paths. (Codex learning)
-- Require `plugin-audit` to audit the plugin package itself, not only bundled skills: manifest, marketplace registration, bundled-skill coherence, shared runtimes, maintenance projects, assets, and version/cache behavior are all in scope.
-- When plugin issues are actually bundled-skill issues, prefer recommending the narrowest owning surface: bundled skill, plugin package, repo docs, or `Maintainer`.
+- When a named target path lives under `~/.codex/plugins/cache/...`, require `skill-audit` to resolve plugin identity first, then use visible workspace plugin discovery surfaces such as `.agents/plugins/marketplace.json` and the owning `.codex-plugin/plugin.json` to confirm the editable source when possible; if no workspace mapping is visible, report that the editable source was not confirmed. (Codex learning)
+- When plugin-package issues are actually bundled-skill issues, prefer recommending the narrowest owning surface: bundled plugin skill, plugin package, repo docs, or `Maintainer`.
