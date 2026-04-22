@@ -6,7 +6,8 @@ Agent skills follow the specification at `https://agentskills.io/specification`.
 Codex skills reference: `https://developers.openai.com/codex/skills/`.
 
 ## How to Create a Skill
-- Prefer [$skill-creator](/Users/alessandro/.codex/skills/.system/skill-creator/SKILL.md) as the canonical scaffold and workflow reference for new skills or substantial skill reshapes; follow its initialization, metadata, validation, and forward-testing guidance before repo-specific cleanup.
+- Prefer `$skill-creator` as the canonical scaffold and workflow reference for new skills or substantial skill reshapes; follow its initialization, metadata, validation, and forward-testing guidance before repo-specific cleanup.
+- When a new or reshaped skill needs an embedded CLI under `scripts/` or a maintenance project under `projects/<tool>/`, route that CLI design and layout work through `$skill-cli-creator`.
 - Create a dedicated directory per skill with a clear, stable name.
 - Place reusable skills under `skills/<name>/`; place project maintainer skills under `.agents/skills/<name>/`.
 - Add a `SKILL.md` that defines purpose, triggers, and the workflow to follow.
@@ -15,7 +16,8 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 - Keep `README.md` updated with current reusable and project skill lists, with a one-line description for each.
 
 ## How to Create a Plugin
-- Prefer [$plugin-creator](/Users/alessandro/.codex/skills/.system/plugin-creator/SKILL.md) as the canonical scaffold and marketplace-entry workflow reference for new plugins or substantial plugin reshapes; follow it for normalized naming, manifest shape, optional folders, and marketplace generation before repo-specific cleanup.
+- Prefer `$plugin-creator` as the canonical scaffold and marketplace-entry workflow reference for new plugins or substantial plugin reshapes; follow it for normalized naming, manifest shape, optional folders, and marketplace generation before repo-specific cleanup.
+- When a new or reshaped plugin needs an embedded CLI under `scripts/`, `skills/<skill>/scripts/`, or a maintenance project under `projects/<tool>/`, route that CLI design and layout work through `$skill-cli-creator`.
 - Use the specification at `https://developers.openai.com/codex/plugins` when creating new plugins.
 - Create a dedicated directory under `plugins/<name>/` with a clear, stable plugin name.
 - Add `.codex-plugin/plugin.json` and treat it as the plugin manifest source of truth for bundled metadata, assets, and bundled skill exposure.
