@@ -1,6 +1,7 @@
 # Postgres Environment Contract
 
-Use these environment variables with `./scripts/postgres`.
+Use these environment variables with the shipped `scripts/postgres` artifact in
+the skill package.
 
 ## Primary runtime vars
 

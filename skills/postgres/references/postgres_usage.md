@@ -1,11 +1,12 @@
 # Postgres Usage
 
-Use this reference for runtime setup and the canonical `./scripts/postgres`
-command surface.
+Use this reference for runtime setup and the canonical `scripts/postgres`
+command surface in the skill package.
 
 ## Runtime model
 
-- `./scripts/postgres` is the only supported runtime entrypoint.
+- The only supported runtime entrypoint is the shipped `scripts/postgres`
+  artifact in the skill package.
 - The CLI is implemented in Rust under `../projects/postgres/`.
 - Normal query / inspection paths use Rust-native PostgreSQL access.
 - Tool-backed paths (`schema diff`, dump, and non-SQL restore) use either:
@@ -15,7 +16,7 @@ command surface.
 
 ## Prerequisites
 
-- `./scripts/postgres` must exist as the shipped runtime artifact.
+- The shipped CLI artifact must exist at `<postgres-skill-root>/scripts/postgres`.
 - A running target Postgres database is still required for live DB operations.
 - Managed client-tools provisioning needs outbound network access the first time
   it downloads PostgreSQL binaries.
@@ -24,48 +25,54 @@ command surface.
 
 ## Start here
 
+Resolve the shipped CLI once and reuse it in the examples below:
+
+```sh
+POSTGRES_CLI=/path/to/postgres-skill/scripts/postgres
+```
+
 Doctor:
 ```sh
-DB_PROJECT_ROOT=/path/to/project ./scripts/postgres --json doctor
+DB_PROJECT_ROOT=/path/to/project "$POSTGRES_CLI" --json doctor
 ```
 
 Tooling status:
 ```sh
-./scripts/postgres --json tools status
+"$POSTGRES_CLI" --json tools status
 ```
 
 Tooling install:
 ```sh
-./scripts/postgres --json tools install
+"$POSTGRES_CLI" --json tools install
 ```
 
 Bootstrap and save a profile:
 ```sh
-DB_PROJECT_ROOT=/path/to/project ./scripts/postgres profile bootstrap --save
+DB_PROJECT_ROOT=/path/to/project "$POSTGRES_CLI" profile bootstrap --save
 ```
 
 Resolve the active connection:
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres --json profile resolve
+  "$POSTGRES_CLI" --json profile resolve
 ```
 
 Run ad-hoc SQL:
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres query run -c "select now();"
+  "$POSTGRES_CLI" query run -c "select now();"
 ```
 
 Run SQL from a file:
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres query run -f ./query.sql
+  "$POSTGRES_CLI" query run -f ./query.sql
 ```
 
 Safe heredoc:
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres query run <<'SQL'
+  "$POSTGRES_CLI" query run <<'SQL'
 DO $$
 BEGIN
   RAISE NOTICE 'ok';
@@ -77,31 +84,31 @@ SQL
 Connection check:
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres profile test
+  "$POSTGRES_CLI" profile test
 ```
 
 Schema diff with explicit host tools:
 ```sh
 DB_PG_BIN_DIR=/path/to/bin \
-  ./scripts/postgres schema diff local staging
+  "$POSTGRES_CLI" schema diff local staging
 ```
 
 Schema introspection:
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres schema inspect
+  "$POSTGRES_CLI" schema inspect
 ```
 
 Search schema objects:
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres query find user --types table,column,view
+  "$POSTGRES_CLI" query find user --types table,column,view
 ```
 
 Release a pending migration:
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres migration release \
+  "$POSTGRES_CLI" migration release \
   --summary "Add agent-context prompt sections"
 ```
 
@@ -111,10 +118,10 @@ Use `--json` whenever Codex will parse or chain the output.
 
 Examples:
 ```sh
-./scripts/postgres --json doctor
-./scripts/postgres --json profile resolve
-./scripts/postgres --json query run -c "select 1 as ok;"
-./scripts/postgres --json schema table-sizes 20
+"$POSTGRES_CLI" --json doctor
+"$POSTGRES_CLI" --json profile resolve
+"$POSTGRES_CLI" --json query run -c "select 1 as ok;"
+"$POSTGRES_CLI" --json schema table-sizes 20
 ```
 
 Rules:
@@ -308,7 +315,8 @@ migration file before touching the real target DB.
 - Prefer a temporary clone database over wrapping the target DB in a
   rollback-only session.
 - When reporting results, clearly separate:
-  - real target DB operations run through `./scripts/postgres`
+  - real target DB operations run through the shipped `scripts/postgres`
+    artifact
   - scratch validation steps against temporary databases
 
 ## References

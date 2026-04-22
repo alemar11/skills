@@ -8,13 +8,19 @@ description: Connect to Postgres databases, run SQL and diagnostics, inspect sch
 ## Goal
 Use this skill to connect to Postgres, run SQL, inspect schemas, review query
 performance, design tables/indexes, work with common PostGIS or pgvector
-patterns, and manage migration release flow from one canonical CLI:
-`./scripts/postgres`.
+patterns, and manage migration release flow through the shipped
+`scripts/postgres` artifact in the skill package.
 
 ## Runtime surface
 
-- `./scripts/postgres` is the only supported runtime entrypoint.
-- `./scripts/postgres --version` is the runtime version check.
+- The only supported runtime entrypoint is the shipped `scripts/postgres`
+  artifact inside this skill package.
+- If your current working directory is the skill root, run it as
+  `./scripts/postgres`.
+- If you are invoking the skill from another repo, resolve the skill package
+  path first and run `<postgres-skill-root>/scripts/postgres`.
+- `<postgres-skill-root>/scripts/postgres --version` is the runtime version
+  check.
 - Do not use or reintroduce per-task helper scripts from the pre-Rust runtime
   surface.
 - The implementation lives in `projects/postgres/` and is maintenance-only.
@@ -24,32 +30,34 @@ patterns, and manage migration release flow from one canonical CLI:
 
 ## Fast path
 
+- Resolve the shipped CLI once and reuse it in commands below:
+  - `POSTGRES_CLI=/path/to/postgres-skill/scripts/postgres`
 - Doctor / setup status:
-  - `DB_PROJECT_ROOT=/path/to/repo ./scripts/postgres --json doctor`
+  - `DB_PROJECT_ROOT=/path/to/repo "$POSTGRES_CLI" --json doctor`
 - Local tool backend status:
-  - `./scripts/postgres --json tools status`
+  - `"$POSTGRES_CLI" --json tools status`
 - Install managed PostgreSQL tools explicitly:
-  - `./scripts/postgres --json tools install`
+  - `"$POSTGRES_CLI" --json tools install`
 - Bootstrap and save a profile:
-  - `DB_PROJECT_ROOT=/path/to/repo ./scripts/postgres profile bootstrap --save`
+  - `DB_PROJECT_ROOT=/path/to/repo "$POSTGRES_CLI" profile bootstrap --save`
 - Resolve the active connection:
-  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local ./scripts/postgres --json profile resolve`
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" --json profile resolve`
 - Run ad-hoc SQL:
-  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local ./scripts/postgres query run -c "select now();"`
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" query run -c "select now();"`
 - Run a SQL file:
-  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local ./scripts/postgres query run -f ./query.sql`
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" query run -f ./query.sql`
 - Safe heredoc for multi-statement SQL / `DO $$`:
-  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local ./scripts/postgres query run <<'SQL'`
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" query run <<'SQL'`
   - `select now();`
   - `SQL`
 - Connection test:
-  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local ./scripts/postgres profile test`
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" profile test`
 - Schema introspection:
-  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local ./scripts/postgres schema inspect`
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" schema inspect`
 - Object search:
-  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local ./scripts/postgres query find users --types table,column`
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" query find users --types table,column`
 - Release a pending migration file:
-  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local ./scripts/postgres migration release --summary "Add agent-context prompt sections"`
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" migration release --summary "Add agent-context prompt sections"`
 
 ## Workflow
 1) Confirm connection source:
@@ -67,8 +75,9 @@ patterns, and manage migration release flow from one canonical CLI:
    - During that migration, make sure the consuming repo ignores
      `.skills/postgres/config.toml` too; do not leave the canonical file
      unignored when the legacy `postgres.toml` had ignore coverage.
-   - If the user explicitly asks to create or refresh a saved profile, use
-     `./scripts/postgres profile bootstrap`.
+   - If the user explicitly asks to create or refresh a saved profile, use the
+     shipped `scripts/postgres` artifact from the skill package, for example
+     `<postgres-skill-root>/scripts/postgres profile bootstrap`.
 2) Choose action:
    - Query / inspect data
    - Inspect schema / indexes / roles / activity
@@ -248,9 +257,9 @@ Rules:
 
 ## CLI Maintenance
 
-- Keep normal execution on `./scripts/postgres`.
+- Keep normal execution on the shipped `scripts/postgres` artifact.
 - Treat `projects/postgres/Cargo.toml` as the single source of truth for the
-  CLI semver, and use `./scripts/postgres --version` to verify the shipped
+  CLI semver, and use the shipped `scripts/postgres --version` to verify the
   runtime version.
 - Open `projects/postgres/` only when fixing bugs, improving performance,
   rebuilding the shipped binary, or extending the CLI contract.
@@ -266,11 +275,11 @@ Rules:
     additions
   - patch for backward-compatible bug fixes and corrections
 - After maintenance changes, re-verify through the shipped artifact with:
-  - `./scripts/postgres --help`
-  - `./scripts/postgres --version`
-  - `DB_PROJECT_ROOT=/path/to/repo ./scripts/postgres --json doctor`
+  - from the skill root: `./scripts/postgres --help`
+  - from the skill root: `./scripts/postgres --version`
+  - from any cwd: `DB_PROJECT_ROOT=/path/to/repo <postgres-skill-root>/scripts/postgres --json doctor`
 - When a change touches tool-backed behavior, also verify:
-  - `./scripts/postgres --json tools status`
+  - from the skill root: `./scripts/postgres --json tools status`
 - Keep config migration one-way from legacy `postgres.toml` to canonical
   `config.toml`.
 - Route dump / restore / schema diff through either explicit `DB_PG_BIN_DIR`

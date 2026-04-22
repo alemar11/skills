@@ -27,7 +27,7 @@ Preferred command:
 
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres migration release \
+  /path/to/postgres-skill/scripts/postgres migration release \
   --summary "Add agent-context prompt sections"
 ```
 
@@ -35,7 +35,7 @@ Dry run:
 
 ```sh
 DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
-  ./scripts/postgres migration release \
+  /path/to/postgres-skill/scripts/postgres migration release \
   --summary "Add agent-context prompt sections" \
   --dry-run
 ```
