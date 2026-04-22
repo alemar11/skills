@@ -24,25 +24,35 @@ Name the host, the CLI source material, and the first real jobs it should do:
 
 Choose the host owner and the CLI/tool name independently by default. Reuse the skill or plugin name only when it is intentionally the clearest runtime command name.
 
+## Path Vocabulary
+
+Resolve these terms before writing commands or examples:
+
+- `owner root`: the directory from which canonical executable examples must run
+  - for `host=skill`: `<skill-root>`
+  - for `host=plugin` when exactly one bundled skill owns the CLI: `<plugin-root>/skills/<skill>`
+  - for `host=plugin` when the CLI is shared: `<plugin-root>`
+- `artifact path`: the owner-root-relative path to the shipped runnable artifact, usually `scripts/<tool>` or `scripts/<tool>.<ext>`
+- `public runtime noun`: optional shorthand such as `<tool>` only when the host docs explicitly define a wrapper, alias, or PATH setup that makes that form executable
+
 Before scaffolding, resolve the ownership boundary first:
 
 - `host=skill`
 - `host=plugin` and used by exactly one bundled skill
 - `host=plugin` and intentionally shared by multiple bundled skills
 
-Then check whether the proposed shipped artifact path already exists:
+From the `owner root`, check whether the proposed shipped artifact path or maintenance project already exists:
 
 ```bash
-test -e scripts/<tool-name> && echo "exists"
+test -e <artifact-path> && echo "artifact exists"
+test -e projects/<tool-name> && echo "project exists"
 ```
 
-For plugin-owned single-skill CLIs, check the skill-local runtime path instead:
+If either exists, choose a clearer entry name or evolve the existing command instead of creating a competing surface.
+Also confirm that the proposed CLI/tool name does not already collide with:
 
-```bash
-test -e skills/<skill-name>/scripts/<tool-name> && echo "exists"
-```
-
-If it exists, choose a clearer entry name or evolve the existing command instead of creating a competing surface.
+- an existing `[tools.<tool>]` config subtree in the same owner namespace
+- an already-documented runtime command noun in the same owner docs or help output
 
 ## Ownership First
 
@@ -50,7 +60,7 @@ Keep one embedded-CLI doctrine for all hosts:
 
 - `scripts/` contains the shipped runnable artifacts used during normal execution
 - `projects/<tool>/` is the optional maintenance-only build project behind one shipped CLI
-- persisted working-project config follows the same owner boundary as `scripts/` and `projects/`
+- persisted working-project config follows the same owner boundary and keeps plugin identity explicit when the host is a plugin
 - normal runtime usage never runs from `dist/`, `target/`, virtualenv paths, or similar build outputs
 
 The owner of the shipped artifact also owns:
@@ -62,7 +72,7 @@ The owner of the shipped artifact also owns:
 Do not split ownership. In particular:
 
 - do not allow plugin-root `projects/<tool>/` with skill-local `scripts/<tool>`
-- do not keep persistent config under `.plugins/...` when the shipped artifact is skill-local
+- do not drop plugin identity or skill scope from the persistent config namespace when the host is a plugin
 - do not silently derive ownership from the CLI/tool name later
 
 ## Host-Specific Placement Rules
@@ -77,7 +87,7 @@ For `host=plugin` when the CLI is used by exactly one bundled skill:
 
 - shipped artifact: `<plugin-root>/skills/<skill>/scripts/<tool>`
 - maintenance project: `<plugin-root>/skills/<skill>/projects/<tool>/`
-- working-project config: `<project-root>/.skills/<skill>/config.toml`
+- working-project config: `<project-root>/.plugins/<plugin>/skills/<skill>/config.toml`
 
 For `host=plugin` when the CLI is intentionally shared by multiple bundled skills:
 
@@ -95,8 +105,16 @@ When a skill-local plugin CLI later becomes shared, move the full ownership set 
 
 After promotion, document one deterministic read path and do not silently read both:
 
-- `.skills/<skill>/config.toml`
+- `.plugins/<plugin>/skills/<skill>/config.toml`
 - `.plugins/<plugin>/config.toml`
+
+Promotion is a storage migration, not a permanent dual-read fallback:
+
+- normal read commands must use only the new config path
+- a one-time import from the old config path is allowed only during an explicit mutating flow such as `init`, `login`, `configure`, or `migrate-config`
+- only perform that import when the new config path is absent
+- preserve only the CLI-owned `[tools.<tool>]` subtree plus any shared section that the CLI explicitly owns
+- update ignore rules for the new config path in the same rollout
 
 Treat plugin-root `scripts/` as a repository convention supported by this skill, not as an officially documented Codex plugin manifest component.
 
@@ -126,36 +144,33 @@ Keep the layout model short and explicit:
 
 - `scripts/` contains the shipped runnable artifacts used during normal execution
 - `projects/<tool>/` is the maintenance-only build project behind one shipped CLI
-- `<project-root>/.skills/<skill>/` and `<project-root>/.plugins/<plugin>/` are config-only
+- `<project-root>/.skills/<skill>/`, `<project-root>/.plugins/<plugin>/`, and `<project-root>/.plugins/<plugin>/skills/<skill>/` are config-only
 - separate the shipped artifact path from the public runtime noun:
-  `scripts/<tool>` is the artifact location, while `<tool>` is the preferred
-  user-facing command form when the runtime exposes a stable command name
+  `<artifact-path>` is the canonical executable form, while bare `<tool>` is optional shorthand only after the host docs explain how that command becomes executable
 
 Keep these invariants explicit in the host docs and CLI docs:
 
-- run the tool from `scripts/...` during normal execution
+- run the tool from `<artifact-path>` during normal execution
 - do not inspect `projects/<tool>/` during normal execution
 - do not require normal users to run code directly from `projects/<tool>/`
 - do not treat `projects/<tool>/` as part of the normal runtime surface
-- treat `scripts/<tool>` or `scripts/<tool>.<ext>` as the shipped runnable artifact regardless of language
-- require `scripts/<tool> --version` as part of the stable runtime surface
-- let the chosen CLI/tool name govern both `scripts/<tool>` and `projects/<tool>/`
-- open `projects/<tool>/` only when fixing, improving, rebuilding, or extending the implementation behind `scripts/...`
+- treat `<artifact-path>` as the shipped runnable artifact regardless of language
+- require `<artifact-path> --version` as part of the stable runtime surface
+- let the chosen CLI/tool name govern both `<artifact-path>` and `projects/<tool>/`
+- open `projects/<tool>/` only when fixing, improving, rebuilding, or extending the implementation behind `<artifact-path>`
 - keep script-native runnable artifacts entirely in `scripts/`; introduce `projects/<tool>/` only when the implementation grows enough to justify a real maintenance project
 - keep the CLI project self-contained inside `projects/<tool>/`; put manifests, lockfiles, dependency installs, caches, intermediate build outputs, project-local test/build config, and source there by default
 - do not introduce host-root wrappers unless the user explicitly asks for that non-standard layout
 - if `projects/<tool>/` exists, keep CLI-specific tests inside `projects/<tool>/tests/` or an equivalently project-local test directory
 - do not execute compiled CLIs from `target/`, `dist/`, virtualenv paths, or other build directories during normal usage
 - if the runtime produces a compiled executable, copy, install, or generate the shipped artifact into `scripts/` before considering the CLI ready
-- if `projects/<tool>/` exists, require `projects/<tool>/AGENTS.md` with build, test, rebuild, runtime prerequisites, safe-maintenance instructions, the version source of truth, the semver bump policy, and rebuild instructions for restoring the shipped artifact in `scripts/...`
+- if `projects/<tool>/` exists, require `projects/<tool>/AGENTS.md` with build, test, rebuild, runtime prerequisites, safe-maintenance instructions, the version source of truth, the semver bump policy, and rebuild instructions for restoring the shipped artifact at `<artifact-path>`
 - if the scaffold introduces project-local generated state that must not be committed, create or update `projects/<tool>/.gitignore` and keep it scoped to that tool's generated paths
 - do not create an empty or no-op `projects/<tool>/.gitignore` when the CLI introduces no project-local generated state
 - do not standardize alternative generic maintenance folders such as `src/`, `code/`, `impl/`, or `source/` for the full project layout
-- in user-facing skill docs, examples, and runbooks, prefer `<tool> ...` over
-  `scripts/<tool> ...` unless the instruction is explicitly about running from
-  the owning host root or about the artifact path itself
-- do not tell bundled skills to run `scripts/<tool>` unless that relative path
-  actually exists from that skill's runtime context
+- in user-facing skill docs, examples, and runbooks, make executable examples use `<artifact-path> ...` unless the host docs explicitly define a wrapper, alias, or PATH contract for bare `<tool> ...`
+- bare `<tool> ...` can appear only as optional shorthand after that executable contract is documented
+- do not tell bundled skills to run `scripts/<tool>` unless that path is actually the artifact path from that skill's `owner root`
 
 For detailed command-shape, runtime-surface, JSON, and host-owned examples, read [references/agent-cli-patterns.md](references/agent-cli-patterns.md).
 
@@ -163,22 +178,23 @@ For detailed command-shape, runtime-surface, JSON, and host-owned examples, read
 
 Persist config only when the user explicitly chooses a write path such as:
 
-- `scripts/<tool> init ...`
-- `scripts/<tool> login ...`
-- `scripts/<tool> configure ...`
+- `<artifact-path> init ...`
+- `<artifact-path> login ...`
+- `<artifact-path> configure ...`
 
 Never create config implicitly on install or on first read.
 
-Use owner-level `config.toml`, not one file per tool:
+Use one owner-aligned `config.toml` namespace, not one file per tool:
 
 - skill-owned: `<project-root>/.skills/<skill>/config.toml`
 - plugin-owned shared: `<project-root>/.plugins/<plugin>/config.toml`
-- plugin-owned but local to one skill: `<project-root>/.skills/<skill>/config.toml`
+- plugin-owned but local to one skill: `<project-root>/.plugins/<plugin>/skills/<skill>/config.toml`
 
 Keep config-only directories explicit:
 
 - `<project-root>/.skills/<skill>/`
 - `<project-root>/.plugins/<plugin>/`
+- `<project-root>/.plugins/<plugin>/skills/<skill>/`
 
 Do not place helper scripts or implementation code there.
 
@@ -186,6 +202,7 @@ Treat owner-level `config.toml` as local persisted operator config:
 
 - consuming repos should gitignore `<project-root>/.skills/<skill>/config.toml`
 - consuming repos should gitignore `<project-root>/.plugins/<plugin>/config.toml`
+- consuming repos should gitignore `<project-root>/.plugins/<plugin>/skills/<skill>/config.toml`
 - when a skill or plugin migrates from a legacy config filename to
   `config.toml`, update the consuming repo ignore rules in the same rollout
 - do not treat owner-level `config.toml` as normal repo content unless the user
@@ -205,6 +222,9 @@ source = "env"
 [tools.logs]
 workspace = "mobile"
 
+[tools.deploys]
+confirm = "interactive"
+
 [meta]
 written_by = "logs"
 written_by_version = "0.9.0"
@@ -213,19 +233,31 @@ written_by_version = "0.9.0"
 Rules:
 
 - `schema_version` is the config format version and the only required version field
+- owner-wide settings live only in explicitly documented shared sections such as `[defaults]`, `[auth]`, or `[profiles]`
 - `[tools.<tool>]` stores tool-specific persisted settings
+- when multiple CLIs share one `config.toml`, each CLI may write only its own `[tools.<tool>]` subtree plus any shared section it explicitly owns
 - `[meta]` is optional provenance only and must not drive runtime behavior
 - do not require top-level `version`
 - do not require `tools.<tool>.version`
 - create parent directories only when the user actually persists config
 
+## Config Migrations
+
+Promotion from plugin single-skill ownership to plugin-shared ownership is a storage migration:
+
+- normal read commands must use only the new config path under `.plugins/<plugin>/config.toml`
+- a one-time import from `.plugins/<plugin>/skills/<skill>/config.toml` is allowed only during an explicit mutating flow such as `init`, `login`, `configure`, or `migrate-config`
+- only import when the new config file is absent
+- preserve the CLI-owned `[tools.<tool>]` subtree plus any shared section that the CLI explicitly owns
+- keep ignore rules aligned with the new canonical path in the same rollout
+
 ## CLI Versioning
 
 Versioning is required for every embedded CLI produced through this skill, even when the implementation is small.
 
-- support `scripts/<tool> --version` on the public runtime surface
+- support `<artifact-path> --version` on the public runtime surface
 - keep one semver source of truth for the CLI version
-- use the artifact stored in `scripts/` as the only supported normal-execution surface
+- use the artifact stored at `<artifact-path>` as the only supported normal-execution surface
 - use the runtime-native manifest version when one exists, such as `Cargo.toml`, `package.json`, or `pyproject.toml`
 - when no native manifest exists, keep the version in one explicit code constant or a dedicated version file rather than scattering literals
 - treat doc-only updates as no-version-bump changes unless they accompany shipped CLI behavior changes
@@ -254,18 +286,18 @@ State the choice in one sentence before scaffolding, including the reason and th
 Sketch the command surface in chat before coding. Include the shipped artifact path, discovery commands, resolve or ID-lookup commands, read commands, write commands, raw escape hatch, auth/config choice, and any rebuild behavior needed to restore the shipped artifact in `scripts/`.
 
 Before finalizing the command contract, confirm that the CLI/tool name is the best runtime noun for the planned jobs rather than defaulting to the host name out of symmetry.
-Keep the distinction explicit in examples: document `scripts/<tool>` as the
-artifact location, but prefer the runtime noun `<tool> ...` for normal
-user-facing command examples when the CLI exposes that stable public name.
+Keep the distinction explicit in examples: document `<artifact-path>` as the
+canonical executable form, and use bare `<tool> ...` only when the host docs
+also define the wrapper, alias, or PATH setup that makes that shorthand valid.
 
 Use [references/agent-cli-patterns.md](references/agent-cli-patterns.md) for the expected composable CLI shape, command ordering, JSON conventions, pagination patterns, and host-owned examples.
 
 Build toward a surface where:
 
-- `scripts/<tool> --help` exposes the major capabilities
-- `scripts/<tool> --version` reports the current CLI semver from the single source of truth
-- `scripts/<tool> --json doctor` verifies config, auth, version, endpoint reachability, and missing setup
-- `scripts/<tool> init ...` stores local config when env-only auth is painful
+- `<artifact-path> --help` exposes the major capabilities
+- `<artifact-path> --version` reports the current CLI semver from the single source of truth
+- `<artifact-path> --json doctor` verifies config, auth, version, and missing setup; API-backed CLIs should also report endpoint reachability, while local/offline CLIs should report fixture or tool readiness instead
+- `<artifact-path> init ...` stores local config when env-only auth is painful
 - discovery commands find accounts, projects, workspaces, teams, queues, channels, repos, dashboards, or other top-level containers
 - resolve commands turn names, URLs, slugs, permalinks, customer input, or build links into stable IDs so future commands do not repeat broad searches
 - read commands fetch exact objects and list/search collections
@@ -295,6 +327,7 @@ Use screenshots to infer workflow, UI vocabulary, fields, and confirmation point
 ## Build Workflow
 
 1. Read the source just enough to inventory resources, auth, pagination, IDs, media/file flows, rate limits, and dangerous write actions. If the docs expose OpenAPI, download or inspect it before naming commands.
+   For local/offline CLIs, inventory file formats, local tools, path handling, destructive operations, and no-network behavior instead of forcing an API-shaped model.
 2. Sketch the command list in chat. Keep names short and shell-friendly.
 3. Scaffold the CLI inside the resolved owner using the two-surface layout:
    - `scripts/` for runtime
@@ -305,8 +338,11 @@ Use screenshots to infer workflow, UI vocabulary, fields, and confirmation point
 7. If the runtime produces a compiled executable, copy, install, or generate that executable into `scripts/`.
 8. Inspect which project-local generated directories the chosen runtime will create and create or update `projects/<tool>/.gitignore` only when those directories should remain uncommitted.
 9. Create config only through explicit init/login/configure flows. Do not write config during reads or health checks.
-10. Smoke test against the artifact stored in `scripts/...`. Run `scripts/<tool> --help`, `scripts/<tool> --version`, and `scripts/<tool> --json doctor`, and confirm the task can be completed without opening `projects/<tool>/`.
-11. Run format, typecheck/build, unit tests for request builders, pagination/request-body builders, no-auth `doctor`, help output, and at least one fixture, dry-run, or live read-only API call.
+10. Smoke test against `<artifact-path>`. Run `<artifact-path> --help`, `<artifact-path> --version`, and `<artifact-path> --json doctor`, and confirm the task can be completed without opening `projects/<tool>/`.
+11. Run the shared validation core:
+    - format, typecheck, or build as appropriate for the chosen runtime
+    - help output, version output, artifact-path execution, exit codes, and no-auth or no-config `doctor`
+    - at least one safe fixture, dry-run, or read-only end-to-end check that matches the CLI type
 
 If a live write is needed for confidence, ask first and make it reversible or draft-only.
 
@@ -319,6 +355,19 @@ For media, artifact, or presigned upload flows, test each phase separately: crea
 For fixture-backed prototypes, keep fixtures in a predictable owner-owned path and make the `scripts/...` surface locate them without requiring direct use of `projects/<tool>/`.
 
 For log-oriented CLIs, keep deterministic snippet extraction separate from model interpretation. Prefer a command that emits filenames, line numbers or byte ranges, matched rules, and short excerpts.
+
+### Validation by Runtime Type
+
+Always run the shared validation core from the shipped artifact path. Then add the lane that matches the CLI:
+
+- API-backed CLIs:
+  - request builders, pagination or cursor handling when applicable, error mapping, and at least one live or fixture-backed read-only API call
+  - `doctor --json` should include endpoint reachability when the CLI expects network access
+- local/offline or shell CLIs:
+  - shell syntax or interpreter startup checks, quoted-path handling, deterministic fixture runs, missing-tool diagnostics, destructive-path guard checks, and no-network execution
+  - `doctor --json` should report local tool readiness, fixture availability, or offline mode rather than inventing API reachability checks
+- hybrid CLIs:
+  - combine the relevant API-backed and local/offline checks without forcing irrelevant test placeholders
 
 ## Rust Defaults
 
@@ -371,21 +420,19 @@ If `projects/<tool>/` exists, document the Python build/test workflow, version s
 
 After the embedded CLI works, update the owning skill docs or plugin docs so future Codex threads:
 
-- execute from `scripts/...` during normal runtime usage
-- expose and trust `scripts/<tool> --version` as the runtime version check
-- treat `scripts/<tool>` as the shipped runnable artifact rather than a pointer to `target/`, `dist/`, or other build directories
+- execute from `<artifact-path>` during normal runtime usage
+- expose and trust `<artifact-path> --version` as the runtime version check
+- treat `<artifact-path>` as the shipped runnable artifact rather than a pointer to `target/`, `dist/`, or other build directories
 - treat `projects/<tool>/` as the maintenance-only build project when one exists, not part of the normal runtime surface
 - know the safe read path, intended draft/write path, and raw escape hatch
-- have copy-pasteable examples that stay on the `scripts/...` surface
-- prefer the public command noun such as `<tool> ...` in normal runtime
-  examples when the CLI exposes one, and reserve `scripts/<tool>` for
-  ownership, rebuild, and host-root execution instructions
+- have copy-pasteable executable examples that stay on the `<artifact-path>` surface
+- use bare `<tool> ...` only as optional shorthand after the docs explicitly define how that command becomes executable
 
 Add a `CLI Maintenance` section to the owning runtime docs. Require that section to:
 
-- keep normal execution on `scripts/...`
+- keep normal execution on `<artifact-path>`
 - tell future threads to open `projects/<tool>/` only when fixing bugs, improving performance, rebuilding, or extending the CLI
-- direct maintenance changes into `projects/<tool>/` when it exists, then rebuild the shipped artifact in `scripts/...` and re-verify through that artifact
+- direct maintenance changes into `projects/<tool>/` when it exists, then rebuild the shipped artifact at `<artifact-path>` and re-verify through that artifact
 - mention the version source of truth and the expectation that shipped CLI changes follow semver
 - state that compiled outputs in `target/`, `dist/`, virtualenvs, or similar build locations are intermediates, not supported runtime entrypoints
 - keep project-local ignore rules in `projects/<tool>/.gitignore`

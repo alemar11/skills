@@ -9,7 +9,7 @@ This directory contains reusable skills, repo-local plugins, and project maintai
   Bundled skills: `tanstack-query`, `tanstack-router`, `tanstack-start`, `tanstack-integration`.
 
 ## Skills
-- `skills/skill-cli-creator/` — Build host-aware embedded CLIs that live inside a skill or plugin, run from `scripts/`, and can grow into a maintenance-only project at `projects/<tool>/`.
+- `skills/skill-cli-creator/` — Build host-aware embedded CLIs that live inside a skill or plugin, run from an owner-root-relative shipped artifact under `scripts/`, and can grow into a maintenance-only project at `projects/<tool>/`.
 - `skills/codex-changelog/` — Check the installed Codex CLI and Codex App versions, then print CLI notes from `openai/codex/releases` and app notes from the OpenAI Codex changelog page.
 - `skills/xcode-changelog/` — Resolve the active Xcode, look up a requested version, or list the available Apple Xcode release notes.
 - `skills/plan-harder/` — Create a higher-rigor implementation plan with minimal high-signal clarification, a gotcha pass, and a saved `plans/<topic>-plan.md` output.

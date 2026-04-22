@@ -14,6 +14,12 @@ Keep one shared owner model:
 - optional maintenance project in `projects/<tool>/`
 - persisted working-project config under the matching owner namespace
 
+## Path vocabulary
+
+- `owner root`: the directory from which canonical executable examples run
+- `artifact path`: the owner-root-relative shipped runnable artifact, usually `scripts/<tool>` or `scripts/<tool>.<ext>`
+- `public runtime noun`: optional shorthand such as `<tool>` only when the owning docs explicitly define how that command becomes executable
+
 ## Owner boundary
 
 Resolve the owner before designing the command surface.
@@ -28,7 +34,7 @@ For plugin-owned CLIs used by exactly one bundled skill:
 
 - runtime artifact: `<plugin-root>/skills/<skill>/scripts/<tool>`
 - maintenance project: `<plugin-root>/skills/<skill>/projects/<tool>/`
-- working-project config: `<project-root>/.skills/<skill>/config.toml`
+- working-project config: `<project-root>/.plugins/<plugin>/skills/<skill>/config.toml`
 
 For plugin-owned CLIs shared by multiple bundled skills:
 
@@ -36,7 +42,7 @@ For plugin-owned CLIs shared by multiple bundled skills:
 - maintenance project: `<plugin-root>/projects/<tool>/`
 - working-project config: `<project-root>/.plugins/<plugin>/config.toml`
 
-Do not split ownership. `scripts/<tool>`, `projects/<tool>/`, and the persistent config namespace must stay under the same owner.
+Do not split ownership. `artifact path`, `projects/<tool>/`, and the persistent config namespace must stay under the same resolved owner model.
 
 Treat plugin-root `scripts/` as a repo convention, not as an official Codex plugin manifest component.
 
@@ -79,24 +85,24 @@ Treat `--version` as part of that top-level interface, not an afterthought.
 Use product nouns, then verbs:
 
 ```bash
-scripts/tool-name --version
-scripts/tool-name --json doctor
-scripts/tool-name --json accounts list
-scripts/tool-name --json projects list
-scripts/tool-name --json channels resolve --name codex
-scripts/tool-name --json messages search "exact phrase"
-scripts/tool-name --json messages context <message-id> --before 3 --after 3
-scripts/tool-name --json logs download <build-url> --failed --out ./logs
-scripts/tool-name --json media upload --file ./image.png
-scripts/tool-name --json drafts create --body-file draft.json
+<artifact-path> --version
+<artifact-path> --json doctor
+<artifact-path> --json accounts list
+<artifact-path> --json projects list
+<artifact-path> --json channels resolve --name codex
+<artifact-path> --json messages search "exact phrase"
+<artifact-path> --json messages context <message-id> --before 3 --after 3
+<artifact-path> --json logs download <build-url> --failed --out ./logs
+<artifact-path> --json media upload --file ./image.png
+<artifact-path> --json drafts create --body-file draft.json
 ```
 
 For APIs whose native noun is already strong, direct verbs can be fine:
 
 ```bash
-scripts/tool-name --json social-sets
-scripts/tool-name --json drafts list --social-set <id>
-scripts/tool-name --json request get /v2/me
+<artifact-path> --json social-sets
+<artifact-path> --json drafts list --social-set <id>
+<artifact-path> --json request get /v2/me
 ```
 
 The important rule is consistency. Do not mix many styles unless the product vocabulary demands it.
@@ -105,13 +111,13 @@ The important rule is consistency. Do not mix many styles unless the product voc
 
 When the CLI is embedded inside a host:
 
-- run the tool from `scripts/...` during normal execution
-- treat `scripts/<tool>` as the shipped runnable artifact for normal execution
-- use `scripts/<tool> --version` as the stable version check
+- run the tool from `<artifact-path>` during normal execution
+- treat `<artifact-path>` as the shipped runnable artifact for normal execution
+- use `<artifact-path> --version` as the stable version check
 - choose the CLI/tool name intentionally; do not assume it must match the host name
-- use the same CLI/tool name consistently for `scripts/<tool>` and `projects/<tool>/`
+- use the same CLI/tool name consistently for `<artifact-path>` and `projects/<tool>/`
 - do not inspect `projects/<tool>/` during normal execution
-- open `projects/<tool>/` only when fixing, improving, rebuilding, or extending the implementation behind the `scripts/...` surface
+- open `projects/<tool>/` only when fixing, improving, rebuilding, or extending the implementation behind the `<artifact-path>` surface
 - keep the command shape stable even if the implementation language or internal layout changes
 - do not treat `target/`, `dist/`, virtualenv paths, or other build directories as supported runtime entrypoints
 - keep manifests, lockfiles, dependency installs, caches, intermediate build outputs, and project-local build/test config inside `projects/<tool>/` when a real maintenance project exists
@@ -128,7 +134,7 @@ If the scaffold also creates project-local generated state, keep that ignore pol
 
 ## Working-project config
 
-Use one owner-level `config.toml` file, not one TOML file per tool.
+Use one owner-aligned `config.toml` namespace, not one TOML file per tool.
 
 Normative shape:
 
@@ -144,6 +150,9 @@ source = "env"
 [tools.logs]
 workspace = "mobile"
 
+[tools.deploys]
+confirm = "interactive"
+
 [meta]
 written_by = "logs"
 written_by_version = "0.9.0"
@@ -152,7 +161,9 @@ written_by_version = "0.9.0"
 Rules:
 
 - `schema_version` is the config format version
+- owner-wide settings live only in explicitly documented shared sections such as `[defaults]`, `[auth]`, or `[profiles]`
 - `[tools.<tool>]` stores tool-specific persisted settings
+- when multiple CLIs share one `config.toml`, each CLI may write only its own `[tools.<tool>]` subtree plus any shared section it explicitly owns
 - `[meta]` is optional provenance only
 - do not use top-level `version` as normative config state
 - do not require per-tool version fields
@@ -165,17 +176,17 @@ Prefer these patterns over clever agent-only abstractions:
 
 ```bash
 # Field-selected structured output: make common reads scriptable.
-scripts/tool-name issues list --json number,title,url,state
-scripts/tool-name issues list --json number,title --jq '.[] | select(.state == "open")'
+<artifact-path> issues list --json number,title,url,state
+<artifact-path> issues list --json number,title --jq '.[] | select(.state == "open")'
 
 # Human text by default, full API object when requested.
-scripts/tool-name pods get <name>
-scripts/tool-name pods get <name> -o json
+<artifact-path> pods get <name>
+<artifact-path> pods get <name> -o json
 
 # Product workflow commands, not just REST nouns.
-scripts/tool-name logs tail
-scripts/tool-name webhooks listen --forward-to localhost:4242/webhooks
-scripts/tool-name webhooks trigger checkout.completed
+<artifact-path> logs tail
+<artifact-path> webhooks listen --forward-to localhost:4242/webhooks
+<artifact-path> webhooks trigger checkout.completed
 ```
 
 Only implement filtering or templating if the user will actually need it. Stable JSON plus narrow read commands are the baseline.
@@ -195,7 +206,7 @@ Do not force Codex to repeatedly search when it already has a stable ID.
 
 Support human text by default if it helps. Support `--json` everywhere Codex will parse or pipe results.
 
-Version reporting stays separate from `--json`: running `scripts/<tool> --version` should print the current CLI semver cleanly, and `doctor --json` should include that same version in its structured diagnostics.
+Version reporting stays separate from `--json`: running `<artifact-path> --version` should print the current CLI semver cleanly, and `doctor --json` should include that same version in its structured diagnostics.
 
 For `--json`:
 
@@ -215,14 +226,30 @@ For exit codes:
 - exit nonzero for auth failure, invalid input, network failure, parse failure, API error, or incomplete upload/download
 - make `doctor --json` usable even when auth is missing; it should report missing auth rather than crashing
 
+## Validation profiles
+
+Always validate the shared core from `<artifact-path>`:
+
+- `--help`
+- `--version`
+- `--json doctor`
+- executable invocation from the resolved `owner root`
+- exit codes and at least one safe fixture, dry-run, or read-only end-to-end check
+
+Then add the lane that matches the CLI:
+
+- API-backed: auth handling, request builders, pagination or cursor handling when applicable, and at least one live or fixture-backed read-only API call
+- local/offline or shell: syntax or interpreter startup checks, quoted-path handling, deterministic fixture runs, missing-tool diagnostics, destructive-path guards, and no-network execution
+- hybrid: combine the relevant API-backed and local/offline checks without inventing irrelevant placeholders
+
 ## Pagination and breadth
 
 Start shallow by default. Add explicit knobs for breadth:
 
 ```bash
-scripts/tool-name --json messages search "topic" --limit 10
-scripts/tool-name --json messages search "topic" --limit 50 --all-pages --max-pages 3
-scripts/tool-name --json drafts list --limit 20 --offset 40
+<artifact-path> --json messages search "topic" --limit 10
+<artifact-path> --json messages search "topic" --limit 50 --all-pages --max-pages 3
+<artifact-path> --json drafts list --limit 20 --offset 40
 ```
 
 Return the provider's real pagination field names, such as `next_cursor`, `next_url`, `offset`, or `page_count`, and document that shape clearly.
@@ -236,7 +263,7 @@ Good raw commands still use configured auth, base URL, JSON parsing, redaction, 
 Make reads easy:
 
 ```bash
-scripts/tool-name --json request get /v2/me
+<artifact-path> --json request get /v2/me
 ```
 
 Treat raw writes as live writes. Do not hide POST/PUT/PATCH/DELETE behind a "debug" command.
@@ -248,33 +275,34 @@ The owning skill docs or plugin docs should teach the path through the embedded 
 ```md
 Start with:
 
-scripts/tool-name --version
-scripts/tool-name --json doctor
-scripts/tool-name --json accounts list
+<artifact-path> --version
+<artifact-path> --json doctor
+<artifact-path> --json accounts list
 
 For [common job]:
 
-scripts/tool-name --json ...
-scripts/tool-name --json ...
+<artifact-path> --json ...
+<artifact-path> --json ...
 
 Rules:
 
-- Prefer the shipped artifact at `scripts/tool-name`.
-- Check `scripts/tool-name --version` when confirming the shipped CLI matches the latest built implementation.
+- Prefer the shipped artifact at `<artifact-path>`.
+- Check `<artifact-path> --version` when confirming the shipped CLI matches the latest built implementation.
 - Use --json when analyzing output.
 - Create drafts by default.
 - Do not publish/delete/retry/submit unless the user asked.
 - Do not inspect `projects/<tool>/` during normal execution.
 - Use `request get ...` only when high-level commands are missing.
+- Use bare `<tool> ...` only if the docs also define the wrapper, alias, or PATH setup that makes that shorthand executable.
 ```
 
 Include JSON shape notes only when Codex needs them to choose the next command.
 
-Add a `CLI Maintenance` section in the owning runtime docs when the tool has a maintained implementation behind `scripts/...`. That section should say:
+Add a `CLI Maintenance` section in the owning runtime docs when the tool has a maintained implementation behind `<artifact-path>`. That section should say:
 
-- normal runtime work stays on `scripts/...`
+- normal runtime work stays on `<artifact-path>`
 - `projects/<tool>/` is for bug fixes, performance work, rebuilds, and feature additions
-- shipped CLI changes must update the implementation, rebuild the shipped artifact in `scripts/...`, and re-run `--help`, `--version`, and `--json doctor`
+- shipped CLI changes must update the implementation, rebuild the shipped artifact at `<artifact-path>`, and re-run `--help`, `--version`, and `--json doctor`
 - compiled outputs in `target/`, `dist/`, virtualenvs, or similar paths are build intermediates rather than supported runtime entrypoints
 - project-local generated state should be ignored through `projects/<tool>/.gitignore`
 - the CLI follows semver from one declared version source of truth
