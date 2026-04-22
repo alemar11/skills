@@ -1,7 +1,7 @@
 interface:
   display_name: "GitHub CI"
-  short_description: "Use plain `gh` for PR checks and Actions inspection; this skill is guidance-first and does not rely on a dedicated `ghflow` CI surface."
+  short_description: "Use plain `gh` for routine checks, and use `ghflow ci inspect` for reusable failing-PR triage."
   brand_color: "#4338CA"
   icon_small: "./assets/github-small.svg"
   icon_large: "./assets/github.png"
-  default_prompt: "Use the bundled GitHub CI skill to prefer direct `gh` commands for PR checks and Actions inspection, keep PR-associated runs on `gh pr checks`, and use `gh run ...` for generic run investigation."
+  default_prompt: "Use the bundled GitHub CI skill to keep routine status reads on direct `gh` commands, use `ghflow ci inspect` for failing pull requests that need GitHub Actions log triage, keep PR-associated status on `gh pr checks`, and use `gh run ...` for generic run investigation."

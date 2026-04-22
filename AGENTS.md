@@ -144,7 +144,7 @@ Codex skills reference: `https://developers.openai.com/codex/skills/`.
 ### GitStack plugin
 - Keep `plugins/gitstack/` as the preferred full-stack install surface for linked git authoring, GitHub operations, and publish orchestration.
 - Keep `plugins/gitstack/scripts/ghflow` as the shared runtime for bundled GitHub skills; do not add bundled skill-local runtime copies.
-- Keep `ghflow` intentionally narrow: prefer plain `git` and `gh` for routine repo, issue, PR, CI, and release work, and reserve `ghflow` for shared higher-level helpers such as review-thread routing, authenticated-user stars and star lists, and current-branch publish context or open-or-reuse flows. (Codex learning)
+- Keep `ghflow` intentionally narrow: prefer plain `git` and `gh` for routine repo, issue, PR, CI, and release work, and reserve `ghflow` for shared higher-level helpers such as focused failing-PR CI inspection, review-thread routing, authenticated-user stars and star lists, and current-branch publish context or open-or-reuse flows. (Codex learning)
 - Bundle `git-commit`, `github`, `github-triage`, `github-reviews`, `github-ci`, `github-releases`, and `yeet` under `plugins/gitstack/skills/`.
 - Do not keep standalone reusable copies of `git-commit`, `github`, or `yeet` under `skills/`; GitStack is the supported distributable surface for those workflows in this repo. (Codex learning)
 - Keep `git-commit` bundled as skill-only in `gitstack`; do not add a `ghflow commit ...` surface in v1.

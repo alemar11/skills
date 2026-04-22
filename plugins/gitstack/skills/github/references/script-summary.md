@@ -13,6 +13,7 @@ bundled `github` skill.
 
 ## Shared `ghflow` helpers
 
+- Failing-PR CI inspection: `ghflow ci inspect`
 - Review-thread triage and reply routing: `ghflow reviews address`
 - Authenticated-user stars and star lists:
   `ghflow stars <list|add|remove>`,

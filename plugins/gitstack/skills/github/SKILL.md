@@ -1,6 +1,6 @@
 ---
 name: github
-description: Handle repo-scoped GitHub work plus authenticated-user star and star-list workflows inside the `gitstack` plugin. Prefer plain `gh` for straightforward reads and writes, and use the shared `ghflow` helpers when workflows need extra orchestration, shared JSON contracts, or API-heavy behavior.
+description: Handle repo-scoped GitHub work plus authenticated-user star and star-list workflows inside the `gitstack` plugin. Prefer plain `gh` for straightforward reads and writes, and use the shared `ghflow` helpers when workflows need extra orchestration, shared JSON contracts, API-heavy behavior, or focused failing-PR CI triage.
 ---
 
 # GitHub
@@ -18,7 +18,8 @@ Default command preference:
 - plain `git` for local checkout state and branch operations
 - shared `ghflow` helpers only when the job needs extra orchestration, shared
   JSON contracts, authenticated-user star or list GraphQL behavior, or the
-  repo-aware publish helpers that multiple bundled skills reuse
+  repo-aware publish helpers or focused CI inspector that multiple bundled
+  skills reuse
 
 `gitstack` bundles one shared helper runtime:
 
@@ -58,7 +59,7 @@ lifecycle work on already-pushed branches, or any time the user just says
 | Mixed GitHub work, publish lifecycle, or ambiguous routing | `github` |
 | Repo orientation, issues, PR metadata, authenticated-user stars or star lists, or raw cross-repo issue transfer | `github-triage` |
 | Review follow-up, thread replies, review submission | `github-reviews` |
-| PR checks and generic Actions investigation with plain `gh` | `github-ci` |
+| PR checks and GitHub Actions investigation | `github-ci` |
 | Release planning, notes, and publication with plain `git`/`gh` | `github-releases` |
 | Full publish from local checkout to draft PR | `yeet` |
 
@@ -95,6 +96,8 @@ Use `ghflow` when one of these applies:
 - the job needs repo-aware publish context or PR open-or-reuse behavior
 - the job needs normalized JSON output across subdomains
 - the job needs authenticated-user star or list GraphQL behavior
+- the job needs focused failing-PR CI inspection beyond a single direct `gh`
+  status command
 - the job needs review-thread routing or higher-level reply handling beyond
   plain `gh`
 
@@ -122,6 +125,7 @@ Use `ghflow` when one of these applies:
   - `gh issue create --repo <owner/repo> ...`
   - `gh pr edit <n> --repo <owner/repo> ...`
 - Shared helper workflows:
+  - `ghflow ci inspect --pr <number-or-url>`
   - `ghflow --json publish context`
   - `ghflow publish open --draft`
   - `ghflow --json stars list`
@@ -158,7 +162,8 @@ Use `ghflow` when one of these applies:
   behind that artifact.
 - Keep runtime logic in `<plugin-root>/projects/ghflow/src/ghflow/`.
 - Keep skill docs sample-first around `git` and `gh`; use `ghflow` only for
-  shared higher-level behavior.
+  shared higher-level behavior such as failing-PR CI inspection, review-thread
+  routing, stars, lists, and publish helpers.
 - Do not add skill-local runtime copies under bundled GitHub skills.
 - Do not add compatibility aliases or reintroduce public per-domain script
   entrypoints.

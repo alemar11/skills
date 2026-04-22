@@ -1,6 +1,6 @@
 [project]
 name = "ghflow"
-version = "3.0.0"
+version = "3.1.0"
 description = "Embedded GitHub CLI runtime for the gitstack plugin"
 requires-python = ">=3.11"
 

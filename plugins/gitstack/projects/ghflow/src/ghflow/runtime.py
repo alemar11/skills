@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+from . import checks
 from . import lists_cli
 from . import stars_cli
 from . import user_state
@@ -25,11 +26,17 @@ PYPROJECT_PATH = PROJECT_DIR / "pyproject.toml"
 
 
 def load_version() -> str:
-    if not PYPROJECT_PATH.exists():
-        return "3.0.0"
-    with PYPROJECT_PATH.open("rb") as handle:
-        payload = tomllib.load(handle)
-    return str(payload.get("project", {}).get("version", "3.0.0"))
+    candidates = [PYPROJECT_PATH]
+    argv0 = Path(sys.argv[0]).resolve()
+    if argv0.name == "ghflow":
+        candidates.append(argv0.parent.parent / "projects" / "ghflow" / "pyproject.toml")
+    for candidate in candidates:
+        if not candidate.exists():
+            continue
+        with candidate.open("rb") as handle:
+            payload = tomllib.load(handle)
+        return str(payload.get("project", {}).get("version", "3.0.0"))
+    return "3.0.0"
 
 
 VERSION = load_version()
@@ -48,6 +55,10 @@ class RunResult:
 class CommandResponse:
     result: RunResult
     output_kind: str
+    allow_nonzero: bool = False
+    error_code: str | None = None
+    error_message: str | None = None
+    error_retry: str | None = None
 
 
 @dataclass(frozen=True)
@@ -119,18 +130,30 @@ def main(argv: list[str] | None = None) -> int:
             )
 
         response = spec.handler(spec, parsed["tail"], parsed["json"])
-        if response.result.returncode != 0:
+        if response.result.returncode != 0 and not response.allow_nonzero:
             raise build_runtime_error(response.result, command_path)
 
         if parsed["json"]:
-            print_json_success(command_path, parse_output(response.result.stdout, response.output_kind))
+            data = parse_output(response.result.stdout, response.output_kind)
+            if response.result.returncode != 0:
+                print_json_report(
+                    command_path,
+                    data=data,
+                    code=response.error_code or "command_failed",
+                    message=response.error_message
+                    or extract_runtime_error_message(response.result)
+                    or "Command failed.",
+                    retry=response.error_retry,
+                )
+                return response.result.returncode
+            print_json_success(command_path, data)
             return 0
 
         if response.result.stdout:
             sys.stdout.write(response.result.stdout)
         if response.result.stderr:
             sys.stderr.write(response.result.stderr)
-        return 0
+        return response.result.returncode
     except GhflowError as exc:
         if parsed_json_requested(argv):
             print_json_error(
@@ -453,6 +476,25 @@ def print_json_success(command_path: tuple[str, ...], data: object) -> None:
     sys.stdout.write("\n")
 
 
+def print_json_report(
+    command_path: tuple[str, ...],
+    *,
+    data: object,
+    code: str,
+    message: str,
+    retry: str | None,
+) -> None:
+    payload = {
+        "ok": False,
+        "version": VERSION,
+        "command": list(command_path),
+        "data": data,
+        "error": {"code": code, "message": message, "retry": retry},
+    }
+    json.dump(payload, sys.stdout, indent=2)
+    sys.stdout.write("\n")
+
+
 def print_json_error(command_path: tuple[str, ...], *, code: str, message: str, retry: str | None) -> None:
     payload = {
         "ok": False,
@@ -588,6 +630,14 @@ def current_branch(command_path: tuple[str, ...]) -> str:
     return branch
 
 
+def current_repo_root() -> Path | None:
+    result = run_git_text(["rev-parse", "--show-toplevel"])
+    if result.returncode != 0:
+        return None
+    value = result.stdout.strip()
+    return Path(value) if value else None
+
+
 def tracking_remote_name(branch: str) -> str | None:
     result = run_git_text(["config", "--get", f"branch.{branch}.remote"])
     if result.returncode != 0:
@@ -702,6 +752,47 @@ def snippet(text: str, *, limit: int = 220) -> str:
     if len(compact) > limit:
         return compact[: limit - 3] + "..."
     return compact
+
+
+def ci_inspect_handler(spec: CommandSpec, tail: list[str], json_mode: bool) -> CommandResponse:
+    opts = parse_options(spec.command_path, tail, {
+        "--pr": value("pr"),
+        "--repo": value("repo"),
+        "--allow-non-project": flag("allow_non_project"),
+        "--max-lines": value("max_lines", default=str(checks.DEFAULT_MAX_LINES)),
+        "--context": value("context", default=str(checks.DEFAULT_CONTEXT_LINES)),
+    })
+    repo = resolve_repo(opts["repo"], bool(opts["allow_non_project"]), command_path=spec.command_path)
+    max_lines = require_positive_int("max-lines", str(opts["max_lines"]), command_path=spec.command_path)
+    context = require_positive_int("context", str(opts["context"]), command_path=spec.command_path)
+    repo_root = current_repo_root() if is_git_repo() else None
+
+    try:
+        payload, exit_code = checks.inspect_pr_failures(
+            repo=repo,
+            repo_root=repo_root,
+            pr_value=opts["pr"],
+            max_lines=max_lines,
+            context=context,
+        )
+    except checks.InspectionError as exc:
+        return text_response(stderr=f"{exc.message}\n", returncode=exc.exit_code)
+
+    if json_mode:
+        return CommandResponse(
+            RunResult(exit_code, json.dumps(payload, indent=2) + "\n", ""),
+            "json",
+            allow_nonzero=exit_code != 0,
+            error_code="failing_checks" if exit_code != 0 else None,
+            error_message="Failing checks remain." if exit_code != 0 else None,
+        )
+    return CommandResponse(
+        RunResult(exit_code, checks.render_results(payload), ""),
+        "text",
+        allow_nonzero=exit_code != 0,
+        error_code="failing_checks" if exit_code != 0 else None,
+        error_message="Failing checks remain." if exit_code != 0 else None,
+    )
 
 
 def reviews_address_handler(spec: CommandSpec, tail: list[str], json_mode: bool) -> CommandResponse:
@@ -1098,6 +1189,7 @@ def lists_handler(spec: CommandSpec, tail: list[str], json_mode: bool) -> Comman
 
 
 COMMAND_LIST = [
+    CommandSpec(("ci", "inspect"), usage_tail="[--pr <number-or-url>] [--repo <owner/repo>] [--allow-non-project] [--max-lines <count>] [--context <count>]", handler=ci_inspect_handler),
     CommandSpec(("reviews", "address"), usage_tail="--pr <number> [--repo <owner/repo>] [--include-resolved] [--selection <rows>] [--comment-ids <ids>] [--reply-body <text>] [--dry-run] [--allow-non-project]", handler=reviews_address_handler),
     CommandSpec(("stars", "list"), handler=stars_handler),
     CommandSpec(("stars", "add"), handler=stars_handler),
@@ -1115,11 +1207,12 @@ COMMAND_ORDER = [spec.command_path for spec in COMMAND_LIST]
 COMMAND_SPECS = {spec.command_path: spec for spec in COMMAND_LIST}
 GROUP_HELP_PREFIXES = {prefix for command_path in COMMAND_ORDER for prefix in (command_path[:size] for size in range(1, len(command_path)))}
 ROOT_NOUN_DESCRIPTIONS = {
+    "ci": "failing PR check inspection for GitHub Actions",
     "reviews": "PR review-thread work",
     "stars": "authenticated-user stars and star lists",
     "publish": "current-branch PR context and open-or-reuse flows",
 }
-ROOT_NOUN_ORDER = ("reviews", "stars", "publish")
+ROOT_NOUN_ORDER = ("ci", "reviews", "stars", "publish")
 ROOT_NOUNS = tuple(noun for noun in ROOT_NOUN_ORDER if any(command_path[0] == noun for command_path in COMMAND_ORDER))
 SORTED_COMMAND_KEYS = sorted(COMMAND_ORDER, key=len, reverse=True)
 MAX_COMMAND_DEPTH = max(len(command_path) for command_path in COMMAND_ORDER)
