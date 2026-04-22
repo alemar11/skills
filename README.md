@@ -51,16 +51,16 @@ plugin path, which keeps the installed plugin paths live against this checkout.
 These prompts are for use inside Codex only.
 Copy/paste one of these prompts:
 
-- `Use $skill-installer to install skills from alemar11/skills --path skills/skill-cli-creator skills/codex-changelog skills/xcode-changelog skills/plan-harder skills/learn skills/postgres skills/skill-audit skills/swift-api-design skills/swift-docc`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/skill-cli-creator`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/codex-changelog`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/xcode-changelog`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/plan-harder`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/learn`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/postgres`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/skill-audit`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/swift-api-design`
-- `Use $skill-installer to install skills from alemar11/skills --path skills/swift-docc`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/skill-cli-creator skills/codex-changelog skills/xcode-changelog skills/plan-harder skills/learn skills/postgres skills/skill-audit skills/swift-api-design skills/swift-docc`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/skill-cli-creator`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/codex-changelog`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/xcode-changelog`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/plan-harder`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/learn`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/postgres`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/skill-audit`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/swift-api-design`
+- `Use $skill-installer to install skills from alemar11/dotagents --path skills/swift-docc`
 
 ### Install With `npx skills` (Vercel Skills CLI)
 These commands use the [`vercel-labs/skills`](https://github.com/vercel-labs/skills) CLI and target Codex directly.
@@ -68,13 +68,13 @@ These commands use the [`vercel-labs/skills`](https://github.com/vercel-labs/ski
 List the skills available in this repository:
 
 ```sh
-npx skills add alemar11/skills --list
+npx skills add alemar11/dotagents --list
 ```
 
 Install all reusable skills globally for Codex:
 
 ```sh
-npx skills add alemar11/skills -a codex -g -y \
+npx skills add alemar11/dotagents -a codex -g -y \
   --skill skill-cli-creator \
   --skill codex-changelog \
   --skill xcode-changelog \
@@ -89,23 +89,23 @@ npx skills add alemar11/skills -a codex -g -y \
 Install an individual skill globally for Codex:
 
 ```sh
-npx skills add alemar11/skills -a codex -g -y --skill skill-cli-creator
+npx skills add alemar11/dotagents -a codex -g -y --skill skill-cli-creator
 ```
 
 ```sh
-npx skills add alemar11/skills -a codex -g -y --skill xcode-changelog
+npx skills add alemar11/dotagents -a codex -g -y --skill xcode-changelog
 ```
 
 ```sh
-npx skills add alemar11/skills -a codex -g -y --skill swift-api-design
+npx skills add alemar11/dotagents -a codex -g -y --skill swift-api-design
 ```
 
 ```sh
-npx skills add alemar11/skills -a codex -g -y --skill swift-docc
+npx skills add alemar11/dotagents -a codex -g -y --skill swift-docc
 ```
 
 ```sh
-npx skills add alemar11/skills -a codex -g -y --skill plan-harder
+npx skills add alemar11/dotagents -a codex -g -y --skill plan-harder
 ```
 
 Omit `-g` to install into the current project's `.agents/skills/` instead of your global `~/.codex/skills/`.
