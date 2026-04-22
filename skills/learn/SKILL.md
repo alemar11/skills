@@ -5,6 +5,16 @@ description: Capture durable corrections or preferences and write confirmed lear
 
 # Learn From Mistakes
 
+## Runtime surface
+
+- The only helper-script entrypoint is the shipped
+  `scripts/extract_recent_transcript.py` artifact inside this skill package.
+- If your current working directory is the skill root, run it as
+  `scripts/extract_recent_transcript.py`.
+- If you are invoking the skill from another repo, resolve the installed skill
+  root first and run
+  `<learn-skill-root>/scripts/extract_recent_transcript.py`.
+
 ## Trigger rules
 - Use when the user states a durable correction, preference, or policy that should persist across future work.
 - Do not use for one-off instructions limited to the current task or files.
@@ -22,7 +32,10 @@ description: Capture durable corrections or preferences and write confirmed lear
   - Detailed instruction (1–3 bullets)
 - Confirmation should be lightweight: state what you will write and where.
 - Assume it is durable and that global is OK unless the user says otherwise. User can reply "no", "stop", "project", or similar to change/cancel.
-- If nothing new is found in context (or it already exists), run `scripts/extract_recent_transcript.py`, scan the JSONL from the last user message backward to find the most recent **durable** correction, then repeat the steps above.
+- If nothing new is found in context (or it already exists), run the shipped
+  helper script from this skill package, scan the JSONL from the last user
+  message backward to find the most recent **durable** correction, then repeat
+  the steps above.
 - After this flow finishes, do not continue writing durable changes into AGENTS.md without following the steps above.
 - Always confirm before writing into AGENTS.md when triggered by a durable preference.
 
@@ -59,4 +72,5 @@ description: Capture durable corrections or preferences and write confirmed lear
 - If the chosen target does not exist, ask to create it (still default to global unless user says otherwise).
 
 ## Script output
-`scripts/extract_recent_transcript.py` returns JSON with `session_id`, `rollout_path`, `cwd`, and AGENTS.md candidates/suggestions.
+`scripts/extract_recent_transcript.py` returns JSON with `session_id`,
+`rollout_path`, `cwd`, and AGENTS.md candidates/suggestions.
