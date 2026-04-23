@@ -7,7 +7,7 @@ description: Connect to Postgres databases, run SQL and diagnostics, inspect sch
 
 ## Goal
 Use this skill to connect to Postgres, run SQL, inspect schemas, review query
-performance, design tables/indexes, work with common PostGIS or pgvector
+performance, design tables and indexes, work with common PostGIS or pgvector
 patterns, and manage migration release flow through the shipped
 `scripts/postgres` artifact in the skill package.
 
@@ -27,6 +27,8 @@ patterns, and manage migration release flow through the shipped
   Normal usage stays on the `scripts/postgres` surface.
 - Canonical persisted config lives at
   `<project-root>/.skills/postgres/config.toml`.
+- This runtime skill does not provide dump, restore, export, or schema-diff
+  workflows. Keep those operator tasks outside this skill.
 
 ## Fast path
 
@@ -34,10 +36,6 @@ patterns, and manage migration release flow through the shipped
   - `POSTGRES_CLI=/path/to/postgres-skill/scripts/postgres`
 - Doctor / setup status:
   - `DB_PROJECT_ROOT=/path/to/repo "$POSTGRES_CLI" --json doctor`
-- Local tool backend status:
-  - `"$POSTGRES_CLI" --json tools status`
-- Install managed PostgreSQL tools explicitly:
-  - `"$POSTGRES_CLI" --json tools install`
 - Bootstrap and save a profile:
   - `DB_PROJECT_ROOT=/path/to/repo "$POSTGRES_CLI" profile bootstrap --save`
 - Resolve the active connection:
@@ -79,19 +77,19 @@ patterns, and manage migration release flow through the shipped
      shipped `scripts/postgres` artifact from the skill package, for example
      `<postgres-skill-root>/scripts/postgres profile bootstrap`.
 2) Choose action:
-   - Query / inspect data
-   - Inspect schema / indexes / roles / activity
+   - Query or inspect data
+   - Inspect schema, indexes, roles, or activity
    - Review query shape or schema design
    - Draft or release migrations
    - Search official PostgreSQL docs only when explicitly requested
 3) Execute and report:
    - Return the answer first, then only the supporting context needed to trust
      it.
-   - Be explicit when an operation uses host tools from `DB_PG_BIN_DIR` versus
-     managed PostgreSQL client tools for dump / restore / diff behavior.
+   - Keep backup, restore, export, and schema-diff requests out of this skill's
+     runtime surface.
 4) Persist only if asked:
    - Update `config.toml` only with explicit user approval, except canonical
-     config migration plus explicit profile bootstrap / `set-ssl` flows.
+     config migration plus explicit profile bootstrap or `set-ssl` flows.
    - Treat `<project-root>/.skills/postgres/config.toml` as local persisted
      operator config; consuming repos should gitignore it just as they
      previously gitignored legacy `postgres.toml`.
@@ -99,15 +97,10 @@ patterns, and manage migration release flow through the shipped
 ## Command map
 
 - `doctor`
-  - Validate config resolution and report tool-backend status without
-    provisioning downloads.
-- `tools status`
-  - Report the local PostgreSQL tool-backend status without requiring DB
+  - Validate config resolution and report runtime readiness without mutating
     config.
-- `tools install`
-  - Explicitly provision the managed PostgreSQL tool backend.
 - `profile resolve`
-  - Show the active URL / profile / source.
+  - Show the active URL, profile, and source.
 - `profile bootstrap [--save]`
   - Interactively create or print a profile.
 - `profile test`
@@ -122,17 +115,15 @@ patterns, and manage migration release flow through the shipped
 - `profile set-ssl <profile> <true|false>`
   - Persist `sslmode` for a saved profile.
 - `query run`
-  - Execute SQL from `-c`, `-f`, or stdin.
+  - Execute SQL from `-c`, `-f`, or stdin, preserving per-statement results.
 - `query explain`
   - Run `EXPLAIN`, defaulting to `ANALYZE`.
 - `query find <pattern> [--types ...]`
-  - Search schemas / tables / columns / functions by name.
+  - Search schemas, tables, columns, views, and functions by name.
 - `activity overview|locks|slow|long-running|cancel|terminate|cancel-pid|terminate-pid|pg-stat-top`
   - Runtime diagnostics and query-control operations.
-- `schema inspect|diff|dump|table-sizes|index-health|missing-fk-indexes|vacuum-status|roles`
+- `schema inspect|table-sizes|index-health|missing-fk-indexes|vacuum-status|roles`
   - Schema and catalog inspection.
-- `dump schema|data|restore`
-  - Dump or restore schema / data.
 - `migration release`
   - Move a pending migration into `released/` and update `CHANGELOG.md`.
 - `docs search`
@@ -167,7 +158,6 @@ Rules:
 
 - `schema_version` is top-level and required in canonical saved configs.
 - Do not add or rely on `[meta]`.
-- Do not persist `pg_bin_dir`, `pg_bin_path`, or `python_bin`.
 - Canonical `config.toml` is local persisted operator config, not normal repo
   content; consuming repos should gitignore `.skills/postgres/config.toml`.
 - When migrating from legacy `postgres.toml`, update ignore rules in the same
@@ -196,8 +186,8 @@ Rules:
   - N+1 query patterns
   - repeated correlated subqueries
   - dynamic `IN (...)` SQL that should become parameterized arrays
-  - missing composite indexes matching real join/filter predicates
-- Validate with schema/catalog inspection first (`schema inspect`,
+  - missing composite indexes matching real join and filter predicates
+- Validate with schema and catalog inspection first (`schema inspect`,
   `schema table-sizes`, `schema index-health`, `activity slow`) before asking
   for live benchmarking.
 
@@ -208,7 +198,7 @@ Rules:
 
 ## Data-copy migrations
 
-- When copying selected rows from dev/local into a production SQL file:
+- When copying selected rows from dev or local into a production SQL file:
   - inspect source values and target table shape first
   - treat copied values as a draft for production
   - do not preserve generated primary-key values by default
@@ -229,14 +219,14 @@ Rules:
 - If the user asks to bootstrap or refresh a saved profile, use
   `profile bootstrap`.
 - Do not run `docs search` unless the user explicitly asks for official docs
-  lookup / verification.
+  lookup or verification.
 - For migrations path resolution and schema-change workflow, follow
   `references/postgres_guardrails.md`.
-- If a pending migration file contains its own `BEGIN` / `COMMIT`, do not wrap
+- If a pending migration file contains its own `BEGIN` or `COMMIT`, do not wrap
   it in an outer rollback transaction during scratch validation.
-- If the user explicitly marks a pending migration as migrated / released / run
-  in production, perform `migration release` immediately unless they ask for a
-  dry run only.
+- If the user explicitly marks a pending migration as migrated, released, or
+  run in production, perform `migration release` immediately unless they ask
+  for a dry run only.
 - Do not use this runtime skill to refresh best-practices references or
   otherwise upgrade the skill package itself.
 
@@ -244,7 +234,7 @@ Rules:
 
 - Always ask for approval before making DDL changes.
 - Keep pending changes in prerelease migration files and maintain a changelog.
-- Use “pending migration file” / “released migration file” as the canonical
+- Use `pending migration file` and `released migration file` as the canonical
   workflow terms.
 - Do not edit existing released SQL files.
 - Do not create a new file under `released/` for pending work.
@@ -278,13 +268,10 @@ Rules:
   - from the skill root: `./scripts/postgres --help`
   - from the skill root: `./scripts/postgres --version`
   - from any cwd: `DB_PROJECT_ROOT=/path/to/repo <postgres-skill-root>/scripts/postgres --json doctor`
-- When a change touches tool-backed behavior, also verify:
-  - from the skill root: `./scripts/postgres --json tools status`
 - Keep config migration one-way from legacy `postgres.toml` to canonical
   `config.toml`.
-- Route dump / restore / schema diff through either explicit `DB_PG_BIN_DIR`
-  host tools or the managed PostgreSQL backend. Do not restore PATH probing or
-  persisted binary-dir config.
+- Keep the runtime surface focused on query, inspection, and migration release.
+  Do not reintroduce dump, restore, export, or schema-diff commands.
 
 ## Usage references
 

@@ -12,6 +12,19 @@ pub struct QueryTable {
     pub rows: Vec<Vec<Option<String>>>,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct QueryStatement {
+    pub statement: usize,
+    pub row_count: u64,
+    pub columns: Vec<String>,
+    pub rows: Vec<Vec<Option<String>>>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct QueryExecution {
+    pub statements: Vec<QueryStatement>,
+}
+
 #[derive(Debug)]
 pub struct DbClient {
     ctx: RuntimeContext,
@@ -27,32 +40,28 @@ impl DbClient {
     }
 
     pub async fn query(&self, sql: &str) -> Result<QueryTable> {
-        let messages = self.run_with_retry(sql).await?;
-        let mut columns = Vec::new();
-        let mut rows = Vec::new();
-        for message in messages {
-            if let SimpleQueryMessage::Row(row) = message {
-                if columns.is_empty() {
-                    columns = row
-                        .columns()
-                        .iter()
-                        .map(|column| column.name().to_string())
-                        .collect();
-                }
-                let values = row
-                    .columns()
-                    .iter()
-                    .enumerate()
-                    .map(|(index, _)| row.get(index).map(|value| value.to_string()))
-                    .collect();
-                rows.push(values);
+        let execution = self.simple_query(sql).await?;
+        match execution.statements.len() {
+            0 => Ok(QueryTable {
+                columns: vec![],
+                rows: vec![],
+            }),
+            1 => {
+                let statement = &execution.statements[0];
+                Ok(QueryTable {
+                    columns: statement.columns.clone(),
+                    rows: statement.rows.clone(),
+                })
             }
+            count => Err(anyhow!(
+                "Expected a single SQL statement result, got {count}. Use `query run` for multi-statement SQL."
+            )),
         }
-        Ok(QueryTable { columns, rows })
     }
 
-    pub async fn execute(&self, sql: &str) -> Result<Vec<SimpleQueryMessage>> {
-        self.run_with_retry(sql).await
+    pub async fn simple_query(&self, sql: &str) -> Result<QueryExecution> {
+        let messages = self.run_with_retry(sql).await?;
+        Ok(query_execution_from_messages(messages))
     }
 
     async fn run_with_retry(&self, sql: &str) -> Result<Vec<SimpleQueryMessage>> {
@@ -165,6 +174,26 @@ pub fn table_to_json(table: &QueryTable) -> Value {
     })
 }
 
+pub fn execution_to_json(execution: &QueryExecution) -> Value {
+    let statements = execution
+        .statements
+        .iter()
+        .map(|statement| {
+            json!({
+                "statement": statement.statement,
+                "row_count": statement.row_count,
+                "result": table_to_json(&QueryTable {
+                    columns: statement.columns.clone(),
+                    rows: statement.rows.clone(),
+                }),
+            })
+        })
+        .collect::<Vec<_>>();
+    json!({
+        "statements": statements,
+    })
+}
+
 pub fn escape_literal(value: &str) -> String {
     value.replace('\'', "''")
 }
@@ -192,4 +221,69 @@ pub fn expect_non_empty(table: &QueryTable, message: &str) -> Result<()> {
         return Err(anyhow!(message.to_string()));
     }
     Ok(())
+}
+
+fn query_execution_from_messages(messages: Vec<SimpleQueryMessage>) -> QueryExecution {
+    let mut statements = Vec::new();
+    let mut columns = Vec::new();
+    let mut rows = Vec::new();
+
+    for message in messages {
+        match message {
+            SimpleQueryMessage::RowDescription(description) => {
+                columns = description
+                    .iter()
+                    .map(|column| column.name().to_string())
+                    .collect();
+            }
+            SimpleQueryMessage::Row(row) => {
+                if columns.is_empty() {
+                    columns = row
+                        .columns()
+                        .iter()
+                        .map(|column| column.name().to_string())
+                        .collect();
+                }
+                let values = row
+                    .columns()
+                    .iter()
+                    .enumerate()
+                    .map(|(index, _)| row.get(index).map(|value| value.to_string()))
+                    .collect();
+                rows.push(values);
+            }
+            SimpleQueryMessage::CommandComplete(row_count) => {
+                statements.push(QueryStatement {
+                    statement: statements.len() + 1,
+                    row_count,
+                    columns: std::mem::take(&mut columns),
+                    rows: std::mem::take(&mut rows),
+                });
+            }
+            _ => {}
+        }
+    }
+
+    QueryExecution { statements }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn execution_tracks_write_only_statement_counts() {
+        let execution = query_execution_from_messages(vec![
+            SimpleQueryMessage::CommandComplete(0),
+            SimpleQueryMessage::CommandComplete(2),
+        ]);
+
+        assert_eq!(execution.statements.len(), 2);
+        assert_eq!(execution.statements[0].statement, 1);
+        assert_eq!(execution.statements[0].row_count, 0);
+        assert!(execution.statements[0].columns.is_empty());
+        assert!(execution.statements[0].rows.is_empty());
+        assert_eq!(execution.statements[1].statement, 2);
+        assert_eq!(execution.statements[1].row_count, 2);
+    }
 }

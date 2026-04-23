@@ -23,26 +23,12 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 pub enum Command {
     Doctor,
-    Tools(ToolsCommand),
     Profile(ProfileCommand),
     Query(QueryCommand),
     Activity(ActivityCommand),
     Schema(SchemaCommand),
-    Dump(DumpCommand),
     Migration(MigrationCommand),
     Docs(DocsCommand),
-}
-
-#[derive(Debug, Args)]
-pub struct ToolsCommand {
-    #[command(subcommand)]
-    pub command: ToolsSubcommand,
-}
-
-#[derive(Debug, Subcommand)]
-pub enum ToolsSubcommand {
-    Status,
-    Install,
 }
 
 #[derive(Debug, Args)]
@@ -183,48 +169,11 @@ pub struct SchemaCommand {
 #[derive(Debug, Subcommand)]
 pub enum SchemaSubcommand {
     Inspect,
-    Diff(SchemaDiffArgs),
-    Dump(DumpOutputArgs),
     TableSizes(LimitArgs),
     IndexHealth(LimitArgs),
     MissingFkIndexes,
     VacuumStatus,
     Roles,
-}
-
-#[derive(Debug, Args)]
-pub struct SchemaDiffArgs {
-    pub profile_a: Option<String>,
-    pub profile_b: Option<String>,
-
-    #[arg(long)]
-    pub url_a: Option<String>,
-
-    #[arg(long)]
-    pub url_b: Option<String>,
-}
-
-#[derive(Debug, Args)]
-pub struct DumpOutputArgs {
-    pub output: Option<PathBuf>,
-}
-
-#[derive(Debug, Args)]
-pub struct DumpCommand {
-    #[command(subcommand)]
-    pub command: DumpSubcommand,
-}
-
-#[derive(Debug, Subcommand)]
-pub enum DumpSubcommand {
-    Schema(DumpOutputArgs),
-    Data(DumpOutputArgs),
-    Restore(RestoreArgs),
-}
-
-#[derive(Debug, Args)]
-pub struct RestoreArgs {
-    pub input: PathBuf,
 }
 
 #[derive(Debug, Args)]

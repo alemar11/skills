@@ -32,7 +32,7 @@ pub struct RuntimeOptions {
     pub url_override: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct SkillConfig {
     #[serde(default)]
     pub schema_version: Option<String>,
@@ -42,19 +42,19 @@ pub struct SkillConfig {
     pub tools: ToolCollection,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct DefaultsConfig {
     #[serde(default)]
     pub profile: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct ToolCollection {
     #[serde(default)]
     pub postgres: PostgresToolConfig,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct PostgresToolConfig {
     #[serde(default)]
     pub host: Option<String>,
@@ -78,7 +78,7 @@ pub struct PostgresToolConfig {
     pub profiles: BTreeMap<String, ProfileConfig>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct ProfileConfig {
     #[serde(default)]
     pub project: Option<String>,
@@ -279,8 +279,11 @@ pub fn load_and_migrate_config(path: &Path) -> Result<SkillConfig> {
     let raw = fs::read_to_string(&read_path)
         .with_context(|| format!("Failed to read postgres config at {}", read_path.display()))?;
     let mut config = parse_config(&raw)?;
+    let original = config.clone();
     migrate_config_in_place(&mut config)?;
-    save_config(path, &config)?;
+    if should_save_loaded_config(path, &read_path, &original, &config) {
+        save_config(path, &config)?;
+    }
     Ok(config)
 }
 
@@ -309,6 +312,15 @@ fn parse_config(raw: &str) -> Result<SkillConfig> {
             .context("Failed to decode postgres.toml into the legacy postgres config schema")?;
         migrate_legacy_config(legacy)
     }
+}
+
+fn should_save_loaded_config(
+    canonical_path: &Path,
+    read_path: &Path,
+    original: &SkillConfig,
+    migrated: &SkillConfig,
+) -> bool {
+    canonical_path != read_path || original != migrated
 }
 
 pub fn migrate_config_in_place(config: &mut SkillConfig) -> Result<()> {
@@ -921,5 +933,23 @@ sslmode = false
         let url = build_url("localhost", 5432, "db", "user", "pw", "disable").unwrap();
         assert!(url.contains("sslmode=disable"));
         assert!(url.contains("localhost"));
+    }
+
+    #[test]
+    fn save_decision_only_writes_for_migration_or_normalization() {
+        let path = Path::new("/tmp/config.toml");
+        let same_path = Path::new("/tmp/config.toml");
+        let legacy_path = Path::new("/tmp/postgres.toml");
+
+        let mut original = SkillConfig::default();
+        original.schema_version = Some(LATEST_SCHEMA_VERSION.to_string());
+        let migrated = original.clone();
+
+        assert!(!should_save_loaded_config(path, same_path, &original, &migrated));
+        assert!(should_save_loaded_config(path, legacy_path, &original, &migrated));
+
+        let mut normalized = migrated.clone();
+        normalized.defaults.profile = Some("local".to_string());
+        assert!(should_save_loaded_config(path, same_path, &original, &normalized));
     }
 }

@@ -20,24 +20,6 @@ the skill package.
 - `DB_AUTO_UPDATE_SSLMODE=1`
   - Auto-persist `sslmode=true` after a successful retry against a saved
     profile in canonical `config.toml`.
-- `DB_PG_BIN_DIR`
-  - Explicit host-tools override. Must contain executable `pg_dump` and
-    `pg_restore` binaries.
-- `DB_MANAGED_PG_DIR`
-  - Override the managed PostgreSQL install root.
-  - This is a raw path override; the CLI does not shell-expand `~` itself.
-  - Default root:
-    - Unix: `~/.cache/dotagents/skills/postgres/postgresql`
-    - Windows: `%LOCALAPPDATA%\\dotagents\\skills\\postgres\\postgresql`
-
-Resolved examples:
-
-- macOS:
-  - `~/.cache/dotagents/skills/postgres/postgresql`
-- Linux:
-  - `~/.cache/dotagents/skills/postgres/postgresql`
-- Windows:
-  - `%LOCALAPPDATA%\\dotagents\\skills\\postgres\\postgresql`
 
 ## Docs lookup
 

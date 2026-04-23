@@ -6,22 +6,17 @@ use postgres_skill_cli::config::{
     load_and_migrate_config, runtime_context, update_sslmode,
 };
 use postgres_skill_cli::db::{
-    DbClient, QueryTable, escape_literal, expect_non_empty, table_to_json,
+    DbClient, QueryExecution, QueryTable, escape_literal, execution_to_json, expect_non_empty,
+    table_to_json,
 };
 use postgres_skill_cli::docs;
 use postgres_skill_cli::migration::{apply_release, build_release_plan};
 use postgres_skill_cli::output::{print_json, render_table};
-use postgres_skill_cli::tooling::{
-    ToolBackend, ensure_backend, install_managed_tools, tooling_status,
-};
-use postgresql_commands::pg_dump::PgDumpBuilder;
-use postgresql_commands::pg_restore::PgRestoreBuilder;
-use postgresql_commands::{CommandBuilder, CommandExecutor};
 use serde_json::{Value, json};
 use std::env;
 use std::fs;
 use std::io::{self, IsTerminal, Read, Write};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 #[tokio::main]
 async fn main() {
@@ -52,12 +47,10 @@ async fn run(cli: &Cli) -> Result<()> {
 
     match &cli.command {
         Command::Doctor => doctor(&cli, skill_root).await,
-        Command::Tools(command) => tools(&cli, command).await,
         Command::Profile(command) => profile(&cli, command, skill_root).await,
         Command::Query(command) => query(&cli, command, skill_root).await,
         Command::Activity(command) => activity(&cli, command, skill_root).await,
         Command::Schema(command) => schema(&cli, command, skill_root).await,
-        Command::Dump(command) => dump(&cli, command, skill_root).await,
         Command::Migration(command) => migration(&cli, command, skill_root).await,
         Command::Docs(command) => docs_command(&cli, command).await,
     }
@@ -76,7 +69,7 @@ fn sanitize_error_message(message: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::sanitize_error_message;
+    use super::{parse_query_text_max_chars, sanitize_error_message};
 
     #[test]
     fn masks_password_in_postgres_url() {
@@ -95,6 +88,13 @@ mod tests {
             "password=*** PGPASSWORD=***"
         );
     }
+
+    #[test]
+    fn query_text_max_chars_defaults_and_validates() {
+        assert_eq!(parse_query_text_max_chars(None).unwrap(), 300);
+        assert_eq!(parse_query_text_max_chars(Some("512")).unwrap(), 512);
+        assert!(parse_query_text_max_chars(Some("bad")).is_err());
+    }
 }
 
 async fn doctor(cli: &Cli, skill_root: &Path) -> Result<()> {
@@ -111,31 +111,14 @@ async fn doctor(cli: &Cli, skill_root: &Path) -> Result<()> {
         Err(_) => None,
     };
 
-    let tools = tooling_status().await?;
-
     let output = json!({
         "application_name": application_name(),
         "runtime": runtime_info,
-        "tooling": tools,
     });
     if cli.json {
         print_json(&output)
     } else {
         println!("{}", serde_json::to_string_pretty(&output)?);
-        Ok(())
-    }
-}
-
-async fn tools(cli: &Cli, command: &ToolsCommand) -> Result<()> {
-    let payload = match &command.command {
-        ToolsSubcommand::Status => serde_json::to_value(tooling_status().await?)?,
-        ToolsSubcommand::Install => serde_json::to_value(install_managed_tools().await?)?,
-    };
-
-    if cli.json {
-        print_json(&payload)
-    } else {
-        println!("{}", serde_json::to_string_pretty(&payload)?);
         Ok(())
     }
 }
@@ -227,7 +210,7 @@ async fn profile(cli: &Cli, command: &ProfileCommand, skill_root: &Path) -> Resu
         }
         ProfileSubcommand::Test => {
             let db = db_client(cli, skill_root).await?;
-            db.execute("select 1;").await?;
+            db.query("select 1;").await?;
             let output = json!({
                 "status": "ok",
                 "profile": db.context().profile_name,
@@ -280,12 +263,8 @@ async fn query(cli: &Cli, command: &QueryCommand, skill_root: &Path) -> Result<(
     match &command.command {
         QuerySubcommand::Run(args) => {
             let sql = read_sql_input(args)?;
-            let table = db.query(&sql).await?;
-            render(
-                cli.json,
-                json!({"query": sql, "result": table_to_json(&table)}),
-                &[("Result", table)],
-            )
+            let execution = db.simple_query(&sql).await?;
+            render_query_run(cli.json, &sql, &execution)
         }
         QuerySubcommand::Explain(args) => {
             let sql = read_sql_input(&args.sql)?;
@@ -387,7 +366,7 @@ async fn activity(cli: &Cli, command: &ActivityCommand, skill_root: &Path) -> Re
             let mean = column_choice.rows[0][1]
                 .clone()
                 .unwrap_or_else(|| "mean_exec_time".to_string());
-            let chars = env::var("DB_QUERY_TEXT_MAX_CHARS").unwrap_or_else(|_| "300".to_string());
+            let chars = query_text_max_chars()?;
             let table = db.query(&format!("select calls, round({total}::numeric, 2) as total_ms, round({mean}::numeric, 2) as mean_ms, rows, left(query, {chars}) as query from pg_stat_statements where dbid = (select oid from pg_database where datname = current_database()) order by {total} desc limit {};", args.limit)).await?;
             render(
                 cli.json,
@@ -422,8 +401,6 @@ async fn schema(cli: &Cli, command: &SchemaCommand, skill_root: &Path) -> Result
     let db = db_client(cli, skill_root).await?;
     match &command.command {
         SchemaSubcommand::Inspect => schema_inspect(cli, &db).await,
-        SchemaSubcommand::Diff(args) => schema_diff(cli, skill_root, args).await,
-        SchemaSubcommand::Dump(args) => dump_schema(cli, skill_root, args, true).await,
         SchemaSubcommand::TableSizes(args) => {
             let table = db.query(&format!("with sized_tables as (select schemaname, relname, relid, pg_total_relation_size(relid) as total_bytes, pg_relation_size(relid) as table_bytes from pg_stat_user_tables) select schemaname, relname, pg_size_pretty(total_bytes) as total_size, pg_size_pretty(table_bytes) as table_size, pg_size_pretty(total_bytes - table_bytes) as index_size from sized_tables order by total_bytes desc limit {};", args.limit)).await?;
             render(
@@ -474,14 +451,6 @@ async fn schema(cli: &Cli, command: &SchemaCommand, skill_root: &Path) -> Result
                 &[("Roles", table)],
             )
         }
-    }
-}
-
-async fn dump(cli: &Cli, command: &DumpCommand, skill_root: &Path) -> Result<()> {
-    match &command.command {
-        DumpSubcommand::Schema(args) => dump_schema(cli, skill_root, args, true).await,
-        DumpSubcommand::Data(args) => dump_schema(cli, skill_root, args, false).await,
-        DumpSubcommand::Restore(args) => dump_restore(cli, skill_root, args).await,
     }
 }
 
@@ -557,6 +526,47 @@ fn render(json_mode: bool, payload: Value, sections: &[(&str, QueryTable)]) -> R
     }
 }
 
+fn render_query_run(json_mode: bool, sql: &str, execution: &QueryExecution) -> Result<()> {
+    if json_mode {
+        print_json(&json!({
+            "query": sql,
+            "statements": execution_to_json(execution)["statements"].clone(),
+        }))
+    } else {
+        for (index, statement) in execution.statements.iter().enumerate() {
+            if index > 0 {
+                println!();
+            }
+            if statement.columns.is_empty() {
+                println!(
+                    "Statement {}: {} row{} affected",
+                    statement.statement,
+                    statement.row_count,
+                    if statement.row_count == 1 { "" } else { "s" }
+                );
+            } else {
+                let title = format!(
+                    "Statement {} ({} row{})",
+                    statement.statement,
+                    statement.row_count,
+                    if statement.row_count == 1 { "" } else { "s" }
+                );
+                println!(
+                    "{}",
+                    render_table(
+                        &QueryTable {
+                            columns: statement.columns.clone(),
+                            rows: statement.rows.clone(),
+                        },
+                        Some(&title),
+                    )
+                );
+            }
+        }
+        Ok(())
+    }
+}
+
 fn read_sql_input(args: &SqlInputArgs) -> Result<String> {
     match (&args.command, &args.file) {
         (Some(_), Some(_)) => bail!("Use either -c/--command or -f/--file, not both."),
@@ -572,6 +582,20 @@ fn read_sql_input(args: &SqlInputArgs) -> Result<String> {
             Ok(sql)
         }
     }
+}
+
+fn query_text_max_chars() -> Result<u32> {
+    parse_query_text_max_chars(env::var("DB_QUERY_TEXT_MAX_CHARS").ok().as_deref())
+}
+
+fn parse_query_text_max_chars(value: Option<&str>) -> Result<u32> {
+    let Some(value) = value.map(str::trim).filter(|value| !value.is_empty()) else {
+        return Ok(300);
+    };
+
+    value.parse::<u32>().with_context(|| {
+        "DB_QUERY_TEXT_MAX_CHARS must be a non-negative integer.".to_string()
+    })
 }
 
 async fn schema_inspect(cli: &Cli, db: &DbClient) -> Result<()> {
@@ -600,175 +624,6 @@ async fn schema_inspect(cli: &Cli, db: &DbClient) -> Result<()> {
         }
         Ok(())
     }
-}
-
-async fn schema_diff(cli: &Cli, skill_root: &Path, args: &SchemaDiffArgs) -> Result<()> {
-    let ctx_a = runtime_context(
-        &RuntimeOptions {
-            project_root_override: cli.project_root.clone(),
-            profile_override: args.profile_a.clone().or_else(|| cli.profile.clone()),
-            url_override: args.url_a.clone(),
-        },
-        skill_root,
-    )?;
-    let ctx_b = runtime_context(
-        &RuntimeOptions {
-            project_root_override: cli.project_root.clone(),
-            profile_override: args.profile_b.clone(),
-            url_override: args.url_b.clone(),
-        },
-        skill_root,
-    )?;
-    let dump_a = dump_schema_to_string(&ctx_a).await?;
-    let dump_b = dump_schema_to_string(&ctx_b).await?;
-    let diff = similar::TextDiff::from_lines(&dump_a, &dump_b)
-        .unified_diff()
-        .header(&ctx_a.profile_name, &ctx_b.profile_name)
-        .to_string();
-    if cli.json {
-        print_json(&json!({ "diff": diff }))
-    } else if diff.trim().is_empty() {
-        println!("No structural differences.");
-        Ok(())
-    } else {
-        println!("{diff}");
-        Ok(())
-    }
-}
-
-async fn dump_schema(
-    cli: &Cli,
-    skill_root: &Path,
-    args: &DumpOutputArgs,
-    schema_only: bool,
-) -> Result<()> {
-    let ctx = runtime_context(
-        &RuntimeOptions {
-            project_root_override: cli.project_root.clone(),
-            profile_override: cli.profile.clone(),
-            url_override: cli.url.clone(),
-        },
-        skill_root,
-    )?;
-    let output = if let Some(output) = args.output.clone() {
-        output
-    } else {
-        let profile = ctx.profile_name.clone();
-        let timestamp = timestamp_stub();
-        if schema_only {
-            PathBuf::from(format!("schema_{profile}_{timestamp}.dump"))
-        } else {
-            PathBuf::from(format!("data_{profile}_{timestamp}.dump"))
-        }
-    };
-    let backend = ensure_backend().await?;
-    run_dump(&ctx, &backend, &output, schema_only)?;
-    if cli.json {
-        print_json(&json!({ "output": output, "schema_only": schema_only }))
-    } else {
-        println!("Wrote {}", output.display());
-        Ok(())
-    }
-}
-
-async fn dump_restore(cli: &Cli, skill_root: &Path, args: &RestoreArgs) -> Result<()> {
-    if !args.input.exists() {
-        bail!("File not found: {}", args.input.display());
-    }
-    let ctx = runtime_context(
-        &RuntimeOptions {
-            project_root_override: cli.project_root.clone(),
-            profile_override: cli.profile.clone(),
-            url_override: cli.url.clone(),
-        },
-        skill_root,
-    )?;
-    if args.input.extension().and_then(|ext| ext.to_str()) == Some("sql") {
-        let db = DbClient::new(ctx);
-        let sql = fs::read_to_string(&args.input)?;
-        db.execute(&sql).await?;
-    } else {
-        let backend = ensure_backend().await?;
-        run_restore(&ctx, &backend, &args.input)?;
-    }
-    if cli.json {
-        print_json(&json!({ "status": "ok", "input": args.input }))
-    } else {
-        println!("Restore complete.");
-        Ok(())
-    }
-}
-
-async fn dump_schema_to_string(ctx: &postgres_skill_cli::config::RuntimeContext) -> Result<String> {
-    let backend = ensure_backend().await?;
-    let builder = pg_dump_builder(ctx, &backend)
-        .schema_only()
-        .no_owner()
-        .no_privileges()
-        .no_comments()
-        .dbname(&ctx.url);
-    let mut command = builder.build();
-    let (stdout, _stderr) = command.execute()?;
-    Ok(stdout)
-}
-
-fn run_dump(
-    ctx: &postgres_skill_cli::config::RuntimeContext,
-    backend: &ToolBackend,
-    output: &Path,
-    schema_only: bool,
-) -> Result<()> {
-    if output.extension().and_then(|ext| ext.to_str()) == Some("sql") {
-        let mut builder = pg_dump_builder(ctx, backend).dbname(&ctx.url);
-        if schema_only {
-            builder = builder
-                .schema_only()
-                .no_owner()
-                .no_privileges()
-                .no_comments();
-        } else {
-            builder = builder.data_only().no_owner().no_privileges();
-        }
-        let mut command = builder.build();
-        let (stdout, _stderr) = command.execute()?;
-        fs::write(output, stdout)?;
-    } else {
-        let mut builder = pg_dump_builder(ctx, backend).dbname(&ctx.url).file(output);
-        builder = builder.format("custom").no_owner().no_privileges();
-        if schema_only {
-            builder = builder.schema_only().no_comments();
-        } else {
-            builder = builder.data_only();
-        }
-        let mut command = builder.build();
-        let _ = command.execute()?;
-    }
-    Ok(())
-}
-
-fn run_restore(
-    ctx: &postgres_skill_cli::config::RuntimeContext,
-    backend: &ToolBackend,
-    input: &Path,
-) -> Result<()> {
-    let builder = PgRestoreBuilder::new()
-        .program_dir(backend.binary_dir())
-        .dbname(&ctx.url)
-        .file(input)
-        .no_owner()
-        .no_privileges();
-    let mut command = builder.build();
-    let _ = command.execute()?;
-    Ok(())
-}
-
-fn pg_dump_builder(
-    ctx: &postgres_skill_cli::config::RuntimeContext,
-    backend: &ToolBackend,
-) -> PgDumpBuilder {
-    PgDumpBuilder::new()
-        .program_dir(backend.binary_dir())
-        .dbname(&ctx.url)
 }
 
 async fn destructive_activity(
@@ -852,19 +707,5 @@ async fn destructive_pids(
         cli.json,
         json!({"result": table_to_json(&table)}),
         &[("Result", table)],
-    )
-}
-
-fn timestamp_stub() -> String {
-    use chrono::{Datelike, Timelike, Utc};
-    let now = Utc::now();
-    format!(
-        "{:04}{:02}{:02}_{:02}{:02}{:02}",
-        now.year(),
-        now.month(),
-        now.day(),
-        now.hour(),
-        now.minute(),
-        now.second()
     )
 }
