@@ -29,6 +29,13 @@ patterns, and manage migration release flow through the shipped
   `<project-root>/.skills/postgres/config.toml`.
 - This runtime skill does not provide dump, restore, export, or schema-diff
   workflows. Keep those operator tasks outside this skill.
+- If a target repo has `.skills/postgres/config.toml` or legacy
+  `.skills/postgres/postgres.toml`, use the shipped `scripts/postgres`
+  artifact for normal app-database work instead of raw `psql`.
+- Bare `psql` is allowed only as an explicit exception for container-local
+  runbooks such as `docker compose exec pg psql ...`, repo-documented smoke
+  checks, unsupported operator workflows outside this skill's runtime surface,
+  or emergency fallback when the shipped artifact cannot run.
 
 ## Fast path
 
@@ -195,6 +202,38 @@ Rules:
 
 - Prefer `query run` with heredoc or `-f` for multi-statement SQL.
 - Do not inline `DO $$ ... $$` into double-quoted shell strings.
+- Replace raw one-off `psql` queries with `query run`:
+  - Raw pattern:
+    `PGPASSWORD=... psql -h host -U user -d app -c "select now();"`
+  - Skill pattern:
+    `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" query run -c "select now();"`
+- Replace raw heredoc DDL with `query run` heredocs:
+
+```bash
+DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" query run <<'SQL'
+ALTER TABLE public.example
+  ADD COLUMN IF NOT EXISTS description text;
+
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'example'
+ORDER BY ordinal_position;
+SQL
+```
+
+- Replace `psql` catalog meta-commands such as `\d+ public.example` with SQL
+  catalog queries because `query run` executes SQL, not `psql` meta-commands:
+
+```bash
+DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" query run -c "
+SELECT column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'example'
+ORDER BY ordinal_position;
+"
+```
 
 ## Data-copy migrations
 
