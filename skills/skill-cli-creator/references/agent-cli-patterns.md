@@ -21,6 +21,16 @@ Keep one shared owner model:
 - `artifact path`: the owner-root-relative shipped runnable artifact, usually `scripts/<tool>` or `scripts/<tool>.<ext>`
 - `public runtime noun`: optional shorthand such as `<tool>` only when the owning docs explicitly define how that command becomes executable
 
+Use `/` separators for repository-relative template paths such as
+`scripts/<tool>` and `projects/<tool>/`. For real per-user filesystem paths,
+write concrete OS examples with the right home-directory notation:
+
+- macOS / Linux: `$HOME/...`
+- Windows CMD-style: `%USERPROFILE%\...` or `%HOMEDRIVE%%HOMEPATH%\...`
+- Windows PowerShell: `$env:USERPROFILE\...`
+
+Do not use `%HOMEPATH%` alone because it omits the drive.
+
 ## Owner boundary
 
 Resolve the owner before designing the command surface.
@@ -170,6 +180,28 @@ Rules:
 - do not require per-tool version fields
 - write config only through explicit init/login/configure flows
 - never create config implicitly during reads or health checks
+
+## Runtime cache paths
+
+Use a per-user runtime cache only for reusable downloaded or generated runtime
+artifacts that should survive across consuming repos. Keep operator config in
+the owner-aligned `config.toml`, and keep build outputs or dependency caches
+inside `projects/<tool>/`.
+
+When a cache is needed, scope it by owner:
+
+- skill-owned: `~/.cache/dotagents/skills/<skill-name>/...`
+- plugin-owned shared: `~/.cache/dotagents/plugins/<plugin-name>/...`
+- plugin-owned but local to one skill: `~/.cache/dotagents/plugins/<plugin-name>/skills/<skill-name>/...`
+
+Equivalent concrete forms:
+
+- macOS / Linux: `$HOME/.cache/dotagents/...`
+- Windows CMD-style: `%USERPROFILE%\.cache\dotagents\...` or `%HOMEDRIVE%%HOMEPATH%\.cache\dotagents\...`
+- Windows PowerShell: `$env:USERPROFILE\.cache\dotagents\...`
+
+Treat cache contents as disposable and rebuildable; never use the runtime cache
+as the sole source of truth for user state.
 
 ## Useful shapes from mature CLIs
 

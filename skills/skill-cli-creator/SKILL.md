@@ -38,6 +38,19 @@ Resolve these terms before writing commands or examples:
 - `artifact path`: the owner-root-relative path to the shipped runnable artifact, usually `scripts/<tool>` or `scripts/<tool>.<ext>`
 - `public runtime noun`: optional shorthand such as `<tool>` only when the host docs explicitly define a wrapper, alias, or PATH setup that makes that form executable
 
+Use `/` separators for repository-relative template paths such as
+`scripts/<tool>` and `projects/<tool>/`. Use OS-specific home-directory
+notation only for real per-user filesystem paths:
+
+- macOS / Linux shell examples use `$HOME/...`
+- Windows CMD-style examples may use `%USERPROFILE%\...` or
+  `%HOMEDRIVE%%HOMEPATH%\...`; PowerShell examples may use
+  `$env:USERPROFILE\...`; do not use `%HOMEPATH%` alone because it does not
+  include the drive
+- `~` is acceptable in explanatory docs as shorthand for the user's home
+  directory, but concrete command examples should prefer the shell-specific
+  form above
+
 Before scaffolding, resolve the ownership boundary first:
 
 - `host=skill`
@@ -263,10 +276,18 @@ Do not use the runtime cache for:
 
 When a runtime cache is truly needed, scope it by owner:
 
-- skill-owned: `~/.cache/dotagents/skills/<skill-name>/...`
-- plugin-owned shared: `~/.cache/dotagents/plugins/<plugin-name>/...`
+- skill-owned:
+  - `~/.cache/dotagents/skills/<skill-name>/...`
+  - macOS / Linux: `$HOME/.cache/dotagents/skills/<skill-name>/...`
+  - Windows: `%USERPROFILE%\.cache\dotagents\skills\<skill-name>\...` or `%HOMEDRIVE%%HOMEPATH%\.cache\dotagents\skills\<skill-name>\...`
+- plugin-owned shared:
+  - `~/.cache/dotagents/plugins/<plugin-name>/...`
+  - macOS / Linux: `$HOME/.cache/dotagents/plugins/<plugin-name>/...`
+  - Windows: `%USERPROFILE%\.cache\dotagents\plugins\<plugin-name>\...` or `%HOMEDRIVE%%HOMEPATH%\.cache\dotagents\plugins\<plugin-name>\...`
 - plugin-owned but local to one skill:
-  `~/.cache/dotagents/plugins/<plugin-name>/skills/<skill-name>/...`
+  - `~/.cache/dotagents/plugins/<plugin-name>/skills/<skill-name>/...`
+  - macOS / Linux: `$HOME/.cache/dotagents/plugins/<plugin-name>/skills/<skill-name>/...`
+  - Windows: `%USERPROFILE%\.cache\dotagents\plugins\<plugin-name>\skills\<skill-name>\...` or `%HOMEDRIVE%%HOMEPATH%\.cache\dotagents\plugins\<plugin-name>\skills\<skill-name>\...`
 
 Runtime-cache rules:
 
