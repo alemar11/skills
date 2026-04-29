@@ -27,7 +27,7 @@ If the user asks what this skill can do, answer with these two capability groups
 2) Run skill-specific maintainer workflows:
    - Refresh bundled Swift-DocC authored sources and validate the fast-path reference layer.
    - Refresh the bundled Swift API Design guideline source and validate the thin reference layer.
-   - Review TanStack Intent alpha coverage for `plugins/tanstack/` and update local plugin guidance when new first-party Intent surfaces appear.
+   - Review TanStack Intent coverage for `plugins/tanstack/`, update the macro-area umbrella plus `references/` layout when new first-party Intent surfaces appear, and refresh the local fetch-source mapping for current TanStack package or doc versions.
    - Keep regeneration mechanics and maintainer-only internals out of runtime skills.
 
 ## Available Tasks (User Menu)
@@ -48,7 +48,8 @@ When the user asks what this skill can do, offer this task list:
    - Check the bundled Swift API Design manifest, refresh the local guideline source file when stale, and validate the local `references/*.md` routing layer.
 6) `refresh tanstack intent coverage`
    - Review the current TanStack Intent registry and relevant TanStack package skill pages for `plugins/tanstack/`.
-   - Update local plugin metadata, verification wording, and related docs only when newly shipped first-party Intent coverage materially changes the right guidance.
+   - Update local plugin metadata, umbrella `SKILL.md` routing, `references/*.md` fast paths, and related docs only when newly shipped first-party Intent coverage materially changes the right guidance.
+   - Use the current TanStack umbrella layout: macro-area bundled skills stay as the primary entrypoints, with dense domain slices living under each umbrella's `references/` folder and focused bundled skills remaining available for direct triggering.
    - Keep this task explicit; do not fold it into generic repo-wide maintenance.
 
 ## Trigger Rules
@@ -63,6 +64,7 @@ Use this skill when users ask to:
 - Refresh bundled Swift-DocC references and bundled source assets
 - Refresh bundled Swift API Design source and thin reference routes
 - Refresh TanStack Intent coverage for the local `plugins/tanstack/` plugin when upstream alpha coverage changes
+- Refresh the TanStack plugin's umbrella-skill `references/` layout or upstream-version fetch guidance when official TanStack Router, Start, CLI, or Intent surfaces change
 - Integrate a newly scaffolded skill or plugin into repo metadata after `$skill-creator` or `$plugin-creator` has already created the package
 
 ## Workflow
