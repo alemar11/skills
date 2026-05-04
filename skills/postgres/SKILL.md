@@ -59,6 +59,9 @@ patterns, and manage migration release flow through the shipped
   - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" profile test`
 - Schema introspection:
   - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" schema inspect`
+- Toolbox-style catalog and diagnostic commands:
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" toolbox database-overview`
+  - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" toolbox list-tables`
 - Object search:
   - `DB_PROJECT_ROOT=/path/to/repo DB_PROFILE=local "$POSTGRES_CLI" query find users --types table,column`
 - Release a pending migration file:
@@ -131,6 +134,17 @@ patterns, and manage migration release flow through the shipped
   - Runtime diagnostics and query-control operations.
 - `schema inspect|table-sizes|index-health|missing-fk-indexes|vacuum-status|roles`
   - Schema and catalog inspection.
+- `toolbox <command>`
+  - SQL-backed compatibility commands for common MCP Toolbox-style Postgres
+    catalog and diagnostic surfaces. Underscore aliases such as
+    `execute_sql` are also accepted.
+  - Supported commands: `execute-sql`, `get-query-plan`,
+    `database-overview`, `list-active-queries`, `list-tables`, `list-views`,
+    `list-schemas`, `list-triggers`, `list-indexes`, `list-sequences`,
+    `list-available-extensions`, `list-installed-extensions`,
+    `list-autovacuum-configurations`, `list-memory-configurations`,
+    `list-top-bloated-tables`, `list-replication-slots`, and
+    `list-invalid-indexes`.
 - `migration release`
   - Move a pending migration into `released/` and update `CHANGELOG.md`.
 - `docs search`

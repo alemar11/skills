@@ -90,6 +90,19 @@ DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
   "$POSTGRES_CLI" schema inspect
 ```
 
+MCP Toolbox-style catalog and diagnostic commands:
+
+```sh
+DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
+  "$POSTGRES_CLI" toolbox database-overview
+
+DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
+  "$POSTGRES_CLI" toolbox list-tables
+
+DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
+  "$POSTGRES_CLI" toolbox get-query-plan -c "select * from public.users limit 10;"
+```
+
 Search schema objects:
 
 ```sh
@@ -251,6 +264,17 @@ Project-root precedence:
   - Runtime diagnostics and query control.
 - `schema inspect|table-sizes|index-health|missing-fk-indexes|vacuum-status|roles`
   - Schema and catalog inspection.
+- `toolbox <command>`
+  - SQL-backed compatibility commands for common MCP Toolbox-style Postgres
+    catalog and diagnostic surfaces. Underscore aliases such as
+    `execute_sql` are also accepted.
+  - Supported commands: `execute-sql`, `get-query-plan`,
+    `database-overview`, `list-active-queries`, `list-tables`, `list-views`,
+    `list-schemas`, `list-triggers`, `list-indexes`, `list-sequences`,
+    `list-available-extensions`, `list-installed-extensions`,
+    `list-autovacuum-configurations`, `list-memory-configurations`,
+    `list-top-bloated-tables`, `list-replication-slots`, and
+    `list-invalid-indexes`.
 - `migration release`
   - Move a pending migration file into `released/` and update `CHANGELOG.md`.
 - `docs search`

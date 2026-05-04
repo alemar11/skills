@@ -4,3 +4,4 @@ pub mod db;
 pub mod docs;
 pub mod migration;
 pub mod output;
+pub mod tools;

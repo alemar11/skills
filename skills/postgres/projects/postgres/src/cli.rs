@@ -27,6 +27,7 @@ pub enum Command {
     Query(QueryCommand),
     Activity(ActivityCommand),
     Schema(SchemaCommand),
+    Toolbox(ToolboxCommand),
     Migration(MigrationCommand),
     Docs(DocsCommand),
 }
@@ -174,6 +175,59 @@ pub enum SchemaSubcommand {
     MissingFkIndexes,
     VacuumStatus,
     Roles,
+}
+
+#[derive(Debug, Args)]
+pub struct ToolboxCommand {
+    #[command(subcommand)]
+    pub command: ToolboxSubcommand,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum ToolboxSubcommand {
+    #[command(alias = "execute_sql")]
+    ExecuteSql(SqlInputArgs),
+    #[command(alias = "get_query_plan")]
+    GetQueryPlan(ToolboxQueryPlanArgs),
+    #[command(alias = "database_overview")]
+    DatabaseOverview,
+    #[command(alias = "list_active_queries")]
+    ListActiveQueries(LimitArgs),
+    #[command(alias = "list_tables")]
+    ListTables,
+    #[command(alias = "list_views")]
+    ListViews,
+    #[command(alias = "list_schemas")]
+    ListSchemas,
+    #[command(alias = "list_triggers")]
+    ListTriggers,
+    #[command(alias = "list_indexes")]
+    ListIndexes,
+    #[command(alias = "list_sequences")]
+    ListSequences,
+    #[command(alias = "list_available_extensions")]
+    ListAvailableExtensions,
+    #[command(alias = "list_installed_extensions")]
+    ListInstalledExtensions,
+    #[command(alias = "list_autovacuum_configurations")]
+    ListAutovacuumConfigurations,
+    #[command(alias = "list_memory_configurations")]
+    ListMemoryConfigurations,
+    #[command(alias = "list_top_bloated_tables")]
+    ListTopBloatedTables(LimitArgs),
+    #[command(alias = "list_replication_slots")]
+    ListReplicationSlots,
+    #[command(alias = "list_invalid_indexes")]
+    ListInvalidIndexes,
+}
+
+#[derive(Debug, Args)]
+pub struct ToolboxQueryPlanArgs {
+    #[command(flatten)]
+    pub sql: SqlInputArgs,
+
+    #[arg(long, action = ArgAction::SetTrue)]
+    pub analyze: bool,
 }
 
 #[derive(Debug, Args)]

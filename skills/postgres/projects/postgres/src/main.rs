@@ -12,6 +12,7 @@ use postgres_skill_cli::db::{
 use postgres_skill_cli::docs;
 use postgres_skill_cli::migration::{apply_release, build_release_plan};
 use postgres_skill_cli::output::{print_json, render_table};
+use postgres_skill_cli::tools::{self, ToolSection};
 use serde_json::{Value, json};
 use std::env;
 use std::fs;
@@ -51,6 +52,7 @@ async fn run(cli: &Cli) -> Result<()> {
         Command::Query(command) => query(&cli, command, skill_root).await,
         Command::Activity(command) => activity(&cli, command, skill_root).await,
         Command::Schema(command) => schema(&cli, command, skill_root).await,
+        Command::Toolbox(command) => toolbox(&cli, command, skill_root).await,
         Command::Migration(command) => migration(&cli, command, skill_root).await,
         Command::Docs(command) => docs_command(&cli, command).await,
     }
@@ -454,6 +456,107 @@ async fn schema(cli: &Cli, command: &SchemaCommand, skill_root: &Path) -> Result
     }
 }
 
+async fn toolbox(cli: &Cli, command: &ToolboxCommand, skill_root: &Path) -> Result<()> {
+    let db = db_client(cli, skill_root).await?;
+    match &command.command {
+        ToolboxSubcommand::ExecuteSql(args) => {
+            let sql = read_sql_input(args)?;
+            let execution = tools::execute_sql(&db, &sql).await?;
+            render_tool_query_run(cli.json, "execute_sql", &sql, &execution)
+        }
+        ToolboxSubcommand::GetQueryPlan(args) => {
+            let sql = read_sql_input(&args.sql)?;
+            let table = tools::get_query_plan(&db, &sql, args.analyze).await?;
+            render_tool_table(cli.json, "get_query_plan", "Query Plan", table)
+        }
+        ToolboxSubcommand::DatabaseOverview => {
+            let sections = tools::database_overview(&db).await?;
+            render_tool_sections(cli.json, "database_overview", &sections)
+        }
+        ToolboxSubcommand::ListActiveQueries(args) => {
+            let table = tools::list_active_queries(&db, args.limit).await?;
+            render_tool_table(cli.json, "list_active_queries", "Active Queries", table)
+        }
+        ToolboxSubcommand::ListTables => {
+            let table = tools::list_tables(&db).await?;
+            render_tool_table(cli.json, "list_tables", "Tables", table)
+        }
+        ToolboxSubcommand::ListViews => {
+            let table = tools::list_views(&db).await?;
+            render_tool_table(cli.json, "list_views", "Views", table)
+        }
+        ToolboxSubcommand::ListSchemas => {
+            let table = tools::list_schemas(&db).await?;
+            render_tool_table(cli.json, "list_schemas", "Schemas", table)
+        }
+        ToolboxSubcommand::ListTriggers => {
+            let table = tools::list_triggers(&db).await?;
+            render_tool_table(cli.json, "list_triggers", "Triggers", table)
+        }
+        ToolboxSubcommand::ListIndexes => {
+            let table = tools::list_indexes(&db).await?;
+            render_tool_table(cli.json, "list_indexes", "Indexes", table)
+        }
+        ToolboxSubcommand::ListSequences => {
+            let table = tools::list_sequences(&db).await?;
+            render_tool_table(cli.json, "list_sequences", "Sequences", table)
+        }
+        ToolboxSubcommand::ListAvailableExtensions => {
+            let table = tools::list_available_extensions(&db).await?;
+            render_tool_table(
+                cli.json,
+                "list_available_extensions",
+                "Available Extensions",
+                table,
+            )
+        }
+        ToolboxSubcommand::ListInstalledExtensions => {
+            let table = tools::list_installed_extensions(&db).await?;
+            render_tool_table(
+                cli.json,
+                "list_installed_extensions",
+                "Installed Extensions",
+                table,
+            )
+        }
+        ToolboxSubcommand::ListAutovacuumConfigurations => {
+            let sections = tools::list_autovacuum_configurations(&db).await?;
+            render_tool_sections(cli.json, "list_autovacuum_configurations", &sections)
+        }
+        ToolboxSubcommand::ListMemoryConfigurations => {
+            let table = tools::list_memory_configurations(&db).await?;
+            render_tool_table(
+                cli.json,
+                "list_memory_configurations",
+                "Memory Configurations",
+                table,
+            )
+        }
+        ToolboxSubcommand::ListTopBloatedTables(args) => {
+            let table = tools::list_top_bloated_tables(&db, args.limit).await?;
+            render_tool_table(
+                cli.json,
+                "list_top_bloated_tables",
+                "Top Bloated Tables",
+                table,
+            )
+        }
+        ToolboxSubcommand::ListReplicationSlots => {
+            let table = tools::list_replication_slots(&db).await?;
+            render_tool_table(
+                cli.json,
+                "list_replication_slots",
+                "Replication Slots",
+                table,
+            )
+        }
+        ToolboxSubcommand::ListInvalidIndexes => {
+            let table = tools::list_invalid_indexes(&db).await?;
+            render_tool_table(cli.json, "list_invalid_indexes", "Invalid Indexes", table)
+        }
+    }
+}
+
 async fn migration(cli: &Cli, command: &MigrationCommand, skill_root: &Path) -> Result<()> {
     match &command.command {
         MigrationSubcommand::Release(args) => {
@@ -526,6 +629,53 @@ fn render(json_mode: bool, payload: Value, sections: &[(&str, QueryTable)]) -> R
     }
 }
 
+fn render_tool_table(json_mode: bool, key: &str, title: &str, table: QueryTable) -> Result<()> {
+    let mut payload = serde_json::Map::new();
+    payload.insert(key.to_string(), table_to_json(&table));
+    render(json_mode, Value::Object(payload), &[(title, table)])
+}
+
+fn render_tool_sections(json_mode: bool, key: &str, sections: &[ToolSection]) -> Result<()> {
+    if json_mode {
+        let sections_payload = sections
+            .iter()
+            .map(|section| (section.key.to_string(), table_to_json(&section.table)))
+            .collect::<serde_json::Map<_, _>>();
+        let mut payload = serde_json::Map::new();
+        payload.insert(key.to_string(), Value::Object(sections_payload));
+        print_json(&Value::Object(payload))
+    } else {
+        for (index, section) in sections.iter().enumerate() {
+            if index > 0 {
+                println!();
+            }
+            println!("{}", render_table(&section.table, Some(section.title)));
+        }
+        Ok(())
+    }
+}
+
+fn render_tool_query_run(
+    json_mode: bool,
+    key: &str,
+    sql: &str,
+    execution: &QueryExecution,
+) -> Result<()> {
+    if json_mode {
+        let mut payload = serde_json::Map::new();
+        payload.insert(
+            key.to_string(),
+            json!({
+                "query": sql,
+                "statements": execution_to_json(execution)["statements"].clone(),
+            }),
+        );
+        print_json(&Value::Object(payload))
+    } else {
+        render_query_run(false, sql, execution)
+    }
+}
+
 fn render_query_run(json_mode: bool, sql: &str, execution: &QueryExecution) -> Result<()> {
     if json_mode {
         print_json(&json!({
@@ -593,9 +743,9 @@ fn parse_query_text_max_chars(value: Option<&str>) -> Result<u32> {
         return Ok(300);
     };
 
-    value.parse::<u32>().with_context(|| {
-        "DB_QUERY_TEXT_MAX_CHARS must be a non-negative integer.".to_string()
-    })
+    value
+        .parse::<u32>()
+        .with_context(|| "DB_QUERY_TEXT_MAX_CHARS must be a non-negative integer.".to_string())
 }
 
 async fn schema_inspect(cli: &Cli, db: &DbClient) -> Result<()> {
