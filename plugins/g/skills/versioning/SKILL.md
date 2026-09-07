@@ -1,6 +1,6 @@
 ---
 name: versioning
-description: Apply shared SemVer, Git-tag, and release-line conventions. Use when selecting tags, planning safe legacy aliases, or operating or authoring approval-gated release-tag Actions; use $g:github-releases for Release content and publication.
+description: "Select SemVer versions and tags, migrate legacy tags, or author guarded release-tag workflows."
 ---
 
 # Versioning
