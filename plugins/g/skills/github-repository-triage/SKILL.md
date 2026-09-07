@@ -1,6 +1,6 @@
 ---
 name: github-repository-triage
-description: Inspect issue and pull-request queues in one or more GitHub repositories read-only, summarizing blockers and next actions. Use focused G skills for investigation, classification, or mutation.
+description: "Summarize issue and pull-request queues, blockers, and next actions read-only."
 ---
 
 # GitHub Repository Triage
@@ -19,22 +19,11 @@ Before the first provider-facing direct `gh` or shared CLI operation, load
 [`../../references/gh-dependency-preflight.md`](../../references/gh-dependency-preflight.md)
 and require its host and authentication checks.
 
-
 ## Role
 
-Triage one or more GitHub repositories. For one repository, inspect its issue
-and pull request queues in enough detail to identify blockers, stale items,
-review needs, CI needs, and ownership gaps. For multiple explicit
-repositories, produce a comparative summary of queue size, CI, release state,
-blockers, and next actions. Keep both report shapes URL-first, concise,
-read-only, and action-oriented.
-
-Use `$g:github-stars` for star and list operations. Use `$g:github-tagger`
-when one exact issue must be read to select existing labels or a native issue
-type, or when the user explicitly requests repository and issue-corpus analysis
-to propose missing taxonomy. Use `$g:github-issues` when the exact issue
-creation, metadata change, comment, relationship, or closure operation is
-already decided.
+Return a concise, URL-first queue assessment. Use `g:github-tagger` for
+classification, `g:github-investigation` for disposition analysis, and
+`g:github-issues` for decided mutations. Triage itself is read-only.
 
 ## Multi-Repository Script
 
