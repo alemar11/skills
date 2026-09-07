@@ -1,0 +1,11 @@
+query DeliveryClosingIssues($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $number) {
+      headRefOid
+      closingIssuesReferences(first: 100, after: $endCursor) {
+        nodes { id number repository { nameWithOwner } }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}

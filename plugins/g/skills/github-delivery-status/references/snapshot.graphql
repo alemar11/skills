@@ -1,0 +1,24 @@
+query DeliverySnapshot($owner: String!, $repo: String!, $number: Int!) {
+  repository(owner: $owner, name: $repo) {
+    nameWithOwner
+    autoMergeAllowed
+    mergeCommitAllowed
+    rebaseMergeAllowed
+    squashMergeAllowed
+    viewerPermission
+    pullRequest(number: $number) {
+      number
+      url
+      state
+      isDraft
+      baseRefName
+      headRefName
+      headRefOid
+      mergeable
+      mergeStateStatus
+      reviewDecision
+      autoMergeRequest { enabledAt mergeMethod enabledBy { login } }
+      mergeQueueEntry { state }
+    }
+  }
+}

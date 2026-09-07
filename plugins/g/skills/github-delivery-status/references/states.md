@@ -1,81 +1,105 @@
-# Delivery Status State Contract
+# Delivery Status Interpretation
 
-This reference owns the normalized pull-request delivery-status vocabulary.
-All normalized values are transient derived output. GitHub lifecycle,
-mergeability, policy, automation, checks, reviews, rules, queue, and exact HEAD
-remain external authoritative state; preserve provider-native fields alongside
-every derived value.
-
-## Provider surfaces
-
-Collect current pull-request identity and lifecycle, `MergeableState`,
-`MergeStateStatus`, review decision, check/status rollup, review threads,
-closing issue references, merge queue, auto-merge request, repository merge
-settings, active branch rules, ruleset details, bypass actors when visible, and
-classic branch protection when available.
-
-Official references:
-
-- https://docs.github.com/en/graphql/reference/pulls
-- https://docs.github.com/en/rest/repos/rules
-- https://docs.github.com/en/rest/repos/rule-suites
-- https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets
-
-GitHub currently exposes `CONFLICTING`, `MERGEABLE`, and `UNKNOWN` technical
-mergeability plus detailed merge states including `BEHIND`, `BLOCKED`, `CLEAN`,
-`DIRTY`, `DRAFT`, `HAS_HOOKS`, `UNKNOWN`, and `UNSTABLE`. Do not collapse the
-two provider enums: conflict-free construction and policy readiness are
-different facts.
+This reference owns the normalized delivery dispositions and attribution.
+They are transient observations, with no persisted workflow state. GitHub
+identity, lifecycle, HEAD, checks, reviews, rules, protection, and automation
+remain external authoritative state; preserve their native values. A later
+read can change any disposition and must establish its own evidence.
 
 ## Canonical dispositions
 
 | Disposition | Meaning |
 | --- | --- |
-| `ready` | The PR is open, exact-head evidence matches, GitHub can construct the merge, and observed required gates are satisfied. |
-| `ready-with-manual-action` | The same evidence is satisfied, while an active restricted-update rule leaves the actual branch update to an eligible human or provider actor. |
-| `pending` | GitHub is calculating mergeability or a required check/review is still pending. |
-| `blocked` | A verified required gate is unsatisfied, the PR is draft/not open, the head is stale, or the branch must be updated. |
-| `conflicting` | GitHub reports a merge conflict or cannot construct a clean merge commit. |
-| `unknown` | The provider state is unfamiliar, contradictory, incomplete, or a `BLOCKED` cause cannot be attributed safely. |
+| `ready` | Open, non-draft PR; exact-head evidence is complete; GitHub can construct the merge and observed required gates are satisfied. |
+| `ready-with-manual-action` | The ready conditions hold except that an active restricted-update rule leaves the branch update to an eligible human or provider actor. |
+| `pending` | GitHub is calculating mergeability, or a required check/review is not yet complete. |
+| `blocked` | A verified required gate fails, the PR is draft/not open, the candidate HEAD is stale, or strict policy requires a branch update. |
+| `conflicting` | GitHub reports `CONFLICTING` mergeability or `DIRTY` merge state. |
+| `unknown` | Evidence is unfamiliar, contradictory, incomplete, or cannot explain a provider block safely. |
 
-`BLOCKED` becomes `ready-with-manual-action` only when the PR is technically
-mergeable, no observed required check or review is pending/failing, and the
-active rule set attributes the remaining boundary to restricted updates.
-Unrecognized rules or an unattributed block remain `unknown`.
+An independently proven blocker or conflict can be reported despite unrelated
+missing evidence; disclose those limits. Missing evidence, unfamiliar values,
+or unresolved contradictions must never produce either ready disposition.
+Do not confuse GitHub's literal `UNKNOWN` mergeability/merge-state value
+(calculation pending) with a new, unrecognized enum (unknown interpretation).
 
-## Attribution confidence
+## Required checks and reviews
 
-`classification.attribution` reports how completely the observed provider
-evidence explains the derived disposition.
+Combine active rules and classic protection into effective requirements.
+Retain each required check's name and any positive `integration_id` or
+`app_id`; legacy name-only contexts must not weaken an app-specific requirement.
+Distinct source-specific requirements remain distinct. Match app requirements
+to `CheckRun.checkSuite.app.databaseId`, never a same-name foreign app or an
+unattributed commit status. With no app requirement, evaluate every same-name
+check run and commit status; a passing one does not erase a failing one.
+
+For each required context:
+
+- No matching result is pending only after the check inventory is complete.
+- A completed check run passes on `SUCCESS`, `NEUTRAL`, or `SKIPPED`; it fails
+  on `ACTION_REQUIRED`, `CANCELLED`, `FAILURE`, `STALE`, `STARTUP_FAILURE`, or
+  `TIMED_OUT`. Recognized non-completed statuses are pending; unfamiliar
+  statuses or conclusions are unknown.
+- Commit statuses pass on `SUCCESS`, are pending on `EXPECTED`/`PENDING`, and
+  fail on `ERROR`/`FAILURE`. Preserve unfamiliar values as unknown.
+- Any required failure blocks; otherwise a pending required result is pending.
+  Unknown required results preclude readiness. Non-required failures alone
+  do not prove a blocked required gate.
+
+Apply review count, code-owner, last-push approval, and conversation-resolution
+requirements from active pull-request rules and classic protection. Use the
+provider review decision for aggregate approval validity, including stale
+approval rules; do not infer approval from raw review counts. Required
+`CHANGES_REQUESTED` blocks; required `REVIEW_REQUIRED` or no approval yet is
+pending. Unknown decisions are unknown. Required unresolved threads block;
+otherwise unresolved comments remain findings without inventing a gate.
+
+## Merge-state attribution
+
+After identity/lifecycle, completeness, checks, and reviews are reconciled:
+
+- `CLEAN` or `HAS_HOOKS` with `MERGEABLE` permits ready attribution only when
+  required policy is understood and satisfied.
+- `UNSTABLE` can be ready when every required gate passes: a non-required
+  status failure is not a required-check blocker.
+- `BEHIND` blocks when active strict status-check policy or classic protection's
+  strict setting requires an up-to-date HEAD; otherwise it can be ready.
+- `DRAFT` blocks. `UNKNOWN` calculation is pending. A recognized conflict is
+  conflicting. Preserve other unfamiliar provider values as unknown.
+- `BLOCKED` becomes `ready-with-manual-action` only with `MERGEABLE`, complete
+  required-gate evidence, no failing/pending gates, and an active `update`
+  restriction explaining the remaining boundary. Visible bypass actors are
+  evidence about eligibility, not authority to act or proof that the viewer
+  can bypass.
+
+For restricted-update attribution, active `pull_request` and
+`required_status_checks` rules must be accounted for. Rules for `creation`,
+`deletion`, `non_fast_forward`, and `copilot_code_review` do not explain an
+ordinary forward PR merge block. Any other rule needs verified applicability
+and satisfaction; an unknown rule or unattributed block remains unknown.
+Never infer that a hidden policy requirement is satisfied from green checks.
+
+## Attribution and completeness
 
 | Attribution | Meaning |
 | --- | --- |
-| `verified` | A terminal `ready`, `ready-with-manual-action`, `blocked`, or `conflicting` disposition is supported with no classification warning. |
-| `partial` | The disposition is still `pending` or `unknown`, or missing, unfamiliar, or warning-bearing evidence limits terminal attribution. This does not by itself mean provider collection was incomplete. |
+| `verified` | A ready, manual-action, blocked, or conflicting conclusion is fully supported without classification warnings. |
+| `partial` | Pending/unknown interpretation, missing evidence, or warnings limit attribution. Collection can be complete while interpretation is partial. |
 
-`UNSTABLE` remains `ready` when every required check is satisfied because
-GitHub defines it as mergeable with a non-passing, non-required commit status.
-`BEHIND` is `blocked` only when an active strict status-check policy requires
-the head to be current; otherwise the provider still permits the merge. For a
-required check name shared by a check run and commit status, require every
-matching context to pass. When a rule names a GitHub App integration, require
-the matching app identity rather than accepting a same-name check from another
-source.
+Record missing pages and unavailable surfaces individually. Inaccessible
+active rules or ambiguous classic protection prevent verified readiness.
+An inaccessible optional ruleset detail need not erase complete active-rule
+parameters, but it cannot supply missing bypass or attribution evidence.
+Missing review/check data is not an empty list; unavailable automation is not
+proof it is disabled. Keep repository auto-merge capability, PR auto-merge
+request, and queue entry outside the disposition: they neither authorize a
+write nor independently block readiness.
 
-## Automation observations
+A successful provider read can yield a non-ready disposition. A failed read
+is an evidence failure; no command-specific JSON envelope or exit-code contract
+is owned here.
 
-Keep these external facts outside the disposition:
-
-- whether the repository allows auto-merge;
-- whether this PR already has an auto-merge request;
-- whether this PR has a merge-queue entry.
-
-They do not authorize mutation and do not make an otherwise ready PR blocked.
-
-## Completeness
-
-Record unavailable surfaces explicitly. A missing active-rules read prevents
-verified attribution of a `BLOCKED` state. An inaccessible optional ruleset
-detail may reduce attribution confidence while preserving active rules already
-returned by GitHub. Preserve new provider values and return `unknown` instead
-of rejecting or inventing a compatibility mapping.
+For unfamiliar policy, consult GitHub's
+[active branch rules](https://docs.github.com/en/rest/repos/rules),
+[branch protection](https://docs.github.com/en/rest/branches/branch-protection),
+and [ruleset rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets).

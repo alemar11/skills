@@ -1,0 +1,25 @@
+query DeliveryChecks($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $number) {
+      headRefOid
+      statusCheckRollup {
+        state
+        contexts(first: 100, after: $endCursor) {
+          nodes {
+            __typename
+            ... on CheckRun {
+              id
+              name
+              status
+              conclusion
+              detailsUrl
+              checkSuite { app { databaseId slug } }
+            }
+            ... on StatusContext { id context state targetUrl }
+          }
+          pageInfo { hasNextPage endCursor }
+        }
+      }
+    }
+  }
+}
