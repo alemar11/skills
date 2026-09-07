@@ -48,19 +48,29 @@ stores task bodies in child issues; Markdown nests them in the same file.
 ## Deliver
 
 [`se:deliver`](skills/deliver/SKILL.md) accepts saved specs, selected issues, or
-bounded requests. The current task orchestrates workers with isolated worktrees
-and branches: visible App tasks or native CLI subagents. Each worker owns
+bounded requests. The current task is the delivery lead and orchestrator, designed
+for Astra with caller-configured reasoning and explicit profile overrides.
+Workers use isolated worktrees: visible App tasks or native CLI subagents. Reuse
+a worker and its worktree for compatible serial work, switching branches as needed;
+concurrent assignments require separate workers and worktrees. Serial stacked PRs
+retain distinct branches and may share a worker/worktree. Each worker owns
 implementation, self-checks, publication and required CI in one assignment.
 The orchestrator owns scope, dependencies, optional stacks and assembled outcomes.
-Explicit or implicit invocation authorizes the scoped worker tasks without a
-separate task-creation permission prompt, subject to explicit user restrictions.
+When contributions feed one PR, it assigns a regular worker to integrate their
+validated commits, resolve conflicts, verify combined behavior and publish the
+result. Contribution workers may finish at a commit handoff; the selected delivery
+still ends at verified ready PRs. Parallel work does not require stacked PRs.
+Worker creation follows the active runtime's authorization rules; established
+authority is preserved across assignments and continuations.
 
 Delivery finishes with all required PRs non-draft, current required CI passing,
 and selected outcomes verified. Merge and deployment are separate. There are no
 mandatory adversarial/hosted reviews, claims, repair-round ledgers or audits;
 repository/user requirements still apply. Source-progress writes are opt-in.
 Worker setup/recovery and integration details are loaded only when applicable.
-The skill has no automatic cross-session ownership exclusion.
+The skill returns the selected outcome and resume context to its caller; backlog
+monitoring, scheduling and queue persistence remain outside Deliver. It has no
+automatic cross-session ownership exclusion.
 
 ## Deliver Features
 

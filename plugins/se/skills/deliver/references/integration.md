@@ -1,12 +1,17 @@
 # Dependencies and PR integration
 
-Read only when units have prerequisites, a stack or cross-repository integration,
-or when parent/base changes affect existing work. The orchestrator owns topology;
-workers own their assigned branches.
+Read when contributions need combining, units have prerequisites, a stack or
+cross-repository integration, or parent/base changes affect existing work.
+The orchestrator owns topology and acceptance; workers perform integration and
+validation in their assigned branches.
 
 ## Grouping and prerequisites
 
 Group coupled steps into useful PRs; independent contributions can run in parallel.
+Choose separate PRs for independent outcomes, stacks for actual branch dependencies,
+or contribution branches feeding one integration PR for a coupled outcome.
+Sequential landing alone does not imply stacked PRs. Name the integration target
+and assigned writer before dispatching contributions that need combining.
 Verify prerequisite behavior in the intended base or an exact validated candidate
 before dependent work consumes it. A closed issue, completed task or planning
 order is not prerequisite proof. Unselected missing prerequisites block affected
@@ -18,13 +23,40 @@ combination, make prerequisite artifacts available, and validate combined behavi
 A branch in another repository cannot supply a Git base. Individual passing tests
 do not prove an assembled outcome; task subsets never imply a whole spec completed.
 
+## Integration assignment
+
+Assign integration to a regular worker; it is an assignment, not a separate
+permanent role. Reuse a finished worker/worktree when safe under
+[workers.md](workers.md#serial-reuse-and-concurrent-work). Supply the target
+repository, delivery branch/base, pinned validated contribution commits, source
+contracts, combined acceptance checks and intended PR. Make those exact commits
+available in the integration checkout before combining them.
+
+The assigned worker integrates the pinned commits into its owned delivery branch,
+resolves conflicts without dropping either contribution's requirements, and runs
+the affected tests and assembled-outcome checks on the combined result. A clean
+Git merge or separate green worker tests do not establish combined correctness.
+Material requirement conflicts return to the orchestrator for resolution.
+
+The worker publishes or updates the intended integration PR and completes required
+CI and readiness under Deliver. Return source-to-result commit evidence with the
+normal worker result; the orchestrator verifies contribution coverage and accepts
+the combined outcome. Changed inputs invalidate affected integration evidence.
+
+Do not mutate contribution branches owned by other workers, land PRs, or write
+the repository's default/release branches as part of integration. If the target
+is an existing PR branch, reconcile its writer before reassignment. Preserve
+contribution branches and worktrees; integration does not authorize their cleanup.
+
 ## Stacks and parent changes
 
 The orchestrator may choose standalone or stacked PRs. For a stack, identify each
 actual parent branch and full commit, PR base and landing order. Use G's stack
 workflow only after establishing that it supports the intended topology; do not
 invent dependencies or create branches to probe capability. Each child has its
-own worktree and branch, and consumes the known parent candidate.
+own branch and PR and consumes the known parent candidate. Serial children may
+reuse their worker's worktree under [workers.md](workers.md#serial-reuse-and-concurrent-work);
+concurrently active parent/child assignments require separate workers and worktrees.
 
 Parent changes invalidate affected child validation. Stop affected writers before
 operations that rewrite their branches; assign one actor the bounded operation,

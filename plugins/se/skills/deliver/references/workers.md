@@ -8,11 +8,12 @@ resuming, or replacing a worker. The shared
 
 On the App, use a visible task in the exact matching saved repository project
 and an isolated worktree. On CLI, use a native subagent with an isolated worktree.
+Creating a subagent does not establish filesystem isolation: prepare and assign
+its worktree explicitly, and require the same checkout verification as on App.
 An unresolved surface or unavailable required transport/target blocks affected
 work. Do not substitute the other surface, an external process, or implementation
-in the orchestrator. Apply the entrypoint's invocation authority for worker
-creation; implicit invocation needs no separate permission prompt. Higher-priority
-runtime restrictions still apply. Never create a replacement coordinator.
+in the orchestrator. Apply the entrypoint's authorization boundary before worker
+creation. Never create a replacement coordinator.
 
 Workers default to `gpt-5.6-luna` with `max` reasoning; explicit user overrides
 win. Request those settings, but do not gate editing on effective-model telemetry
@@ -30,7 +31,8 @@ A creation receipt establishes a known creation effect, not a verified checkout.
 ## Assignment and result
 
 Include the selected outcome and constraints, exact repository and intended
-worktree/branch/base, prerequisite commits, relevant source contracts, validation,
+worktree/branch/base, prerequisite commits, relevant source contracts with spec
+identity/revision when applicable, validation,
 publication authority and justified closing references. Where the runtime
 allocates the worktree path, the worker reports the resolved path after verifying
 the intended project and isolated checkout. Give only needed context, not the
@@ -43,20 +45,51 @@ the applicable G workflows; it does not inherit Deliver Features' developer role
 independent-review gate, phase handoffs or claims. CI fixes remain within the
 original outcome and are revalidated and published by the same worker.
 
+When the orchestrator selects a shared integration PR, contribution assignments
+end with validated commits made available to the designated integration worker.
+They use Implement and return the result below; separate contribution PRs are
+needed only when the selected topology requires them. The integration assignment
+uses the same worker profile, transport and result contract under
+[integration.md](integration.md#integration-assignment). A contribution handoff
+completes that assignment, not the selected feature's delivery.
+
 Workers cannot create further agents, broaden scope, mutate another worker's
-branch/PR, merge, deploy or perform production actions. Honor direct user stops
+branch/PR, land PRs, deploy or perform production actions. An integration assignment
+may combine assigned commits into its own delivery branch. Honor direct user stops
 and corrections; relay material scope/target changes to the orchestrator and
 reconcile affected dependencies before conflicting work continues. The
 orchestrator is the normal coordination point, not a barrier to user authority.
 
-Return the PR URL and exact HEAD/base, checks performed, required CI state,
-remaining blockers and preserved dirty changes/worktree. Finish mutation before
+Return selected source references and, for a spec, its identity and revision;
+verified outcomes and outstanding scope; PR URLs when applicable and exact HEAD/base; checks and
+required CI state; worker/worktree/branch identities, preserved dirty content,
+blockers and the next bounded action when work remains. Finish mutation before
 returning completion. The orchestrator verifies current facts without asking for
 another ritual receipt or a replay of the worker's investigation.
+Keep each result bound to its repository, branch/PR and full commits even after
+the worker's checkout moves to another assignment.
 
-Reuse a worker for compatible sequential assignments only after the previous
-assignment has ended and its work is understood and preserved. Verify the next
-branch/base before mutation. Leave completed App tasks visible and unarchived.
+## Serial reuse and concurrent work
+
+Prefer the same worker and worktree for compatible serial assignments in the
+same repository. Before switching branches, finish the previous assignment,
+preserve its commits and PR reference, and stop its branch-dependent processes.
+Resolve dirty content without discarding it or carrying it into another
+assignment; if safe reuse is unavailable, use another isolated worker/worktree.
+Reconcile any existing writer or checkout of the target branch before switching;
+never force a switch around conflicting ownership. The worker verifies the
+assigned branch, base and full HEAD before editing. Reuse changes the branch,
+not the task's worktree binding.
+
+For a serial stack, create each child branch from the exact validated parent
+commit under [integration.md](integration.md). Earlier branches and PRs remain
+available when the worker moves to a child. Returning to an earlier PR for a fix
+is another serial assignment; preserve the current work first and reconcile
+affected descendants after the parent changes.
+
+Concurrent assignments require distinct workers and worktrees with one writer
+per branch/PR. A reused worker never handles two active assignments at once.
+Leave completed App tasks visible and unarchived.
 
 ## Recovery
 
@@ -70,8 +103,8 @@ preserve commits and dirty content, reconcile outstanding writes, and verify
 the replacement's exact target. Unknown liveness blocks replacement. Preserve
 worktrees by default; do not clean, reset or delete user work to simplify recovery.
 
-On interruption, report selected outcomes, worker/worktree/branch identities,
-exact HEAD/base and PRs, validation/CI evidence, pending submissions, blockers
-and the next bounded action. Resume from that handoff plus current Git/PR state.
+On interruption, preserve the assignment/result context above and identify pending
+submissions, uncertain effects and active/stopped/unknown worker liveness. Resume
+from that handoff plus current Git/PR state.
 Reuse an attributable stopped worker/result when safe; never repeat completed
 work solely to reconstruct narrative or renew authority.

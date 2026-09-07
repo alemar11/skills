@@ -36,9 +36,15 @@ covering results, available duration/usage evidence and generalizable workflow
 improvements. The coordinator owns this audit and does not apply its proposals.
 
 [Deliver](skills/deliver/SKILL.md) is a separate worker-to-PR workflow for specs,
-issues and bounded requests. It retains the current orchestrator profile and
+issues and bounded requests. Its current-task delivery lead is designed for Astra,
+retaining configured reasoning and explicit profile overrides. It
 owns its worker role locally, avoiding Deliver Features' phase/review contract.
-Workers complete implementation through required CI in one assignment; the
-orchestrator verifies selected outcomes and integration. Claims, mandatory
+Workers complete implementation through required CI, or hand validated commits
+to an assigned integration worker for a shared PR. Integration is a regular worker
+assignment that combines contributions and verifies the assembled behavior; the
+orchestrator verifies selected outcomes and integration. Compatible serial work,
+including stacked branches, reuses workers/worktrees; concurrent assignments use
+separate workers/worktrees. Deliver returns bounded results and resume context;
+backlog monitoring and queue persistence belong to its caller. Claims, mandatory
 reviews, source-progress writes and retrospectives are not part of its default
 path. Deliver Features remains unchanged and independently invokable.
