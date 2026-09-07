@@ -1,69 +1,27 @@
 ---
 name: swift-docc
-description: Write, structure, review, and publish Swift-DocC docs using local summaries and bundled DocC sources.
+description: Author, review, preview, or publish Swift-DocC symbol documentation, articles, and tutorials.
 ---
 
 # Swift-DocC
 
-## Goal
+Use the local summaries and bundled DocC sources for authoring guidance.
+Compiler and renderer internals are outside this skill's coverage; handle a
+request for those through the relevant sources rather than redirecting the
+user back to authoring.
 
-Help with Swift-DocC authoring tasks using:
-- hand-written local summary pages for fast routing
-- a bundled local copy of the upstream `DocCDocumentation.docc` source tree in `assets/`
-- a small manifest that tracks which upstream revision is bundled locally
+Read [source map](references/source-map.md) to select the reference for the
+requested task. If the DocC concept is already clear, use the matching summary:
 
-Use this skill for:
-- writing or reviewing symbol documentation comments
-- adding supplemental articles to a documentation catalog
-- linking to symbols and other content
-- adding snippets, images, tables, and page structure
-- building interactive tutorials and tutorial directives
-- understanding authoring directives such as `@Metadata`, `@DisplayName`,
-  `@Tutorials`, `@Tutorial`, `@Chapter`, `@Article`, `@Row`, and `@TabNavigator`
-- customizing DocC page appearance and publishing/hosting guidance
+- Symbol comments: [symbol docs](references/symbol-docs.md).
+- Catalogs and articles: [articles and structure](references/articles-and-structure.md).
+- Symbol and content links: [linking](references/linking.md).
+- Snippets, media, and layout: [formatting and assets](references/formatting-and-assets.md).
+- Interactive tutorials: [tutorial workflow](references/tutorial-workflow.md).
+- Build, preview, or hosting: [preview and publish](references/preview-and-publish.md).
+- Directive syntax: [directive map](references/directive-map.md).
 
-Do not use this skill for:
-- Swift-DocC compiler internals
-- generated `SwiftDocC` or `DocCCommandLine` API documentation
-- `swift-docc-render` internals
-
-## Quick workflow
-
-1. Start with [references/README.md](references/README.md).
-2. If the user asks in task language rather than DocC terminology, use
-   [source-map.md](references/source-map.md) to map the request to the right
-   summary page and bundled local source file.
-3. Pick the matching summary page from the References list below.
-4. Open the exact local source file under `assets/DocCDocumentation.docc/` when
-   the summary page points to it.
-5. Keep answers authoring-first. If the user drifts into compiler/render
-   internals, say that this skill covers authored DocC guidance and point to the
-   nearest relevant authoring reference.
-
-## References
-
-- Read [references/README.md](references/README.md) first for scope, provenance,
-  and the best entrypoints.
-- Read [references/source-map.md](references/source-map.md) when the user asks
-  task-oriented questions like "How do I build a tutorial?" or "How do I link to
-  symbols?".
-- Read the summary pages before opening local source files:
-  - [references/document-a-swift-package.md](references/document-a-swift-package.md)
-  - [references/document-public-symbols.md](references/document-public-symbols.md)
-  - [references/document-api-lifecycle-and-behavior.md](references/document-api-lifecycle-and-behavior.md)
-  - [references/add-a-docc-catalog.md](references/add-a-docc-catalog.md)
-  - [references/preview-and-publish.md](references/preview-and-publish.md)
-  - [references/tutorial-workflow.md](references/tutorial-workflow.md)
-  - [references/start-here.md](references/start-here.md)
-  - [references/symbol-docs.md](references/symbol-docs.md)
-  - [references/articles-and-structure.md](references/articles-and-structure.md)
-  - [references/linking.md](references/linking.md)
-  - [references/formatting-and-assets.md](references/formatting-and-assets.md)
-  - [references/tutorials.md](references/tutorials.md)
-  - [references/publishing-and-customization.md](references/publishing-and-customization.md)
-  - [references/directive-map.md](references/directive-map.md)
-- Read the bundled upstream source files under `assets/DocCDocumentation.docc/`
-  when you need the exact authored source behind a summary page or want to grep
-  broadly across the full upstream catalog.
-- Read `assets/manifest.json` only when you need to confirm which upstream
-  revision is bundled or whether the local asset tree should be refreshed.
+Open the linked source under `assets/DocCDocumentation.docc/` when exact syntax
+or examples matter. Consult `assets/manifest.json` only for source provenance.
+Report the relevant build result when changing a catalog; do not imply a
+successful preview or publication from source edits alone.

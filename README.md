@@ -84,7 +84,7 @@ for Apple's native headless MCP server:
 | `plugins-reload` | Reload this repository’s G, SE, and Xcode plugin installations when explicitly requested. |
 | `skill-audit` | Audit skill or plugin instructions and usage evidence read-only. Use only when explicitly invoked as $skill-audit. |
 | `swift-api-design` | Design, rename, or review Swift API surfaces using the bundled official API Design Guidelines. |
-| `swift-docc` | Write, structure, review, and publish Swift-DocC docs using local summaries and bundled DocC sources. |
+| `swift-docc` | Author, review, preview, or publish Swift-DocC symbol documentation, articles, and tutorials. |
 | `youtube` | Search YouTube videos and playlists, retrieve timestamped transcripts, and search spoken content across playlists. |
 | `ghostty` | Inspect or arrange Ghostty terminals and edit configuration or keybindings when explicitly requested. |
 | `herdr` | Inspect or control Herdr terminal workspaces, panes, and agents when the user explicitly asks to use Herdr. |
