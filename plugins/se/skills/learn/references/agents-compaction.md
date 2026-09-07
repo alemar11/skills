@@ -48,8 +48,10 @@ new heading. Classify each section before proposing a move:
 - never move out of `AGENTS.md`: the normative invariant, consequence, and safe
   path required by `## Code Review Rules`.
 
-Do not move text merely to lower the byte count. Preserve custom wording,
-comments, overrides, ordering where meaningful, and unrelated sections.
+Apply the [AGENTS.md editorial standard](setup-workflow.md#agentsmd-editorial-standard)
+even below the size thresholds. Do not move text merely to lower the byte count.
+Preserve the meaning of custom rules, comments, overrides, significant ordering,
+and unrelated sections.
 
 ## Proposal Shape
 

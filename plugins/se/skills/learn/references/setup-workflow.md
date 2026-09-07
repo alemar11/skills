@@ -158,6 +158,15 @@ setup before capture.
 - Recommend enabled translation memory only when localization support and
   durable translation rules are confirmed by evidence or the user.
 
+## AGENTS.md Editorial Standard
+
+When reviewing or editing `AGENTS.md`, make sure each word in the selected text
+justifies its existence. Remove filler, repetition, and generic advice; keep
+wording that changes decisions or preserves required meaning, scope, authority,
+exceptions, and verification. Judge clarity and behavior, not a word-count target.
+Apply this standard within the authorized scope; review-only requests produce
+proposed edits.
+
 ## Draft Checklist
 
 Before writing, show only applicable items from this list:
