@@ -1,6 +1,6 @@
 ---
 name: idea
-description: "Capture a concrete proposal from the current conversation as an Idea for future Feature planning. Use when the user explicitly asks to save, publish, or preview an Idea; never capture ordinary brainstorming automatically."
+description: "Capture a conversation’s concrete proposal as an Idea when explicitly requested; publish by default or preview on request."
 ---
 
 # Idea Capture
@@ -82,14 +82,6 @@ the selected source excerpts, normalized candidates, decisions, target
 repositories, rendered bodies, preflight observations, publication order, and
 verified results. Discard it after the terminal capture report unless the
 hosted issue itself is the explicitly authorized durable output.
-
-## Workflow overview
-
-Capture, normalization, clarification, freezing, and the terminal-operation
-decision are local. The default publish branch may load the publication
-dependency or inspect and mutate hosted state; the explicit preview branch may
-not.
-
 
 ## Run contract
 
@@ -268,17 +260,7 @@ execution units, dependency IDs, implementation plans, or readiness claims.
 Feature Intake keeps source_route as new-source, reloads repository context, and
 derives its own Feature Plan fields.
 
-## Safety and independence
+## Independence
 
-- Keep this skill self-contained and independent from other Idea skill
-  implementations; do not import, alias, copy, or modify them.
-- Keep GitHub transport in the existing G-owned issue workflow.
-- Keep GitHub completely outside capture and explicit preview; hosted state is
-  a terminal publish concern, and publish is the default terminal branch.
-- Keep the caller's declared publication scope separate from dependency
-  availability.
-- Never treat a preview ref as a hosted identity.
-- Never infer ownership from task metadata or filesystem proximity.
-- Never replay an uncertain mutation blindly.
-- Do not add a model-index row: this skill runs in the invoking task and does
-  not create or delegate an application task.
+Do not import or modify other Idea implementations. This skill runs in the
+invoking task; it creates no application task and selects no model profile.
