@@ -1,0 +1,6 @@
+interface:
+  display_name: "🚚 Deliver"
+  short_description: "Orchestrate workers from scoped work to ready PRs."
+  default_prompt: "Use $se:deliver to create worker tasks in the App or subagents in CLI for this work and finish with validated, ready PRs."
+policy:
+  allow_implicit_invocation: false

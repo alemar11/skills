@@ -25,6 +25,11 @@ When ownership changes, update affected consumers and remove obsolete routes.
 
 ## Skill ownership
 
+- Deliver owns the lightweight worker-to-PR workflow and its local worker role,
+  optional integration and recovery references. It has no graph, claim registry,
+  mandatory review gate or repair ledger. Deliver Features-specific invariants
+  below remain scoped to that existing skill. Preserve both invocation contracts.
+
 - Learn owns local durable context, localization, review rules, and managed
   AGENTS pointers. It does not own tracker, task, or delivery state.
 - Grilling Session owns read-only interview refinement and composes Learn for context.
@@ -75,7 +80,7 @@ full protocols into this file:
   and the repository model index, not duplicated here.
 - Separate Delivery Features concurrency from PR topology. Overlapping writers
   never share a worktree. Parent drift invalidates dependent evidence.
-- Preserve exact-base/full-HEAD candidate and hosted evidence, review-revision
+- For Deliver Features, preserve exact-base/full-HEAD candidate and hosted evidence, review-revision
   budgets, reconciled recovery, and final whole-group claim release. Draft,
   blocked, and deferred results are not successful delivery.
 - `repository-claims` owns only fenced ownership of the immutable repository set.

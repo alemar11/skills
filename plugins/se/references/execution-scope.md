@@ -10,6 +10,7 @@ Explicit user constraints and available capabilities still govern execution.
 | Implement, Adversarial Review, Review PR, Grilling Session, Learn, Idea | Perform their work in the executing session/task; create no tasks or subagents. |
 | Spec | Own its planner and optional helpers under its planner contract. |
 | Study | Own its controller and optional helpers under its surface and worker contracts. |
+| Deliver | Own isolated workers through PR publication and CI under its local worker contract; the current task owns orchestration. |
 | Deliver Features | Own its coordinator, implementation lanes and reviewers under its delivery contract. |
 
 An orchestrator may launch an agent and assign it a skill that creates no agents.

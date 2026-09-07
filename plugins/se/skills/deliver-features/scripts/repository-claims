@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any, NoReturn
 
 
-CLI_VERSION = "6.1.1"
+CLI_VERSION = "6.2.0"
 SCHEMA_VERSION = 1
 TIMEOUT_MS = 5000
 DATABASE_NAME = "repository-claims.sqlite3"

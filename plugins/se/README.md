@@ -12,6 +12,7 @@ task plans, reviewed PR delivery with workflow retrospectives, and durable proje
 | `se:spec` | Create or revise a coherent spec with an ordered actionable task plan; save to GitHub or one Markdown file. |
 | `se:adversarial-review` | Independently pressure-test a fixed software change without editing it. |
 | `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |
+| `se:deliver` | Orchestrate isolated workers for specs, issues or bounded work through validated ready PRs. |
 | `se:deliver-features` | Deliver saved specs or selected tasks through reviewed ready PRs from the current task. |
 | `se:implement` | Implement selected local work, validate it, and commit scoped files without publication. |
 
@@ -39,7 +40,22 @@ reviews the whole spec/task bundle before saving. Its `steps/` own workflow
 nodes; templates are output resources. Planning never writes implementation
 progress or starts delivery implicitly.
 
-## Delivery
+## Deliver
+
+[`se:deliver`](skills/deliver/SKILL.md) accepts saved specs, selected issues, or
+bounded requests. The current task orchestrates workers with isolated worktrees
+and branches: visible App tasks or native CLI subagents. Each worker owns
+implementation, self-checks, publication and required CI in one assignment.
+The orchestrator owns scope, dependencies, optional stacks and assembled outcomes.
+
+Delivery finishes with all required PRs non-draft, current required CI passing,
+and selected outcomes verified. Merge and deployment are separate. There are no
+mandatory adversarial/hosted reviews, claims, repair-round ledgers or audits;
+repository/user requirements still apply. Source-progress writes are opt-in.
+Worker setup/recovery and integration details are loaded only when applicable.
+The skill has no automatic cross-session ownership exclusion.
+
+## Deliver Features
 
 Delivery consumes authoritative saved specs from GitHub or Markdown, selects
 the whole spec by default or explicit tasks, and maps selected contributions

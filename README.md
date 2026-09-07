@@ -57,6 +57,7 @@ includes delivery workflow retrospectives:
 | `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |
 | `se:idea` | Save a concrete proposal for later spec planning, or preview it locally. |
 | `se:spec` | Create or revise one coherent feature spec and actionable task plan, saving to GitHub or a single Markdown file. |
+| `se:deliver` | Orchestrate isolated workers for specs, issues or bounded work through validated ready PRs. |
 | `se:deliver-features` | Deliver saved specs or selected tasks through surface-aware isolated workers, reviewed ready PRs, and verified outcomes from the current task. |
 | `se:implement` | Implement selected local work from a spec, ticket, issue, or direct request, validate it, and commit only the required files without orchestration or publication. |
 
@@ -144,6 +145,12 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
   request, or requests and waits when needed. It returns the provider result to
   the calling task, standalone or composed, with no subagents, repairs, CI or
   acceptance decisions. Explicit inspect-only scope remains read-only.
+- `se:deliver` uses the current task to coordinate isolated workers through
+  implementation, validation, PR creation and required CI. It accepts specs,
+  issues or bounded requests; App workers are visible tasks and CLI workers are
+  native subagents. It supports stacks without mandatory independent review,
+  repository claims or retrospectives. Source-progress writes are opt-in.
+  `se:deliver-features` remains available with its existing stronger gates.
 - `se:deliver-features` accepts saved GitHub/Markdown specs or explicitly selected
   tasks and derives repository-bound delivery units from those contributions. Task
   dependencies do not mandate Git stacks. The current coordinator verifies actual

@@ -28,6 +28,16 @@ read-only. It does not authorize or own any other hosted action. Explicit SE
 invocation authorizes only the writes required by its selected workflow and
 consistent with caller constraints.
 
+Deliver runs this gate before hosted access in the orchestrator and each worker.
+Require only G workflows used by the selected source reads, local Git,
+publication/readiness, required CI, and optional stacks or requested reviews.
+A missing optional review workflow does not block ordinary Deliver. Explicit
+no-push constraints remove publication authority, not permission for admitted
+read-only source/CI inspection. Deliver's ready transition is explicitly owned by its entrypoint and uses G's
+network/gh preflight with the supported GitHub CLI operation, because Send
+excludes readiness. This admitted operation is not a fallback for missing G
+publication or CI workflows. This does not change Deliver Features' gates.
+
 ## Required evidence
 
 Establish all of the following from the current host:

@@ -1,6 +1,6 @@
 {
   "name": "se",
-  "version": "6.1.1",
+  "version": "6.2.0",
   "description": "Refine ideas, create feature specs with actionable tasks, save to GitHub or Markdown, and deliver reviewed changes.",
   "author": {
     "name": "alemar11",
@@ -10,7 +10,7 @@
   "interface": {
     "displayName": "SE",
     "shortDescription": "Specify features, plan tasks, and deliver reviewed changes.",
-    "longDescription": "SE supports repository-grounded refinement, feature specifications, and reviewed delivery. Spec creates one coherent spec with actionable tasks and saves to GitHub or one Markdown file. Delivery is designed for an Astra coordinator in the current task. In the Codex App it uses run-scoped visible implementation workers in isolated project worktrees; in the CLI it uses native developer subagents. Independent research and review remain native subagents. Delivery requires independent candidate review, explicit @codex review on ready PRs, current CI and assembled outcome verification, with two repair rounds per PR. Safe pauses preserve work and release repository claims; resume reconciles existing evidence. Progress updates remain separate from semantic requirements. Every delivery closes with results, duration and available token usage, plus a workflow audit proposing improvements reusable across projects. Learn maintains project knowledge; Idea captures proposals; Implement handles bounded local work and repairs; Review PR requests or resumes hosted Codex review, waits, and reports the provider result without subagents or repairs. Merge, deployment and releases remain separately authorized.",
+    "longDescription": "SE supports repository-grounded refinement, feature specifications, and reviewed delivery. Spec creates one coherent spec with actionable tasks and saves to GitHub or one Markdown file. Deliver Features is designed for an Astra coordinator in the current task. In the Codex App it uses run-scoped visible implementation workers in isolated project worktrees; in the CLI it uses native developer subagents. Independent research and review remain native subagents. Deliver Features requires independent candidate review, explicit @codex review on ready PRs, current CI and assembled outcome verification, with two repair rounds per PR. Safe pauses preserve work and release repository claims; resume reconciles existing evidence. Progress updates remain separate from semantic requirements. Every Deliver Features run closes with results, duration and available token usage, plus a workflow audit proposing improvements reusable across projects. Learn maintains project knowledge; Idea captures proposals; Implement handles bounded local work and repairs; Review PR requests or resumes hosted Codex review, waits, and reports the provider result without subagents or repairs. Merge, deployment and releases remain separately authorized. Deliver orchestrates isolated workers for specs, issues or bounded requests through ready PRs and required CI, without mandatory independent reviews, repository claims or retrospectives. Each worker handles its complete assignment; the current task owns integration and acceptance.",
     "developerName": "alemar11",
     "category": "Developer Tools",
     "capabilities": [
@@ -24,7 +24,7 @@
     "defaultPrompt": [
       "Use $se:grilling-session to sharpen a topic, $se:study to investigate it, or $se:learn to preserve knowledge.",
       "Use $se:spec to create a feature spec and actionable tasks, saving to GitHub or one Markdown file.",
-      "Use $se:review-pr for hosted review, $se:adversarial-review for local critique, or $se:deliver-features for PR delivery."
+      "Use $se:deliver for worker-to-PR delivery, or $se:deliver-features for the existing independently reviewed workflow."
     ],
     "brandColor": "#BE185D"
   }
