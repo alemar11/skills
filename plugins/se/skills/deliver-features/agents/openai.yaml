@@ -2,6 +2,6 @@ interface:
   display_name: "🚀 Deliver Features"
   short_description: "Deliver spec tasks through independently reviewed PRs."
   brand_color: "#6D28D9"
-  default_prompt: "Use $se:deliver-features to deliver this saved spec or selected tasks using isolated subagents, independent review, and explicit @codex review on ready PRs."
+  default_prompt: "Use $se:deliver-features to deliver this saved spec or selected tasks through reviewed ready PRs, then report results, duration, available token usage, and generalizable workflow improvements."
 policy:
   allow_implicit_invocation: false

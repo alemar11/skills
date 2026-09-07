@@ -1,7 +1,0 @@
-interface:
-  display_name: "🔎 Audit"
-  short_description: "Observe active SE work and report workflow problems."
-  brand_color: "#166534"
-  default_prompt: "Use $se:audit to observe active SE sessions, explain any workflow problems or regressions with evidence, and suggest improvements without changing their work."
-policy:
-  allow_implicit_invocation: false

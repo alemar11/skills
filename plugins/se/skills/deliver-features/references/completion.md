@@ -75,4 +75,6 @@ exact successful release evidence and absence of the old binding; subsequent
 foreign ownership is not this run retaining its claim. A failed progress write
 or unresolved gate produces a safely released pause when possible. Unsafe
 quiescence, preservation, or release leaves a blocked report with exact retained
-ownership or uncertainty.
+ownership or uncertainty. Every outcome then runs [closeout.md](closeout.md)
+for the final delivery report and workflow retrospective. Do not hold claims
+for that analysis or treat missing metrics as a failed delivery gate.

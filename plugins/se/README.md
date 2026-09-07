@@ -1,7 +1,7 @@
 # SE
 
 SE supports repository-grounded refinement, feature specifications, actionable
-task plans, reviewed PR delivery, durable project knowledge, and read-only audits.
+task plans, reviewed PR delivery with workflow retrospectives, and durable project knowledge.
 
 | Skill | Responsibility |
 | --- | --- |
@@ -14,7 +14,6 @@ task plans, reviewed PR delivery, durable project knowledge, and read-only audit
 | `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |
 | `se:deliver-features` | Deliver saved specs or selected tasks through reviewed ready PRs from the current task. |
 | `se:implement` | Implement selected local work, validate it, and commit scoped files without publication. |
-| `se:audit` | Observe an attributable frozen cohort of active SE work without changing it. |
 
 Learn, Implement and Review PR permit implicit selection within their descriptions. The
 other entrypoints require explicit invocation or an authorized composed handoff.
@@ -64,6 +63,13 @@ is stopped and work preserved; resume reacquires and reconciles existing work.
 See [task delivery](skills/deliver-features/references/task-delivery.md) and
 [completion](skills/deliver-features/references/completion.md).
 
+Every run ends with a [closeout](skills/deliver-features/references/closeout.md),
+including blocked or stopped work. It reports delivered outcomes, duration and
+available token usage with explicit coverage, then audits what worked, failed,
+or could improve in Delivery and its invoked skills. Recommendations must
+generalize across projects and remain proposals. The coordinator may use one
+bounded research helper when useful; safe claim release precedes analysis.
+
 PR delivery, merge, and issue closure are separate facts. A partial task PR
 cannot close its parent spec. G receives exact justified closing references;
 closure that needs multiple unmerged contributions remains an explicit
@@ -108,9 +114,7 @@ lineage, bounded waits and terminal evidence.
 - Repository claims store ownership only. No spec/task progress, worker state,
   Git/PR state, review evidence, or workflow node belongs in that registry.
 - Study keeps its separate App controller or current CLI session and optional
-  bounded native subagents. Learn remains local-only. Audit remains read-only,
-  reports partial inventory honestly, and distinguishes missing visibility from
-  proven contract violations.
+  bounded native subagents. Learn remains local-only.
 
 This source tree is the maintained SE design surface; installed caches are
 verification surfaces, not editable source.

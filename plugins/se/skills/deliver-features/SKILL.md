@@ -39,6 +39,9 @@ before local review and the [repair budget](../../references/review-repair-budge
 before assigning repairs or reconstructing counts;
 [completion.md](references/completion.md) before publication, closing-reference projection or completion; and
 [progress.md](references/progress.md) before saved status updates or resume.
+Read [closeout.md](references/closeout.md) at Intake to capture available run
+measurements, and before every final report for delivery results and a mandatory
+workflow retrospective.
 
 Before every hosted handoff apply the shared
 [G preflight](../../references/codex-dependency-preflight.md) and, immediately
@@ -55,35 +58,36 @@ returns to reconciliation. A blocked PR does not stop independent selected work.
 
 | node_id | kind | purpose | entry_conditions | inputs | outputs | transitions | stop_if | side_effects | terminal_states |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| intake | action | Resolve saved specs, exact selected tasks, repositories and current coordinator. | Explicit delivery or resume request. | Saved contracts, caller scope. | Selection, repository set, coordinator identity. | claim-repositories, deferred, blocked | Selection or identity cannot be resolved. | read, transient |  |
-| claim-repositories | action | Acquire and bind ownership to the current task. | Valid selection and current coordinator identity. | Frozen repository set and fencing context. | Verified bound claim. | reconcile, blocked | Ownership cannot be established. | durable |  |
-| reconcile | validation | Reconstruct outcomes, lanes, reviews, budgets and blockers. | Bound ownership or a lane result. | Contracts, Git, PR, CI, agent and claim evidence. | Ready work or preserved pending result. | schedule, release-claims, blocked | Unsafe actor, mutation, preservation or ownership ambiguity. | read, transient |  |
+| intake | action | Resolve saved specs, exact selected tasks, repositories and current coordinator. | Explicit delivery or resume request. | Saved contracts, caller scope. | Selection, repository set, coordinator identity. | claim-repositories, closeout | Selection or identity cannot be resolved. | read, transient |  |
+| claim-repositories | action | Acquire and bind ownership to the current task. | Valid selection and current coordinator identity. | Frozen repository set and fencing context. | Verified bound claim. | reconcile, closeout | Ownership cannot be established. | durable |  |
+| reconcile | validation | Reconstruct outcomes, lanes, reviews, budgets and blockers. | Bound ownership or a lane result. | Contracts, Git, PR, CI, agent and claim evidence. | Ready work or preserved pending result. | schedule, release-claims, closeout | Unsafe actor, mutation, preservation or ownership ambiguity. | read, transient |  |
 | schedule | decision | Assign bounded independent work or await active lanes. | Current evidence supports selected work. | Ready units, bases, lanes, role and repair budget. | Scoped assignments. | deliver-unit, reconcile | No new responsible assignment. | read, transient |  |
 | deliver-unit | action | Implement and validate; after review publish and converge one PR. | Verified isolated lane and authorized phase. | Selected task contributions, base, role, review and budget. | Committed candidate, reviewed PR, progress or blocker. | review-candidate, reconcile | Lane or candidate evidence is untrustworthy. | durable, hosted |  |
 | review-candidate | validation | Independently review the immutable committed candidate. | Validated candidate and quiescent developer. | Contract, coverage, base, HEAD, snapshot, role and budget. | Review receipt or execution/cleanup evidence. | reconcile | Independence, target or cleanup is uncertain. | read, transient |  |
-| release-claims | action | Release the complete claim after verified quiescence and preservation. | All actors stopped, effects resolved, progress attempted, pending result known. | Exact claim and final delivery or pause evidence. | Verified release plus preserved result. | complete, deferred, blocked | Release remains ambiguous or unsafe. | durable |  |
-| complete | terminal | Report verified delivery of all selected outcomes. | Exact release and all selected delivery/progress gates verified. | Final outcome and release evidence. | Delivery report and remaining unselected work. |  | terminal | none | complete |
-| deferred | terminal | Report the decision or separately authorized action needed. | Before acquisition or after verified safe release. | Preserved work and exact unresolved choice. | Resume handoff. |  | terminal | none | deferred |
-| blocked | terminal | Report unresolved capability, review, budget or safety evidence. | No useful independent work remains or safety prevents continuation. | Preserved results, blocker, release or retained-claim evidence. | Resume handoff with exact ownership state. |  | terminal | none | blocked |
+| release-claims | action | Release the complete claim after verified quiescence and preservation. | All actors stopped, effects resolved, progress attempted, pending result known. | Exact claim and final delivery or pause evidence. | Verified release plus preserved result. | closeout | Release remains ambiguous or unsafe. | durable |  |
+| closeout | action | Prepare delivery results, run measurements and a generalizable workflow retrospective. | Pending outcome known; safe release attempted wherever possible. | Captured run evidence, measurement coverage, release or retained uncertainty. | Final report preserving delivery outcome. | complete, deferred, blocked | Evidence limits require a concise best-effort report. | read, transient |  |
+| complete | terminal | Report verified delivery of all selected outcomes. | Exact release and all selected delivery/progress gates verified. | Closeout report, final outcome and release evidence. | Delivery report and remaining unselected work. |  | terminal | none | complete |
+| deferred | terminal | Report the decision or separately authorized action needed. | Before acquisition or after verified safe release. | Closeout report, preserved work and exact unresolved choice. | Resume handoff. |  | terminal | none | deferred |
+| blocked | terminal | Report unresolved capability, review, budget or safety evidence. | No useful independent work remains or safety prevents continuation. | Closeout report, preserved results, blocker, release or retained-claim evidence. | Resume handoff with exact ownership state. |  | terminal | none | blocked |
 
 ~~~mermaid
 flowchart TD
     intake --> claim-repositories
-    intake --> deferred
-    intake --> blocked
+    intake --> closeout
     claim-repositories --> reconcile
-    claim-repositories --> blocked
+    claim-repositories --> closeout
     reconcile --> schedule
     reconcile --> release-claims
-    reconcile --> blocked
+    reconcile --> closeout
     schedule --> deliver-unit
     schedule --> reconcile
     deliver-unit --> review-candidate
     deliver-unit --> reconcile
     review-candidate --> reconcile
-    release-claims --> complete
-    release-claims --> deferred
-    release-claims --> blocked
+    release-claims --> closeout
+    closeout --> complete
+    closeout --> deferred
+    closeout --> blocked
 ~~~
 
 ## Completion and pause
@@ -103,11 +107,12 @@ requests. Workflow nodes and queues are never persisted as progress or claims.
 
 ## Result
 
-Report selected outcomes, task-to-PR mapping, exact repository/base/HEAD vector,
-validation, independent review, explicit hosted acceptance and CI, progress
-updates, remaining tasks and merge/closure actions, repair counts, and claim
-release or exact retained uncertainty. A safely paused run returns its blocker
-and resume handoff, never a successful delivery claim.
+Every terminal report follows [closeout.md](references/closeout.md): delivery
+results with duration and token-usage coverage, followed by a workflow audit of
+what worked, what failed, and reusable improvements to this skill or its invoked
+skills. The coordinator owns synthesis; optional bounded research does not
+change any invoked skill's delegation policy. A paused run reports partial
+results and its resume handoff, never a successful delivery claim.
 
 ## Skill Dependencies
 

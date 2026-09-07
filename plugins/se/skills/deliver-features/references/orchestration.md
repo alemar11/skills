@@ -9,27 +9,29 @@ conditions. [states.md](states.md) owns result meanings.
 | from | to | when |
 | --- | --- | --- |
 | intake | claim-repositories | Saved spec/task selection and exact affected repository identities are resolved; current coordinator identity is available. |
-| intake | deferred | A material selection or authority decision prevents responsible work before acquisition. |
-| intake | blocked | Input, identity, or required capability cannot be established before acquisition. |
+| intake | closeout | A material decision, explicit stop, unresolved input, identity or capability prevents acquisition; retain the corresponding deferred or blocked outcome. |
 | claim-repositories | reconcile | The current task acquired/reused, bound, and read back its exact repository set. |
-| claim-repositories | blocked | Ownership cannot be established; safely abandon this invocation's unused provisional claim when possible and report any retained uncertainty. |
+| claim-repositories | closeout | Ownership cannot be established; safely abandon this invocation's unused provisional claim when possible and report any retained uncertainty. |
 | reconcile | schedule | At least one selected unit has useful dependency-ready work or a justified recovery attempt; omit blocked and already active contributions. |
 | reconcile | release-claims | Selected work is verified or no further useful work can proceed; all actors are stopped, effects resolved, work preserved, progress save attempted, and the pending terminal outcome is known. |
-| reconcile | blocked | An actor, mutation, work-preservation, or ownership ambiguity prevents safe release; report the retained claim/uncertainty. |
+| reconcile | closeout | An actor, mutation, work-preservation, or ownership ambiguity prevents safe release; report the retained claim/uncertainty. |
 | schedule | deliver-unit | A bounded independent lane has verified ownership, worktree, base, contribution, selected role, and available repair budget for its assignment. |
 | schedule | reconcile | Only active lanes remain, an assignment returns, or current evidence requires recomputing readiness. |
 | deliver-unit | review-candidate | A validated, locally committed candidate is stable, the developer is quiescent, and current independent review is required. |
 | deliver-unit | reconcile | A worker returns publication, progress, findings, interruption, or blocker evidence; reconcile each lane separately. |
 | review-candidate | reconcile | A reviewer returns a verdict, failed attempt, or cleanup evidence; the coordinator decides repair, publication, recovery, or unit pause. |
-| release-claims | complete | Exact release is proved and all selected outcomes, progress writes, reviews, and CI satisfy completion. |
-| release-claims | deferred | Exact release is proved and preserved work awaits a material user decision, explicit stop, merge, or deployment authority. |
-| release-claims | blocked | Exact release is proved but a capability, validation, review, budget, or progress-save blocker remains; or release itself remains uncertain. |
+| release-claims | closeout | Release succeeded or remains uncertain; preserve complete/deferred/blocked from delivery evidence, with blocked for unresolved release safety. |
+| closeout | complete | Closeout report prepared; exact release and all selected outcomes, progress writes, reviews and CI satisfy completion. |
+| closeout | deferred | Closeout report prepared; a material decision, explicit stop or separately authorized action remains, with no claim acquired or exact safe release proved. |
+| closeout | blocked | Closeout report prepared; a capability, validation, review, budget, progress-save or safety blocker remains, including uncertain release. |
 
 Waiting is change-driven and bounded. A lane's blocker does not terminate
 independent work. Once only active lanes remain, wait for their result or a
 material change; do not duplicate work or busy-poll. Before returning a global
 blocked/deferred result with owned claims, use the release path whenever it is
-safe. A retained claim requires an exact unresolved safety reason.
+safe. A retained claim requires an exact unresolved safety reason. Every terminal
+path passes through [closeout.md](closeout.md), including pre-acquisition stops
+and unsafe pauses; closeout never substitutes for safe release.
 
 ## Current coordinator and native subagents
 
@@ -60,7 +62,10 @@ PR grouping, and actual integration bases. A handoff includes the selected
 spec/tasks, unit ID and PR binding, bounded contribution, exact repository,
 worktree, base/HEAD, selected role, relevant instructions, validation method,
 repair count, and G publication/review obligations. Pass evidence references
-without the developer's preferred conclusion to independent reviewers.
+without the developer's preferred conclusion to independent reviewers. Include
+available execution timing and token telemetry in handoffs back to the
+coordinator, with identity and coverage as defined in [closeout.md](closeout.md);
+missing telemetry does not block a worker result.
 
 Create separate worktrees for implementation lanes. Before content mutation,
 verify actual repository/remote, worktree, branch, and full starting SHA against

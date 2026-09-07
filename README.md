@@ -46,7 +46,7 @@ updates. It has no GitHub connector dependency. It bundles:
 SE is the repository's software-delivery workflow plugin. It refines and
 studies ideas, turns them into Feature plans, delivers them through reviewed
 pull requests or lightweight local commits, maintains project knowledge, and
-audits active work:
+includes delivery workflow retrospectives:
 
 | Skill | Purpose |
 | --- | --- |
@@ -59,7 +59,6 @@ audits active work:
 | `se:spec` | Create or revise one coherent feature spec and actionable task plan, saving to GitHub or a single Markdown file. |
 | `se:deliver-features` | Deliver saved specs or selected tasks through isolated subagents, reviewed ready PRs, and verified outcomes from the current task. |
 | `se:implement` | Implement selected local work from a spec, ticket, issue, or direct request, validate it, and commit only the required files without orchestration or publication. |
-| `se:audit` | Observe active SE work and report workflow problems or improvement opportunities without making changes. |
 
 Xcode is the repository's Apple developer-tools plugin. It preserves the
 official stable and beta release-note resolver and adds safe launch guidance
@@ -157,14 +156,9 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
   quiescence; resume reacquires and reconciles evidence. Task progress is updated
   in the original planning destination. It supplies
   exact justified closing references to G; partial work never closes a complete
-  spec. Merge, deploy, and direct issue closure remain separately authorized.
-- `se:audit` runs only after explicit invocation and observes a frozen cohort of
-  active SE sessions until terminal state or user stop. Complete coverage
-  requires exhausting every authoritative continuation and host/project
-  partition; capped or untraversable inventories are reported as partial. It
-  keeps all evidence transient, treats missing visibility as indeterminate
-  rather than a violation, and never contacts tasks or mutates repositories and
-  GitHub.
+  spec. Every invocation closes with delivery results, available duration/token
+  usage, and a workflow audit proposing improvements reusable across projects.
+  Merge, deploy, and direct issue closure remain separately authorized.
 
 ## Project-Local Skills
 

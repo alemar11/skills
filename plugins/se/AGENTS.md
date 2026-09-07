@@ -40,6 +40,7 @@ When ownership changes, update affected consumers and remove obsolete routes.
   composed callers own target identity, lifecycle, and disposition mapping.
 - Delivery Features owns selected-spec/task scheduling, integration and acceptance,
   native subagents, claims, budget reservations, progress, and reviewed PR delivery.
+  Its closeout owns run measurements and generalized workflow improvement reports.
   It composes Implement, Adversarial Review and Review PR; it does not duplicate
   their procedures. Delivery owns candidate lifecycle, finding adjudication and
   hosted acceptance; its state meanings remain in its own `references/states.md`.
@@ -48,8 +49,6 @@ When ownership changes, update affected consumers and remove obsolete routes.
   acceptance. G owns provider operations, lineage and bounded waiting.
 - Implement owns bounded local implementation/repairs and candidate handoff;
   composed callers own independent review, orchestration, claims and publication.
-- Audit owns frozen-cohort observation and evidence-calibrated conformance;
-  it has no scripts, ledger, task profile, or persistent report.
 
 ## Maintenance invariants
 

@@ -16,12 +16,16 @@ and ownership. The claim registry never stores workflow or delivery status.
 | `deliver-unit` | Implement and validate an isolated candidate; after clean local review, publish and converge its explicit hosted review and CI. |
 | `review-candidate` | Independently review an immutable committed candidate in a detached read-only snapshot. |
 | `release-claims` | After preservation/quiescence, release the exact group while retaining the pending success or pause result. |
+| `closeout` | Prepare the mandatory delivery report, measurements and generalized workflow audit without changing delivery evidence or ownership. |
 | `complete` | All selected outcomes, progress writes, and review/CI gates are verified and this run released ownership. |
 | `deferred` | A material user decision, explicit stop, or separately authorized action is needed; any acquired claim was safely released. |
 | `blocked` | A capability, validation, review, budget, progress-save, or safety blocker remains; report whether claims were released, retained, or uncertain. |
 
 A pre-acquisition stop has no claim to release. After acquisition, blocked or
-deferred work follows `reconcile -> release-claims` whenever safe. A release
+deferred work follows `reconcile -> release-claims -> closeout` whenever safe.
+Pre-acquisition stops and unsafe pauses also enter closeout with their exact
+claim state. All terminal outcomes require a closeout report, including explicit
+stops; evidence limits permit a concise best-effort retrospective. A release
 failure returns blocked with uncertainty; it does not imply a retained claim
 if successful release already has exact evidence. A later foreign acquisition
 never becomes this coordinator's ownership.
@@ -38,7 +42,11 @@ A selected task may require new delivery or be `already-incorporated`; the latte
 requires exact current outcome evidence in intended integration bases. A subset
 can complete while the parent spec remains outstanding. `pending_outcome` is the
 transient intended `complete`, `deferred`, or `blocked` report preserved across
-release; it is never a persisted workflow position.
+release and closeout; it is never a persisted workflow position.
+[closeout.md](closeout.md) owns report content and measurement coverage. Timing,
+usage and retrospective notes are transient execution evidence, not spec fields,
+claim columns, or a new saved workflow state. Closeout does not promote a paused
+outcome or restart delivery to test its recommendations.
 
 ## Persisted progress status
 
