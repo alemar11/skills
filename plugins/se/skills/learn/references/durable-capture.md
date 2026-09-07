@@ -24,7 +24,7 @@ are unambiguous.
 
 ## Setup Prerequisite
 
-Before capturing a rule, run the setup preflight from `setup-workflow.md`. If
+Before capturing a rule, apply [context-preflight.md](context-preflight.md). If
 the selected Git root or first-class subproject lacks its required `CONTEXT.md`
 or current canonical Project Context pointer, include the smallest setup
 bootstrap in the capture run. Under direct scoped authority, create or repair

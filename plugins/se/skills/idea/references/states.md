@@ -15,7 +15,7 @@ workflow's current node.
 | --- | --- | --- |
 | `capture` | Action | Collect proposal evidence after an explicit capture or preview request. |
 | `normalize` | Action | Convert the evidence into concrete, deduplicated candidate Ideas. |
-| `clarify-select` | Decision | Select among multiple candidates or resolve one material intake gap. |
+| `clarify-select` | Decision | Honor the explicitly selected set, including all candidates; ask only for unresolved selection or one material intake gap. |
 | `freeze` | Action | Finalize the accepted local candidates, owners, bodies, and intended metadata. |
 | `terminal-operation` | Decision | Resolve exactly one terminal branch after the local bundle is frozen. |
 | `preview` | Action | Render proposed Ideas locally without loading publication dependencies or hosted state. |

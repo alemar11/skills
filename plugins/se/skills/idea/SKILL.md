@@ -119,31 +119,10 @@ hosted write.
 
 ## Dependency boundary
 
-All hosted issue reads and writes belong to the repository's G-owned GitHub
-issue workflow. Do not call a provider API directly, construct an alternative
-transport, or return executable provider commands to the user. Capture and
-explicit preview are fully local: they must not load G, inspect hosted issues,
-or claim current hosted duplicate/collision state.
-
-Only after the default or explicit `run_mode=publish` is resolved, before its
-first hosted read or write, load
-[`../../references/codex-dependency-preflight.md`](../../references/codex-dependency-preflight.md)
-and complete its read-only availability gate. If the required G workflow is
-missing, disabled, malformed, or unresolvable, fail closed before hosted
-access; remediation is advisory and must never install, enable, refresh, or
-substitute the dependency.
-
-This is a hard hosted-access barrier. Until the preflight produces verified
-G-dependency evidence, do not inspect hosted issues, repository metadata,
-duplicate or collision state, native Issue Types, relations, or any other
-hosted state. Resolve tracker ownership only from explicit local or session
-evidence. If a hosted read is attempted before this barrier, stop and report a
-preflight-order blocker instead of continuing or treating the read as a valid
-preflight result.
-
-The dependency gate authorizes the next workflow handoff only. The explicit
-Idea request already authorizes the resolved in-scope Idea operations; the gate
-does not broaden that scope.
+Capture and preview remain local: do not load G or inspect hosted state. On the
+publish branch, read [publishing.md](references/publishing.md) before any hosted
+access. It owns dependency preflight, collision checks, mutation handoff, and
+recovery; the explicit Idea request supplies only its resolved in-scope authority.
 
 ## Workflow
 
@@ -187,10 +166,12 @@ Do not persist this bundle as project memory or split it across unrelated
 artifacts. Reconcile it after every user decision or hosted operation before
 continuing.
 
-If no concrete proposal exists, report that nothing was captured and stop. If
-one candidate exists and the request explicitly authorizes capture, do not ask
-for a redundant confirmation. If several candidates remain, ask one focused
-selection question and capture only the selected set. If one selected proposal
+If no concrete proposal exists, report that nothing was captured and stop.
+Honor an explicitly selected set, including an unambiguous request to capture
+all candidates, without another selection question. A single candidate under
+explicit capture authority also needs no confirmation. Ask one focused
+selection question only when multiple candidates leave the requested set
+unresolved, then capture only that set. If one selected proposal
 has a material gap in its problem, value, or direction, ask at most one
 lightweight intake question; preserve any remaining non-blocking uncertainty
 under `Open Questions`.
@@ -229,21 +210,11 @@ order, and deterministic `proposed-idea:` ref. Mark every proposed ref
 non-durable. Do not load the G dependency preflight, read GitHub, request a
 dry-run mutation, or perform any hosted operation.
 
-For run_mode=publish, load
-[`references/publishing.md`](references/publishing.md). Hand off only the
-normalized issue operation owned by the G workflow. The publication reference
-performs the dependency preflight, current hosted duplicate/collision checks,
-metadata checks, final hosted-content safety gate, mutations, and readback only
-after the local bundle is complete. Use the already reconciled in-memory bundle
-as the publication source, and verify each result before moving to the next
-candidate. The hosted issue is the durable output; the bundle remains transient.
+For run_mode=publish, use [publishing.md](references/publishing.md) with the
+frozen bundle. It owns the publication sequence and partial-failure recovery.
+The hosted issue is durable; the bundle remains transient.
 
-### 5. Recover and report
-
-If a hosted operation is ambiguous or partially succeeds, stop the batch and
-reconcile the current hosted state. Distinguish verified created, reused,
-missing, and failed operations. Retry only an operation proven absent; never
-replay the entire batch from stale assumptions.
+### 5. Report
 
 Report every selected candidate as `created`, `reused`, `proposed`, `skipped`,
 or `failed`, with its owner, name, and qualified durable or explicitly

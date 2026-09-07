@@ -23,9 +23,10 @@ hosted provider and has no publish mode.
 ## Select and load one branch
 
 Read [options.md](references/options.md) to resolve the smallest canonical
-`memory_slice`. Read [setup-workflow.md](references/setup-workflow.md) for the
-Project Context pointer preflight. Then load only the
-selected branch:
+`memory_slice`. Apply [context-preflight.md](references/context-preflight.md)
+for the shared context/pointer checks, then load only the selected branch.
+Read setup details only on the routes below or when the preflight identifies a
+pointer change that needs their templates.
 
 | Work | Read |
 | --- | --- |

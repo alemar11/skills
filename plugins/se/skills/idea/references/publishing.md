@@ -14,6 +14,34 @@ This reference is the only external terminal phase of the Idea workflow. The
 capture and preview paths must not load the G dependency preflight, inspect
 GitHub, or mutate hosted state.
 
+## Dependency preflight
+
+All hosted issue reads and writes belong to the repository's G-owned GitHub
+issue workflow. Do not call a provider API directly, construct an alternative
+transport, or return executable provider commands to the user. Capture and
+explicit preview are fully local: they must not load G, inspect hosted issues,
+or claim current hosted duplicate/collision state.
+
+Only after the default or explicit `run_mode=publish` is resolved, before its
+first hosted read or write, load
+[`../../../references/codex-dependency-preflight.md`](../../../references/codex-dependency-preflight.md)
+and complete its read-only availability gate. If the required G workflow is
+missing, disabled, malformed, or unresolvable, fail closed before hosted
+access; remediation is advisory and must never install, enable, refresh, or
+substitute the dependency.
+
+This is a hard hosted-access barrier. Until the preflight produces verified
+G-dependency evidence, do not inspect hosted issues, repository metadata,
+duplicate or collision state, native Issue Types, relations, or any other
+hosted state. Resolve tracker ownership only from explicit local or session
+evidence. If a hosted read is attempted before this barrier, stop and report a
+preflight-order blocker instead of continuing or treating the read as a valid
+preflight result.
+
+The dependency gate authorizes the next workflow handoff only. The explicit
+Idea request already authorizes the resolved in-scope Idea operations; the gate
+does not broaden that scope.
+
 ## Hosted artifact
 
 Each durable Idea is an open issue with:
