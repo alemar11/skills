@@ -76,7 +76,7 @@ for Apple's native headless MCP server:
 | `crusty` | Skeptical, evidence-backed critique of work decisions and implementations. Use only when explicitly asked for Crusty. |
 | `ms-roberts` | Silently track substantive grammar errors in medium or complex user-authored English; report on request or session close. |
 | `socrates` | Turn recent engineering work into short, opt-in Socratic exercises with one evidence-grounded question at a time. |
-| `okf` | Write, scaffold, inspect, and validate Open Knowledge Format markdown bundles with the shipped OKF CLI. |
+| `okf` | Write, scaffold, inspect, and validate Open Knowledge Format Markdown bundles with the shipped CLI. |
 | `skill-cli-creator` | Build host-aware embedded CLIs that live inside a skill or plugin under `scripts/`. |
 | `tanstack` | Review, build, debug, and migrate TanStack apps with Query, Router, Start, and related packages. |
 | `focus` | Create one new Codex task with a compact handoff of the current discussion. Use only when explicitly invoked. |

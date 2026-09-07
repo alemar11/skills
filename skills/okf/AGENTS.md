@@ -26,3 +26,6 @@ validation behavior belongs in `SKILL.md` and `references/`.
 - For CLI changes, run the focused unittest suite and verify the shipped
   artifact with `--help`, `--version`, `--json doctor`, and a safe offline
   scaffold or validate fixture.
+
+Use semantic versions for the CLI: major for incompatible contracts, minor
+for compatible capabilities, and patch for fixes.
