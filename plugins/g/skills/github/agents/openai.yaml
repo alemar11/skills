@@ -1,5 +1,0 @@
-interface:
-  display_name: "GitHub"
-  short_description: "Handle general or mixed GitHub requests"
-  brand_color: "#DE4C36"
-  default_prompt: "Use $g:github to handle a general or mixed GitHub request and choose the focused G workflows needed to complete it safely."

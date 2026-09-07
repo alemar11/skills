@@ -9,7 +9,6 @@ extension for stacked pull requests. It has no GitHub connector dependency.
 
 | Skill | Purpose |
 | --- | --- |
-| `g:github` | Route general or mixed GitHub requests to the focused G owner. |
 | `g:git-commit` | Create or push explicitly staged regular and targeted commits without opening a pull request. |
 | `g:github-repository-triage` | Inspect issue and pull-request queues read-only. |
 | `g:github-issues` | Manage issue lifecycle, classify labels and types, and propose taxonomy. |

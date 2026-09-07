@@ -25,7 +25,6 @@ G is the repo-local Git and GitHub workflow plugin. It uses authenticated `gh`, 
 
 | Skill | Purpose |
 | --- | --- |
-| `g:github` | Handle general or mixed GitHub requests through the appropriate focused workflows. |
 | `g:git-commit` | Create or push explicit regular, fixup, or amend-fixup commits without publishing a PR. |
 | `g:github-repository-triage` | Triage issue and pull request queues across one or more repositories read-only. |
 | `g:github-issues` | Manage GitHub issues, attachments, relationships, label/type classification, and taxonomy proposals. |
