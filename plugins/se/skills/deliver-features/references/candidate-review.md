@@ -101,7 +101,9 @@ concrete recovered capability or changed condition supports progress; repeated
 unchanged infrastructure failure pauses the affected PR. Never run competing
 review attempts after an ambiguous launch.
 
-A clean result permits publication while all target identities remain current.
+A clean result satisfies the local review gate while all target identities remain
+current; publication also requires the coordinator's
+[outcome-alignment check](completion.md#selected-outcome-verification).
 Any semantic contract, coverage, candidate, base-tip, ancestry, HEAD, tree, or
 delta change invalidates affected evidence. Verify it immediately before push,
 ready transition, and final completion. A hosted repair must pass local review

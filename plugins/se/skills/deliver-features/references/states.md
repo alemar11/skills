@@ -11,9 +11,9 @@ and ownership. The claim registry never stores workflow or delivery status.
 | --- | --- |
 | `intake` | Resolve authoritative specs, exact task selection and repositories, and the current coordinator. |
 | `claim-repositories` | Acquire/reuse the frozen set and bind it to the current task. |
-| `reconcile` | Reconcile lanes, evidence, per-PR budgets and blockers; continue independent work or prepare safe release. |
+| `reconcile` | Reconcile requested outcomes, caller decisions, lanes, evidence, per-PR budgets and blockers; continue independent work or prepare safe release. |
 | `schedule` | Assign dependency-ready units with supported integration topology, or wait for active lanes without duplicating work. |
-| `deliver-unit` | Implement and validate an isolated candidate; after clean local review, publish and converge its explicit hosted review and CI. |
+| `deliver-unit` | Implement and validate an isolated candidate; after clean local review and outcome alignment, publish and converge its explicit hosted review and CI. |
 | `review-candidate` | Independently review an immutable committed candidate in a detached read-only snapshot within its recorded attempt deadline. |
 | `release-claims` | After preservation/quiescence, release the exact group while retaining the pending success or pause result. |
 | `closeout` | Prepare the mandatory delivery report, measurements and generalized workflow audit without changing delivery evidence or ownership. |
@@ -37,6 +37,12 @@ Absent explicit task selection, it contains the whole spec. `delivery_unit_id`
 and task coverage are coordinator-owned execution identities, later bound to
 an exact repository/PR. They are not semantic plan fields or claim columns.
 An unselected dependency can block selected work but cannot enlarge selection.
+
+[task-delivery.md](task-delivery.md#selected-outcomes) owns scope reconciliation
+and caller-decision handoffs; its readiness policy identifies which action each
+prerequisite gates. These are execution context, not new workflow states, saved
+spec fields or claim columns. Publishing a partial contribution does not change
+the completion meaning of the selected task or spec.
 
 A selected task may require new delivery or be `already-incorporated`; the latter
 requires exact current outcome evidence in intended integration bases. A subset

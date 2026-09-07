@@ -1,6 +1,7 @@
 # Task Selection and PR Grouping
 
-Read during Intake and before assigning or regrouping work. Spec owns the
+Read during Intake, on material caller clarifications, and before assigning or
+regrouping work. Spec owns the
 [specification contract](../../spec/references/specification.md); Delivery owns
 selection, execution units, integration, and PR grouping.
 
@@ -12,6 +13,22 @@ legacy formats. Select all tasks by default. An explicit subset selects exact
 task IDs within their qualified spec identities; an explicit batch may select
 several specs. Read the surrounding spec to preserve constraints, not to expand
 implementation scope.
+
+At Intake, before substantial implementation, and when a caller clarification
+changes scope, environment, ordering or authority, reconcile the requested
+outcome with the saved task contracts. Identify what the proposed work delivers
+and what remains excluded or blocked. Apply clear caller instructions without
+reconfirmation. If a material conflict with a saved prerequisite or preservation
+constraint remains unresolved, explain its effect on the deliverable and resolve
+only that decision before affected work proceeds. Quiesce affected assignments
+while reconciling; continue unaffected selected work. Do not silently narrow
+selection or replace the requested outcome.
+
+Carry explicit caller decisions alongside the saved contract in coordinator
+history and handoffs, including on resume. They do not authorize incidental
+rewrites of saved semantics: Spec owns those changes, and delivery progress is
+not a contract amendment. Changed semantics or coverage invalidate affected
+evidence under [candidate-review.md](candidate-review.md#recovery-and-invalidation).
 
 Read prerequisites outside the selection and verify their declared evidence.
 An unfinished prerequisite requires the caller's decision before adding it.
@@ -53,9 +70,21 @@ criteria fully verified by this selection from those awaiting other tasks.
 ## Readiness and concurrency
 
 Recommended order chooses among ready work; actual prerequisites determine
-readiness. Verify the declared outcomes, not merely a closed issue, list
-position, native edge, or finished agent turn. A prerequisite must be available
-in the integration base or a validated candidate the dependent can consume.
+readiness for the proposed action. Identify whether each prerequisite gates code
+preparation, publication, merge, data application, deployment or cleanup from
+the contract and explicit caller decisions. Do not infer that boundary from a
+task title or assume operational prerequisites apply only at deployment.
+Resolve material ambiguity under the selected-outcome policy above.
+
+Preparation may proceed only where that boundary permits it. Before preparation
+becomes the remaining deliverable, verify that it still materially advances the
+current request and resolve any material substitution with the caller. Local
+references prove only their observed scope; preparation does not satisfy the
+gated operational outcome.
+
+Verify declared prerequisite outcomes, not merely a closed issue, list position,
+native edge, or finished agent turn. A code prerequisite must be available in
+the integration base or a validated candidate the dependent can consume.
 Cross-repository candidates require a published PR, exact HEAD, and the needed
 contract/integration evidence. Respect explicit merged/deployed prerequisites;
 Delivery does not authorize those effects.

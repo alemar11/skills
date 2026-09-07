@@ -12,13 +12,13 @@ conditions. [states.md](states.md) owns result meanings.
 | intake | closeout | A material decision, explicit stop, unresolved input, identity or capability prevents acquisition; retain the corresponding deferred or blocked outcome. |
 | claim-repositories | reconcile | The current task acquired/reused, bound, and read back its exact repository set. |
 | claim-repositories | closeout | Ownership cannot be established; safely abandon this invocation's unused provisional claim when possible and report any retained uncertainty. |
-| reconcile | schedule | At least one selected unit has useful dependency-ready work or a justified recovery attempt; omit blocked and already active contributions. |
+| reconcile | schedule | Scope is reconciled under task-delivery.md for at least one selected unit with dependency-ready work or a justified recovery attempt; omit blocked and already active contributions. |
 | reconcile | release-claims | Selected work is verified or no further useful work can proceed; all actors are stopped, effects resolved, work preserved, progress save attempted, and the pending terminal outcome is known. |
 | reconcile | closeout | An actor, mutation, work-preservation, or ownership ambiguity prevents safe release; report the retained claim/uncertainty. |
 | schedule | deliver-unit | A bounded independent lane has verified ownership, worktree, base, contribution, supported integration topology, selected role, and available repair budget for its assignment. |
-| schedule | reconcile | Only active lanes remain, an assignment returns, or current evidence requires recomputing readiness. |
+| schedule | reconcile | Only active lanes remain, an assignment returns, or a caller clarification or current evidence requires recomputing scope/readiness. |
 | deliver-unit | review-candidate | A validated, locally committed candidate is stable, the developer is quiescent, and current independent review is required. |
-| deliver-unit | reconcile | A worker returns publication, progress, findings, interruption, or blocker evidence; reconcile each lane separately. |
+| deliver-unit | reconcile | A worker returns publication, progress, findings, interruption, or blocker evidence, or a material caller clarification requires scope reconciliation; reconcile each lane separately. |
 | review-candidate | reconcile | A reviewer returns a verdict, failure or deadline/cleanup evidence under candidate-review.md; the coordinator decides repair, publication, recovery, or unit pause. |
 | release-claims | closeout | Release succeeded or remains uncertain; preserve complete/deferred/blocked from delivery evidence, with blocked for unresolved release safety. |
 | closeout | complete | Closeout report prepared; exact release and all selected outcomes, progress writes, reviews and CI satisfy completion. |
@@ -57,9 +57,10 @@ delegation, or claim operations. The coordinator remains the user's contact.
 ## Worker handoff and isolation
 
 Read [task-delivery.md](task-delivery.md) for readiness, contribution coverage,
-PR grouping, supported topology and reconciliation before republishing. A handoff includes the selected
-spec/tasks, unit ID and PR binding, bounded contribution, exact repository,
-worktree, base/HEAD, selected role, relevant instructions, validation method,
+PR grouping, supported topology and reconciliation before republishing. A handoff
+includes the selected spec/tasks, explicit caller scope decisions, unit ID and PR
+binding, bounded contribution, exact repository, worktree, base/HEAD, selected
+role, relevant instructions, validation method,
 repair count, and G publication/review obligations. Pass evidence references
 without the developer's preferred conclusion to independent reviewers. Include
 available execution timing and token telemetry in handoffs back to the
@@ -88,8 +89,10 @@ Implement returns a validated committed candidate and becomes quiescent; it does
 not launch a duplicate reviewer or publish within its implementation phase.
 
 The coordinator applies [candidate review](candidate-review.md)
-before any push of new candidate content. A clean receipt authorizes publication
-of that exact candidate. Findings return to the coordinator, which alone reserves
+before any push of new candidate content. A clean receipt satisfies the local
+review gate for that exact candidate; publication also requires the
+[outcome-alignment check](completion.md#selected-outcome-verification).
+Findings return to the coordinator, which alone reserves
 a batch under the [shared repair budget](../../../references/review-repair-budget.md)
 and reassigns Implement or an evidence-backed rebuttal. Review execution failure
 never means clean. The separate G publication phase remains under the coordinator's
@@ -134,8 +137,9 @@ reconcile before applying results. Counts and G deadlines survive re-entry.
 
 ## Recovery, progress, and safe pause
 
-On resume inspect, in order: authoritative selected contracts and progress;
-current branches/commits/worktrees; exact PR/review/CI state; coordinator history,
+On resume inspect, in order: authoritative selected contracts, explicit caller
+scope decisions and progress; current branches/commits/worktrees; exact
+PR/review/CI state; coordinator history,
 worker identities, receipts and repair counts; and claims for ownership only.
 Do not persist a workflow node or scheduling queue. Reacquisition does not reset
 budgets or make stale evidence current.

@@ -6,6 +6,16 @@ unit coverage; [progress.md](progress.md) owns saved execution status.
 
 ## Selected-outcome verification
 
+Before publication, compare the actual candidate contribution with the request
+reconciled under [task-delivery.md](task-delivery.md#selected-outcomes), selected
+task coverage and explicit caller decisions. Passing review establishes evidence
+about that candidate, not that the coordinator selected the correct deliverable.
+Resolve material scope divergence before publication. An authorized partial
+contribution may be published with accurate coverage and remaining blockers;
+incomplete tasks and feature criteria remain outstanding.
+Finishing only part of a selected task yields a partial pause under this delivery
+contract, even when the caller authorized only that contribution.
+
 Verify every selected task's completion checks across all contributing units
 and repositories, or exact current evidence of incorporation in the intended
 bases. Then verify the selected work's assembled behavior and relevant feature
