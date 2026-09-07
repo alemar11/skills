@@ -1,11 +1,9 @@
 ---
 name: mcp
-description: Launch and diagnose Apple's native headless Xcode MCP server. Use when starting, verifying, or troubleshooting it on an attended Mac, unattended host, or explicitly isolated CI machine.
+description: "Launch or diagnose Apple’s native headless Xcode MCP server on macOS."
 ---
 
 # Xcode MCP
-
-## Goal
 
 Safely prepare, start, and verify the headless MCP server shipped with Xcode.
 This skill operates Apple's `xcrun mcp-server`; it does not install or
