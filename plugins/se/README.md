@@ -51,7 +51,11 @@ planning order into artificial dependencies.
 
 The intended coordinator is the current Astra task with caller-configured
 reasoning; the skill preserves task settings and explicit profile overrides.
-It coordinates native subagents using shared developer and code-reviewer roles.
+In the Codex App it creates run-scoped visible developer tasks in exact saved
+repository projects and isolated worktrees; in the CLI developers remain native
+subagents. App workers may be reused within that delivery run, remain visible
+after completion, and are never adopted by later runs. The user communicates
+only with the coordinator. Research and review roles remain native subagents.
 It composes Implement for initial work and repairs, Adversarial
 Review for local critique, and Review PR for hosted monitoring. Implementation
 lanes have isolated worktrees; the coordinator
@@ -100,7 +104,7 @@ lineage, bounded waits and terminal evidence.
   policy standalone and composed. Implement and Adversarial Review execute work;
   an orchestrator may assign them to agents but they never launch their own.
 
-- [Subagent roles](references/subagents.md) own reusable research, development and review
+- [Execution roles](references/subagents.md) own reusable research, development and review
   definitions. Study, Spec and Delivery select them while retaining their own delegation,
   lifecycle, fallback, and final decisions.
 - [Repair budget](references/review-repair-budget.md) is shared by Delivery and
@@ -121,7 +125,8 @@ lineage, bounded waits and terminal evidence.
 - Repository claims store ownership only. No spec/task progress, worker state,
   Git/PR state, review evidence, or workflow node belongs in that registry.
 - Study keeps its separate App controller or current CLI session and optional
-  bounded native subagents. Learn remains local-only.
+  bounded native subagents. Delivery alone selects App-visible or CLI-native
+  developer transport under its runtime contract. Learn remains local-only.
 
 This source tree is the maintained SE design surface; installed caches are
 verification surfaces, not editable source.

@@ -19,7 +19,10 @@ prerequisites independent of Git topology. The Spec content contract is at
 Study, Spec and Delivery share subordinate role definitions in
 [`subagents.md`](references/subagents.md). Their callers own delegation and
 lifecycle. Delivery is designed for an Astra coordinator in the current task,
-retaining caller-configured reasoning and profile overrides. It publishes ready PRs after
+retaining caller-configured reasoning and profile overrides. App delivery uses
+run-scoped visible developer tasks in exact saved-project worktrees; CLI delivery
+uses native developer subagents. Research and review remain native subagents.
+It publishes ready PRs after
 local and explicitly requested hosted review, and releases claims on verified
 safe pauses. Delivery owns progress separately from semantic spec content.
 

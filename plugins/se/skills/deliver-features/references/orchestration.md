@@ -33,19 +33,21 @@ safe. A retained claim requires an exact unresolved safety reason. Every termina
 path passes through [closeout.md](closeout.md), including pre-acquisition stops
 and unsafe pauses; closeout never substitutes for safe release.
 
-## Current coordinator and native subagents
+## Current coordinator and execution roles
 
 The invoking task remains coordinator under the profile policy in SKILL.md.
-Do not create, fork, relocate, or hand off to another visible coordinator or
-worker task. Requested settings and titles are not proof of execution identity.
+Do not create, fork, relocate, or hand off to another coordinator. Requested
+settings and titles are not proof of execution identity.
 
 Before delegation, read the selected [shared role](../../../references/subagents.md):
 `developer` for implementation/publication, `code-reviewer` for independent local
 review, or `evidence-researcher` for optional bounded investigation. Request the
-role's model/reasoning explicitly unless the caller overrides it. Use native
+role's model/reasoning explicitly unless the caller overrides it. Select the
+developer transport and apply its setup, assignment, reuse, and recovery rules
+from [worker-runtime.md](worker-runtime.md). Research and review roles use native
 subagents with self-contained handoffs. If required implementation or review
-transport is unavailable, preserve and pause safely; do not substitute visible
-tasks, external reviewer processes, or same-context self-review.
+transport is unavailable, preserve and pause safely; do not substitute another
+surface's transport, external reviewer processes, or same-context self-review.
 
 The coordinator alone holds the claim token, authorizes assignments and
 publication, reserves repair rounds, validates evidence, writes planning
@@ -76,9 +78,9 @@ or trust only a task title, cwd, or saved-project label.
 Default to one implementation lane per repository; parallel independent lanes
 must have isolated worktrees and non-overlapping assignments. A same-unit
 resume preserves understood dirty work and verifies the existing branch/HEAD.
-Reuse a clean lane for another unit only after proving prior work preserved,
-no old worker can write, and the new branch/base correct. Keep execution-progress
-edits out of implementation commits under [progress.md](progress.md).
+Reuse follows [worker-runtime.md](worker-runtime.md), including the App-only
+run boundary. Keep execution-progress edits out of implementation commits under
+[progress.md](progress.md).
 
 ## Implementation and local review
 

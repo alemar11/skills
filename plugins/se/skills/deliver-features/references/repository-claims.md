@@ -15,7 +15,7 @@ project is associated; this metadata does not create or relocate a task.
 Freeze the exact repository set from [task-delivery.md](task-delivery.md).
 Generate a fresh 32-character lowercase hexadecimal fencing token for that
 acquisition and keep it solely in the coordinator's protected execution context.
-Do not send it to subagents or put it in arguments, environment variables,
+Do not send it to execution workers or put it in arguments, environment variables,
 shared files, logs, progress, or receipts. The current task alone acquires,
 binds, and releases; a title or prompt cannot establish that identity.
 
@@ -69,7 +69,7 @@ and review evidence before scheduling under its new claim.
 Invocation authorizes safe preservation and release on success, a pause,
 exhausted repair budget, unavailable review, or a required user decision. First
 finish independent runnable work unless the user requests an immediate stop.
-Confirm every implementation/research/review subagent stopped and every write
+Confirm every implementation worker and research/review subagent stopped and every write
 or hosted submission resolved. A provider review or CI job may remain pending
 after a confirmed submission; retain its exact request/job evidence for resume.
 Release does not require the provider to finish, and never cancels its work.

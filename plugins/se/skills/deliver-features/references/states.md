@@ -30,6 +30,31 @@ failure returns blocked with uncertainty; it does not imply a retained claim
 if successful release already has exact evidence. A later foreign acquisition
 never becomes this coordinator's ownership.
 
+## Developer transport and setup
+
+`worker_transport` is a transient run fact: `app-task` for a visible developer
+task on the App surface and `subagent` for a native developer subagent on the
+CLI surface. [worker-runtime.md](worker-runtime.md) owns selection. It is never a
+claim column, saved delivery status, or permission to fall back between
+transports.
+
+App worker setup uses these transient dispositions:
+
+| `worker_setup_disposition` | Meaning |
+| --- | --- |
+| `not-started` | No creation attempt or worker effect exists. |
+| `pending-setup` | Creation has a known pending effect that still requires reconciliation. |
+| `ready` | Stable identity, exact saved project/worktree target, and required effective profile are independently verified. |
+| `creation-failed` | Authoritative evidence proves the task was not created. |
+| `structural-verification-failed` | Task identity, project, repository, worktree, branch, base, or HEAD conflicts with the required lane. |
+| `settings-drift` | Observed effective model or reasoning conflicts with the requested profile. |
+| `settings-unavailable` | Effective model or reasoning cannot be independently observed. |
+| `unresolved-setup` | Creation or setup effect remains ambiguous after bounded reconciliation. |
+
+Only `ready` permits an App worker assignment. Worker liveness and quiescence
+are external execution facts retained in coordinator history. They do not add
+workflow nodes or authorize replacement, reuse, release, or future-run adoption.
+
 ## Selection and delivery evidence
 
 `selected_task_ids` is caller-derived run scope, qualified by spec identity.

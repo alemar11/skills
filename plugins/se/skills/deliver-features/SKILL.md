@@ -22,8 +22,8 @@ The intended coordinator is Astra (`gpt-6-astra`) in the current task, with
 the caller's configured reasoning. This skill does not change task settings or
 create a replacement coordinator; explicit caller profile choices take precedence.
 Rename it to `🚚 Deliver · <scope>` when supported, without gating work on its title.
-Use native subagents and isolated implementation worktrees; never create a
-separate visible coordinator or worker task. Before delegation read the selected
+Use surface-specific developer workers and isolated implementation worktrees;
+never create a separate coordinator. Before delegation read the selected
 [shared role](../../references/subagents.md): `developer`, `code-reviewer`, or
 `evidence-researcher`.
 
@@ -40,8 +40,11 @@ unselected work. Preserve inspected dirty work and unrelated content.
 
 ## Required routing
 
-Read [orchestration.md](references/orchestration.md) before scheduling, task
-operations, recovery, or hosted review; [repository-claims.md](references/repository-claims.md)
+Read the shared [runtime surface](../../references/codex-runtime-surface.md), then
+[worker-runtime.md](references/worker-runtime.md), before capability checks,
+claims, worker operations, or recovery. Read
+[orchestration.md](references/orchestration.md) before scheduling or hosted
+review; [repository-claims.md](references/repository-claims.md)
 before claiming/releasing; [candidate review](references/candidate-review.md)
 before local review and the [repair budget](../../references/review-repair-budget.md)
 before assigning repairs or reconstructing counts;

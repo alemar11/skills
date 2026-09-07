@@ -57,7 +57,7 @@ includes delivery workflow retrospectives:
 | `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |
 | `se:idea` | Save a concrete proposal for later spec planning, or preview it locally. |
 | `se:spec` | Create or revise one coherent feature spec and actionable task plan, saving to GitHub or a single Markdown file. |
-| `se:deliver-features` | Deliver saved specs or selected tasks through isolated subagents, reviewed ready PRs, and verified outcomes from the current task. |
+| `se:deliver-features` | Deliver saved specs or selected tasks through surface-aware isolated workers, reviewed ready PRs, and verified outcomes from the current task. |
 | `se:implement` | Implement selected local work from a spec, ticket, issue, or direct request, validate it, and commit only the required files without orchestration or publication. |
 
 Xcode is the repository's Apple developer-tools plugin. It preserves the
