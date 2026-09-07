@@ -1,11 +1,9 @@
 ---
 name: whats-new
-description: Read Apple's official stable and beta Xcode release notes. Use when resolving the active, latest, requested, or available Xcode release-note versions.
+description: "Read official release notes for the active, latest, or requested stable or beta Xcode."
 ---
 
 # Xcode What's New
-
-## Goal
 
 Resolve the active Xcode version, a user-requested stable or beta version, or
 list the available Apple Xcode Release Notes entries. For active local Xcode
