@@ -87,6 +87,7 @@ for Apple's native headless MCP server:
 | `swift-docc` | Write, structure, review, and publish Swift-DocC docs using local summaries and bundled DocC sources. |
 | `youtube` | Search YouTube videos and playlists, retrieve timestamped transcripts, and search spoken content across playlists. |
 | `ghostty` | Inspect or arrange Ghostty terminals and edit configuration or keybindings when explicitly requested. |
+| `herdr` | Inspect or control Herdr terminal workspaces, panes, and agents when the user explicitly asks to use Herdr. |
 
 ### TanStack References
 
