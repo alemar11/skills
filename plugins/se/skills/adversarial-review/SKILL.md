@@ -1,6 +1,6 @@
 ---
 name: adversarial-review
-description: "Use when explicitly asked to pressure-test a software change or when a composed workflow needs an independent read-only review of a fixed code snapshot."
+description: "Independently review a fixed software change read-only when explicitly requested or composed by another workflow."
 ---
 
 # Adversarial Review
@@ -19,12 +19,9 @@ its exact identity and review the whole delta rather than only the latest turn
 or commit. Keep the review independent from the implementation conversation
 when the caller requires independent review.
 
-Apply only lenses relevant to the actual change. Consider material correctness
-risks, hidden assumptions, authorization or permission errors, data loss or
-corruption, concurrency, retries and idempotency, migration and compatibility
-hazards, rollback and partial failure, degraded dependencies, observability,
-and whether a safer or simpler approach is warranted. Do not manufacture
-findings to satisfy the posture.
+Inspect risks supported by the change, including correctness, authorization,
+state integrity, concurrency, compatibility, and failure recovery. Do not
+manufacture findings to satisfy the posture.
 
 ## Result
 
