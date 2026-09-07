@@ -1,6 +1,6 @@
 ---
 name: audit
-description: "Observe active SE sessions and report workflow problems, regressions, and improvement opportunities without changing their work. Use when the user explicitly invokes $se:audit to monitor a frozen cohort."
+description: "Monitor a frozen cohort of active SE tasks read-only when explicitly invoked as $se:audit."
 ---
 
 # Audit SE Sessions
@@ -106,8 +106,8 @@ flowchart TD
     refresh --> observe
 ~~~
 
-The `refresh` loop is intentional: it represents monitoring over time, not an
-implementation execution graph. Terminal nodes have no outgoing transitions.
+The `refresh` loop represents ongoing monitoring. Terminal nodes have no
+outgoing transitions.
 
 ## Cohort discovery and attribution
 
