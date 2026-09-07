@@ -115,6 +115,48 @@ class RepositoryClaimsTests(unittest.TestCase):
                 self.assertEqual(payload["error"]["code"], "claim-not-found")
                 self.assertFalse(self.directory.exists())
 
+    def test_acquire_rejects_unversioned_view_without_changing_database(self) -> None:
+        self.directory.mkdir(mode=0o700)
+        with closing(sqlite3.connect(self.database)) as connection, connection:
+            connection.execute("CREATE VIEW unrelated AS SELECT 1")
+        os.chmod(self.database, 0o600)
+        before = self.database.read_bytes()
+        process, payload = self.run_cli(
+            "acquire", "--home-project-key", "home", "--repository-key", "github:101",
+            claim_token=CLAIM_A, check=False,
+        )
+        self.assertEqual(process.returncode, 2)
+        self.assertEqual(payload["error"]["code"], "schema-mismatch")
+        self.assertEqual(self.database.read_bytes(), before)
+
+    def test_failed_initialization_rolls_back_schema_creation(self) -> None:
+        self.directory.mkdir(mode=0o700)
+        with closing(sqlite3.connect(self.database)) as connection:
+            connection.execute("PRAGMA journal_mode = WAL")
+        os.chmod(self.database, 0o600)
+        process, payload = self.run_cli(
+            "acquire", "--home-project-key", "home", "--repository-key", "github:101",
+            claim_token=CLAIM_A, check=False,
+        )
+        self.assertEqual(process.returncode, 2)
+        self.assertEqual(payload["error"]["code"], "unsupported-journal-mode")
+        with closing(sqlite3.connect(self.database)) as connection:
+            self.assertEqual(connection.execute("PRAGMA user_version").fetchone()[0], 0)
+            self.assertEqual(connection.execute("SELECT name FROM sqlite_master").fetchall(), [])
+
+    def test_bind_and_release_do_not_initialize_an_existing_empty_file(self) -> None:
+        self.directory.mkdir(mode=0o700)
+        self.database.touch(mode=0o600)
+        for command in ("bind", "release"):
+            with self.subTest(command=command):
+                process, payload = self.run_cli(
+                    command, "--orchestrator-task-id", "coordinator",
+                    claim_token=CLAIM_A, check=False,
+                )
+                self.assertEqual(process.returncode, 2)
+                self.assertEqual(payload["error"]["code"], "schema-mismatch")
+                self.assertEqual(self.database.read_bytes(), b"")
+
     def test_padded_persisted_identity_blocks_reads_and_new_claims(self) -> None:
         self.acquire()
         for column, canonical in (("repository_key", "github:101"), ("claim_token", CLAIM_A)):

@@ -32,7 +32,9 @@ Use the shipped `scripts/repository-claims` help and JSON output. Its database
 is `~/.cache/dotagents/plugins/se/skills/deliver-features/repository-claims.sqlite3`.
 
 - `doctor` validates without creating a registry.
-- `acquire` atomically reserves the complete set provisionally.
+- `acquire` atomically initializes an empty registry and reserves the complete set
+  provisionally. Failed initialization rolls back schema changes; `bind` and
+  `release` never initialize a registry.
 - `bind` attaches the current coordinator identity to that set.
 - `inspect` returns redacted ownership, optionally by repository key.
 - `release` removes the exact whole token group, using its bound task identity

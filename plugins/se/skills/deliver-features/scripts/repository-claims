@@ -144,11 +144,7 @@ def prepare_database(path: Path) -> None:
             pass
         else:
             os.close(descriptor)
-    reject_symlink(path)
-    if not path.is_file():
-        raise ClaimError("unsafe-database-file", "database must be a regular file")
-    if path.stat().st_mode & 0o777 != 0o600:
-        raise ClaimError("unsafe-database-permissions", "database mode must be 0600")
+    verify_permissions(path)
 
 
 def verify_permissions(path: Path) -> None:
@@ -173,31 +169,16 @@ def connect(path: Path, *, readonly: bool = False) -> sqlite3.Connection:
             path, timeout=TIMEOUT_MS / 1000, isolation_level=None
         )
     connection.row_factory = sqlite3.Row
-    connection.execute(f"PRAGMA busy_timeout = {TIMEOUT_MS}")
-    connection.execute("PRAGMA foreign_keys = ON")
     return connection
 
 
 def initialize(connection: sqlite3.Connection) -> None:
-    connection.execute("BEGIN IMMEDIATE")
-    try:
-        version = connection.execute("PRAGMA user_version").fetchone()[0]
-        tables = {
-            row[0]
-            for row in connection.execute(
-                "SELECT name FROM sqlite_master WHERE type = 'table' "
-                "AND name NOT LIKE 'sqlite_%'"
-            )
-        }
-        if version == 0 and not tables:
-            connection.execute(CREATE_TABLE_SQL)
-            connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
-        else:
-            verify_schema(connection)
-        connection.commit()
-    except Exception:
-        connection.rollback()
-        raise
+    version = connection.execute("PRAGMA user_version").fetchone()[0]
+    existing_object = connection.execute("SELECT 1 FROM sqlite_master LIMIT 1").fetchone()
+    if version == 0 and existing_object is None:
+        connection.execute(CREATE_TABLE_SQL)
+        connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+    verify_schema(connection)
 
 
 def normalized_table_sql(connection: sqlite3.Connection) -> str:
@@ -205,15 +186,6 @@ def normalized_table_sql(connection: sqlite3.Connection) -> str:
         "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'repository_claims'"
     ).fetchone()
     return " ".join(row[0].split()) if row and row[0] else ""
-
-
-def expected_table_sql() -> str:
-    connection = sqlite3.connect(":memory:")
-    try:
-        connection.execute(CREATE_TABLE_SQL)
-        return normalized_table_sql(connection)
-    finally:
-        connection.close()
 
 
 def verify_schema(connection: sqlite3.Connection) -> None:
@@ -232,7 +204,7 @@ def verify_schema(connection: sqlite3.Connection) -> None:
     )
     if objects != (("table", "repository_claims", "repository_claims"),):
         raise ClaimError("schema-mismatch", "registry contains unexpected schema objects")
-    if normalized_table_sql(connection) != expected_table_sql():
+    if normalized_table_sql(connection) != " ".join(CREATE_TABLE_SQL.split()):
         raise ClaimError("schema-mismatch", "repository_claims SQL does not match schema v1")
     columns = tuple(
         (row[1], row[2].upper(), row[3], row[4], row[5])
@@ -330,116 +302,92 @@ def disposition(rows: Sequence[sqlite3.Row]) -> str:
 
 
 def acquire(connection: sqlite3.Connection, args: argparse.Namespace) -> dict[str, Any]:
-    token = claim_token(args.claim_token)
-    home = required_text(args.home_project_key, "home_project_key")
-    repositories = sorted(
-        {repository_key(value) for value in args.repository_key}
-    )
-    if not repositories:
-        raise ClaimError("invalid-input", "at least one repository_key is required")
-
-    connection.execute("BEGIN IMMEDIATE")
-    try:
-        verify_schema(connection)
-        existing_group = rows_for_token(connection, token)
-        if existing_group:
-            group_keys = {row["repository_key"] for row in existing_group}
-            requested = set(repositories)
-            if not requested.issubset(group_keys):
-                raise ClaimError(
-                    "repository-set-expansion-unsupported",
-                    "an existing claim token cannot acquire additional repositories",
-                )
-            if any(row["home_project_key"] != home for row in existing_group):
-                raise ClaimError(
-                    "home-project-mismatch",
-                    "existing claim uses a different visible home project",
-                )
-            result = {
-                "disposition": disposition(existing_group),
-                "claims": serialize_rows(existing_group),
-            }
-            connection.commit()
-            return result
-
-        placeholders = ",".join("?" for _ in repositories)
-        conflicts = connection.execute(
-            f"SELECT * FROM repository_claims WHERE repository_key IN ({placeholders}) "
-            "ORDER BY repository_key",
-            repositories,
-        ).fetchall()
-        if conflicts:
+    token = args.claim_token
+    home = args.home_project_key
+    repositories = args.repository_key
+    existing_group = rows_for_token(connection, token)
+    if existing_group:
+        group_keys = {row["repository_key"] for row in existing_group}
+        requested = set(repositories)
+        if not requested.issubset(group_keys):
             raise ClaimError(
-                "repository-claimed",
-                "requested repositories overlap an existing claim",
+                "repository-set-expansion-unsupported",
+                "an existing claim token cannot acquire additional repositories",
             )
-        claimed_at = timestamp()
-        connection.executemany(
-            """
-            INSERT INTO repository_claims (
-                repository_key, claim_token, home_project_key,
-                orchestrator_task_id, claimed_at
-            ) VALUES (?, ?, ?, NULL, ?)
-            """,
-            [(repository, token, home, claimed_at) for repository in repositories],
-        )
-        rows = rows_for_token(connection, token)
-        connection.commit()
+        if any(row["home_project_key"] != home for row in existing_group):
+            raise ClaimError(
+                "home-project-mismatch",
+                "existing claim uses a different visible home project",
+            )
         return {
-            "disposition": "acquired",
-            "claims": serialize_rows(rows),
+            "disposition": disposition(existing_group),
+            "claims": serialize_rows(existing_group),
         }
-    except Exception:
-        connection.rollback()
-        raise
+
+    placeholders = ",".join("?" for _ in repositories)
+    conflicts = connection.execute(
+        f"SELECT * FROM repository_claims WHERE repository_key IN ({placeholders}) "
+        "ORDER BY repository_key",
+        repositories,
+    ).fetchall()
+    if conflicts:
+        raise ClaimError(
+            "repository-claimed",
+            "requested repositories overlap an existing claim",
+        )
+    claimed_at = timestamp()
+    connection.executemany(
+        """
+        INSERT INTO repository_claims (
+            repository_key, claim_token, home_project_key,
+            orchestrator_task_id, claimed_at
+        ) VALUES (?, ?, ?, NULL, ?)
+        """,
+        [(repository, token, home, claimed_at) for repository in repositories],
+    )
+    rows = rows_for_token(connection, token)
+    return {
+        "disposition": "acquired",
+        "claims": serialize_rows(rows),
+    }
 
 
 def bind(connection: sqlite3.Connection, args: argparse.Namespace) -> dict[str, Any]:
-    token = claim_token(args.claim_token)
-    task_id = required_text(args.orchestrator_task_id, "orchestrator_task_id")
-    connection.execute("BEGIN IMMEDIATE")
-    try:
-        verify_schema(connection)
-        rows = rows_for_token(connection, token)
-        if not rows:
-            raise ClaimError("claim-not-found", "claim token does not exist")
-        bindings = {row["orchestrator_task_id"] for row in rows}
-        if bindings == {task_id}:
-            connection.commit()
-            return {"disposition": "already-bound", "claims": serialize_rows(rows)}
-        if bindings != {None}:
-            raise ClaimError("binding-conflict", "claim is bound to another orchestrator task")
-        other_claim = connection.execute(
-            """
-            SELECT claim_token FROM repository_claims
-             WHERE orchestrator_task_id = ? AND claim_token != ?
-             LIMIT 1
-            """,
-            (task_id, token),
-        ).fetchone()
-        if other_claim:
-            raise ClaimError(
-                "orchestrator-already-bound",
-                "orchestrator task already owns another immutable repository set",
-            )
-        connection.execute(
-            "UPDATE repository_claims SET orchestrator_task_id = ? WHERE claim_token = ?",
-            (task_id, token),
+    token = args.claim_token
+    task_id = args.orchestrator_task_id
+    rows = rows_for_token(connection, token)
+    if not rows:
+        raise ClaimError("claim-not-found", "claim token does not exist")
+    bindings = {row["orchestrator_task_id"] for row in rows}
+    if bindings == {task_id}:
+        return {"disposition": "already-bound", "claims": serialize_rows(rows)}
+    if bindings != {None}:
+        raise ClaimError("binding-conflict", "claim is bound to another orchestrator task")
+    other_claim = connection.execute(
+        """
+        SELECT claim_token FROM repository_claims
+         WHERE orchestrator_task_id = ? AND claim_token != ?
+         LIMIT 1
+        """,
+        (task_id, token),
+    ).fetchone()
+    if other_claim:
+        raise ClaimError(
+            "orchestrator-already-bound",
+            "orchestrator task already owns another immutable repository set",
         )
-        rows = rows_for_token(connection, token)
-        connection.commit()
-        return {"disposition": "bound", "claims": serialize_rows(rows)}
-    except Exception:
-        connection.rollback()
-        raise
+    connection.execute(
+        "UPDATE repository_claims SET orchestrator_task_id = ? WHERE claim_token = ?",
+        (task_id, token),
+    )
+    rows = rows_for_token(connection, token)
+    return {"disposition": "bound", "claims": serialize_rows(rows)}
 
 
 def inspect(connection: sqlite3.Connection, args: argparse.Namespace) -> dict[str, Any]:
     verify_schema(connection)
     if args.repository_key:
-        repositories = sorted(
-            {repository_key(value) for value in args.repository_key}
-        )
+        repositories = args.repository_key
         placeholders = ",".join("?" for _ in repositories)
         rows = connection.execute(
             f"SELECT * FROM repository_claims WHERE repository_key IN ({placeholders}) "
@@ -454,45 +402,28 @@ def inspect(connection: sqlite3.Connection, args: argparse.Namespace) -> dict[st
 
 
 def release(connection: sqlite3.Connection, args: argparse.Namespace) -> dict[str, Any]:
-    token = claim_token(args.claim_token)
-    task_id = (
-        required_text(args.orchestrator_task_id, "orchestrator_task_id")
-        if args.orchestrator_task_id is not None
-        else None
-    )
-    if bool(task_id) == bool(args.abandon_provisional):
+    token = args.claim_token
+    task_id = args.orchestrator_task_id
+    rows = rows_for_token(connection, token)
+    if not rows:
+        raise ClaimError("claim-not-found", "claim token does not exist")
+    bindings = {row["orchestrator_task_id"] for row in rows}
+    if args.abandon_provisional:
+        if bindings != {None}:
+            raise ClaimError("release-binding-mismatch", "claim is bound, not provisional")
+    elif bindings != {task_id}:
         raise ClaimError(
-            "invalid-input",
-            "release requires exactly one of orchestrator_task_id or "
-            "abandon_provisional",
+            "release-binding-mismatch", "orchestrator task does not own this claim"
         )
-    connection.execute("BEGIN IMMEDIATE")
-    try:
-        verify_schema(connection)
-        rows = rows_for_token(connection, token)
-        if not rows:
-            raise ClaimError("claim-not-found", "claim token does not exist")
-        bindings = {row["orchestrator_task_id"] for row in rows}
-        if args.abandon_provisional:
-            if bindings != {None}:
-                raise ClaimError("release-binding-mismatch", "claim is bound, not provisional")
-        elif bindings != {task_id}:
-            raise ClaimError(
-                "release-binding-mismatch", "orchestrator task does not own this claim"
-            )
-        deleted = connection.execute(
-            "DELETE FROM repository_claims WHERE claim_token = ?", (token,)
-        ).rowcount
-        if deleted != len(rows):
-            raise ClaimError("registry-corrupt", "release did not remove the complete claim")
-        connection.commit()
-        return {
-            "disposition": "released",
-            "released_repository_keys": [row["repository_key"] for row in rows],
-        }
-    except Exception:
-        connection.rollback()
-        raise
+    deleted = connection.execute(
+        "DELETE FROM repository_claims WHERE claim_token = ?", (token,)
+    ).rowcount
+    if deleted != len(rows):
+        raise ClaimError("registry-corrupt", "release did not remove the complete claim")
+    return {
+        "disposition": "released",
+        "released_repository_keys": [row["repository_key"] for row in rows],
+    }
 
 
 def doctor(path: Path) -> dict[str, Any]:
@@ -547,18 +478,19 @@ def parser() -> argparse.ArgumentParser:
 
 
 def validate_arguments(args: argparse.Namespace) -> None:
-    """Reject semantic input errors before opening or creating the registry."""
+    """Normalize input before opening or creating the registry."""
     if args.command in {"acquire", "inspect"}:
-        for value in args.repository_key or ():
-            repository_key(value)
+        args.repository_key = sorted(
+            {repository_key(value) for value in args.repository_key or ()}
+        )
     if args.command == "acquire":
-        required_text(args.home_project_key, "home_project_key")
-    if args.command == "bind":
-        required_text(args.orchestrator_task_id, "orchestrator_task_id")
+        args.home_project_key = required_text(args.home_project_key, "home_project_key")
+    if args.command in {"bind", "release"} and args.orchestrator_task_id is not None:
+        args.orchestrator_task_id = required_text(
+            args.orchestrator_task_id, "orchestrator_task_id"
+        )
     if args.command == "release":
-        if args.orchestrator_task_id is not None:
-            required_text(args.orchestrator_task_id, "orchestrator_task_id")
-        if (args.orchestrator_task_id is not None) == bool(args.abandon_provisional):
+        if (args.orchestrator_task_id is not None) == args.abandon_provisional:
             raise ClaimError(
                 "invalid-input",
                 "release requires exactly one of orchestrator_task_id or abandon_provisional",
@@ -577,11 +509,12 @@ def execute(args: argparse.Namespace, path: Path) -> dict[str, Any]:
             return inspect(connection, args)
     if args.command in {"bind", "release"} and not path.exists():
         raise ClaimError("claim-not-found", "claim token does not exist")
-    with closing(connect(path)) as connection:
-        initialize(connection)
-        verify_permissions(path)
+    with closing(connect(path)) as connection, connection:
+        connection.execute("BEGIN IMMEDIATE")
         if args.command == "acquire":
+            initialize(connection)
             return acquire(connection, args)
+        verify_schema(connection)
         if args.command == "bind":
             return bind(connection, args)
         if args.command == "release":
