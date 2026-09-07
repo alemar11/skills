@@ -1,6 +1,6 @@
 ---
 name: send
-description: Commit and push scoped local changes, then open or update one pull request without changing its draft state. Use when PR publication is requested; resolved-issue references remain caller-supplied.
+description: "Commit and push scoped changes, then create or update one PR while preserving existing draft state."
 ---
 
 # Send
@@ -10,45 +10,18 @@ and follow [Network execution](../../references/network-execution.md).
 
 ## Role
 
-Publish local work from a checkout. This skill composes bundled G skills,
-direct `git`, the shared CLI, and authenticated `gh` PR operations:
+Publish one branch and PR. Compose `g:git-commit` for commit authoring; Send owns
+the push, base selection, PR body, and publication readback. Reuse an existing
+suitable commit and matching PR.
 
-- Use `$g:git-commit` for staging and commit authoring.
-- Use `<plugin-root>/scripts/g publish preflight` for structured local
-  readiness and `publish open --title-file --body-file` for new PRs. Use a
-  file-backed `gh api --input` request for existing-PR title or body changes.
-  Do not put PR title or body text in argv or a shell string.
-- When the publish path is selected, load
-  [`../../references/gh-dependency-preflight.md`](../../references/gh-dependency-preflight.md)
-  before the first `gh`-dependent command. The shared reference owns the
-  `gh` availability and authentication checks; stack-specific readiness belongs
-  to `$g:github-stack`.
-- Use `$g:github-issues`, `$g:github-repository-triage`, `$g:github-investigation`, `$g:github-actions`,
-  or `$g:github-review-threads` only for focused follow-up GitHub work.
+Use `<plugin-root>/scripts/g publish preflight` and `publish open` for a new PR;
+use file-backed `gh api --input` for existing title/body changes. Keep provider
+text out of shell strings and argv. Before a provider operation, read
+[gh preflight](../../references/gh-dependency-preflight.md).
+The plugin root is two directories above the directory containing this file.
 
-Resolve `<plugin-root>` as two directories above the directory containing this
-`SKILL.md`. The CLI uses direct `git` and authenticated `gh` for its preflight
-and provider commands.
-
-If there is no local work to publish, or the request is only GitHub issue
-hygiene such as creating, commenting on, labeling, or closing issues, do not run
-the full publish flow. Route that work to `$g:github-issues`, perform the
-authorized GitHub issue operation with resolved `mutation_mode=apply|dry-run`,
-the exact repository and issue target, and one canonical `issue_operation`, and
-state that full `send` was not applicable.
-
-Prefer the shortest publish path that matches the state in front of you:
-
-- If a good local commit already exists, reuse it instead of reopening commit
-  authoring.
-- If the branch already has a PR, update that PR instead of treating the run as
-  a fresh publish. Preserve its current draft or ready state and return the
-  exact publication read-back.
-- If a target base is explicitly supplied, publish or update the current PR
-  against that exact branch. Whether that base participates in a stack is a
-  separate `$g:github-stack` concern.
-- If there is no publishable local change, stop early and route issue-only
-  follow-up to `$g:github-issues`.
+For issue-only work or no publishable changes, use the relevant G owner instead
+of running publication. Single-PR publication does not imply stack management.
 
 ## Base Selection And Existing PR Reuse
 
