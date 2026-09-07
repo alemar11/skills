@@ -1,33 +1,31 @@
 ---
 name: study
-description: "Orchestrate a read-only SE study that refines a curated handoff through Grilling and delegates bounded evidence work when useful. Use when the user explicitly invokes or selects Study for research, analysis, investigation, or planning; never modify project files or recurse."
+description: "Run an explicitly requested read-only study, refining its handoff before optional bounded delegation."
 ---
 
 # Study
 
 ## Purpose and boundary
 
-Use `$se:study` for requirements analysis, architecture exploration,
-repository investigation, technical research, comparison, risk analysis, test
-strategy, implementation planning, and other read-only discovery. Study builds
-one curated handoff, refines it through `$se:grilling`, optionally delegates
-bounded evidence gathering, and returns a textual Markdown report.
+Build one curated handoff, refine it through `se:grilling`, optionally delegate
+bounded evidence gathering, and return a Markdown study report.
 
 Study is not an implementation workflow:
 
 - Never write, edit, delete, rename, generate, or apply project files.
 - Never produce a patch, commit, push, deployment, publication, or other
   implementation artifact.
-- Convert an implementation request into a read-only analysis or plan and
-  state that boundary in the report.
+- If the user switches to implementation, end Study with its findings and
+  continue through the authorized implementation workflow. Do not reinterpret
+  that request as analysis only.
 - Delegate inspection and reasoning only. Never ask a worker to implement,
   fix, refactor, or change tests.
 - Use only operations proven read-only. Do not run commands that may update
   caches, reports, lockfiles, generated files, Git state, hosted records,
   accounts, or external systems.
 - Return the report in the active Study controller. Do not save it to a file.
-  A saved artifact requires a later non-Study workflow with explicit write
-  authority.
+  If the user explicitly requests a saved report, finish Study and perform
+  that scoped file write separately.
 
 The explicit invocation authorizes only the orchestration effects described
 below: one separate Study controller task on the App surface and native
