@@ -1,6 +1,6 @@
 ---
 name: github-stack
-description: Manage stacked branches and dependent pull requests through the G stack CLI. Use when the user asks to create, inspect, link, rebase, synchronize, navigate, restructure, or merge a stack of PRs.
+description: "Manage stacked Git branches and dependent pull requests through the G stack CLI."
 ---
 
 # GitHub Stack
@@ -81,17 +81,3 @@ express an explicitly requested non-interactive operation.
   removed.
 - Merge stacks only with `stack merge ... --yes`; do not substitute
   `gh pr merge`.
-
-## Routing
-
-| Request | Owner |
-| --- | --- |
-| One branch/PR publication or update | `$g:send` |
-| Link one new child PR to one existing target PR | `$g:github-stack` |
-| Inspect or navigate an existing stack | `$g:github-stack` |
-| Publish all active stack branches | `$g:github-stack` with explicit `stack submit --auto` |
-| Rebase, sync, push, restructure, unstack, or merge a stack | `$g:github-stack` |
-
-For detailed procedures and failure recovery, read
-[`references/workflows.md`](references/workflows.md). For the typed wrapper
-contract, read [`../../references/stack-cli.md`](../../references/stack-cli.md).
