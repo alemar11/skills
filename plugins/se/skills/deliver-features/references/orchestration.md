@@ -15,11 +15,11 @@ conditions. [states.md](states.md) owns result meanings.
 | reconcile | schedule | At least one selected unit has useful dependency-ready work or a justified recovery attempt; omit blocked and already active contributions. |
 | reconcile | release-claims | Selected work is verified or no further useful work can proceed; all actors are stopped, effects resolved, work preserved, progress save attempted, and the pending terminal outcome is known. |
 | reconcile | closeout | An actor, mutation, work-preservation, or ownership ambiguity prevents safe release; report the retained claim/uncertainty. |
-| schedule | deliver-unit | A bounded independent lane has verified ownership, worktree, base, contribution, selected role, and available repair budget for its assignment. |
+| schedule | deliver-unit | A bounded independent lane has verified ownership, worktree, base, contribution, supported integration topology, selected role, and available repair budget for its assignment. |
 | schedule | reconcile | Only active lanes remain, an assignment returns, or current evidence requires recomputing readiness. |
 | deliver-unit | review-candidate | A validated, locally committed candidate is stable, the developer is quiescent, and current independent review is required. |
 | deliver-unit | reconcile | A worker returns publication, progress, findings, interruption, or blocker evidence; reconcile each lane separately. |
-| review-candidate | reconcile | A reviewer returns a verdict, failed attempt, or cleanup evidence; the coordinator decides repair, publication, recovery, or unit pause. |
+| review-candidate | reconcile | A reviewer returns a verdict, failure or deadline/cleanup evidence under candidate-review.md; the coordinator decides repair, publication, recovery, or unit pause. |
 | release-claims | closeout | Release succeeded or remains uncertain; preserve complete/deferred/blocked from delivery evidence, with blocked for unresolved release safety. |
 | closeout | complete | Closeout report prepared; exact release and all selected outcomes, progress writes, reviews and CI satisfy completion. |
 | closeout | deferred | Closeout report prepared; a material decision, explicit stop or separately authorized action remains, with no claim acquired or exact safe release proved. |
@@ -35,10 +35,9 @@ and unsafe pauses; closeout never substitutes for safe release.
 
 ## Current coordinator and native subagents
 
-The invoking task remains the coordinator and keeps its model/reasoning. When
-supported, request `🚚 Deliver · <spec or selected scope>` as its title. Renaming
-is best effort; titles never establish identity or gate work. Do not create,
-fork, relocate, or hand off to another visible coordinator or worker task.
+The invoking task remains coordinator under the profile policy in SKILL.md.
+Do not create, fork, relocate, or hand off to another visible coordinator or
+worker task. Requested settings and titles are not proof of execution identity.
 
 Before delegation, read the selected [shared role](../../../references/subagents.md):
 `developer` for implementation/publication, `code-reviewer` for independent local
@@ -58,7 +57,7 @@ delegation, or claim operations. The coordinator remains the user's contact.
 ## Worker handoff and isolation
 
 Read [task-delivery.md](task-delivery.md) for readiness, contribution coverage,
-PR grouping, and actual integration bases. A handoff includes the selected
+PR grouping, supported topology and reconciliation before republishing. A handoff includes the selected
 spec/tasks, unit ID and PR binding, bounded contribution, exact repository,
 worktree, base/HEAD, selected role, relevant instructions, validation method,
 repair count, and G publication/review obligations. Pass evidence references
@@ -94,7 +93,9 @@ of that exact candidate. Findings return to the coordinator, which alone reserve
 a batch under the [shared repair budget](../../../references/review-repair-budget.md)
 and reassigns Implement or an evidence-backed rebuttal. Review execution failure
 never means clean. The separate G publication phase remains under the coordinator's
-authority even when executed by the same developer agent.
+authority even when executed by the same developer agent. Local review attempts
+follow the [candidate deadline](candidate-review.md#attempt-deadline); a live
+reviewer does not authorize waiting past it.
 
 ## Hosted review handoff
 

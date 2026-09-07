@@ -73,6 +73,19 @@ work remains, preserve progress and follow the safe-pause protocol.
 
 ## Integration strategy
 
+For stacks or another managed PR topology, establish during grouping and before
+dependent implementation that G's read-only contract and current state support
+the arrangement. Standalone PRs do not require the stack workflow.
+Check branching/sibling relationships as well as each immediate
+parent. Correct Git ancestry alone does not prove that the stack manager can
+represent the arrangement. Do not create branches or PRs just to probe support.
+
+If support is unavailable or uncertain, choose a supported grouping within the
+selected scope, or defer affected work before implementation. An explicit
+grouping constraint that cannot be honored needs a caller decision. Do not
+silently drop requested stack relationships or serialize siblings by inventing
+a dependency. Reuse this evidence until topology or relevant capabilities change.
+
 Before dependent mutation, verify how all prerequisites will be available:
 
 - use the intended integration base when it already includes them;
@@ -92,4 +105,24 @@ branch. Through G, refresh the intended upstream and resolve its full tip before
 bootstrap. Recheck it before starting another root. For a stack, verify the
 actual immediate parent and full HEAD; use a fresh root once prerequisite
 changes are incorporated. Base, ancestry, or contract drift invalidates affected
-reviews and verification. Regroup/restack and revalidate before publication.
+reviews and verification. Apply the reconciliation boundary below before
+publishing any resulting candidate.
+
+## Reconcile before republishing
+
+When an upstream or stack change affects existing lanes, first quiesce the
+affected writers and identify every branch the operation could change. Work
+outside selected ownership requires separate authority. Use G operations whose
+effects keep changed candidates local: fetch and reconcile/rebase, validate the
+resulting exact bases and HEADs, independently review each invalidated candidate,
+then publish only those that pass. Reconcile dependents against the reviewed
+parent HEADs; preserve existing repair counts and refresh hosted evidence after
+publication. A pure rebase is not itself a review-driven repair round.
+
+Do not use compound synchronization or submission that can rewrite and push
+candidates before that review. In particular, G stack sync may rebase and push
+several branches. Use it only if its verified effect scope cannot publish an
+unreviewed candidate; otherwise use the separated operations above. If G cannot
+express that separation, pause affected units rather than bypassing local review
+or switching to raw provider operations. Unexpected effects require readback
+and reconciliation before another mutation.

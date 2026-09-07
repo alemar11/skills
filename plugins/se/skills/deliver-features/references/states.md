@@ -12,9 +12,9 @@ and ownership. The claim registry never stores workflow or delivery status.
 | `intake` | Resolve authoritative specs, exact task selection and repositories, and the current coordinator. |
 | `claim-repositories` | Acquire/reuse the frozen set and bind it to the current task. |
 | `reconcile` | Reconcile lanes, evidence, per-PR budgets and blockers; continue independent work or prepare safe release. |
-| `schedule` | Assign dependency-ready units or wait for active lanes without duplicating work. |
+| `schedule` | Assign dependency-ready units with supported integration topology, or wait for active lanes without duplicating work. |
 | `deliver-unit` | Implement and validate an isolated candidate; after clean local review, publish and converge its explicit hosted review and CI. |
-| `review-candidate` | Independently review an immutable committed candidate in a detached read-only snapshot. |
+| `review-candidate` | Independently review an immutable committed candidate in a detached read-only snapshot within its recorded attempt deadline. |
 | `release-claims` | After preservation/quiescence, release the exact group while retaining the pending success or pause result. |
 | `closeout` | Prepare the mandatory delivery report, measurements and generalized workflow audit without changing delivery evidence or ownership. |
 | `complete` | All selected outcomes, progress writes, and review/CI gates are verified and this run released ownership. |
@@ -97,6 +97,18 @@ Execution interruption may recover or be replaced only after confirmed stop,
 understood preserved work, and safe cleanup. Ambiguous liveness never permits
 another concurrent execution. The current candidate-review contract owns
 receipt admissibility and retry decisions; missing result never means clean.
+
+[candidate-review.md](candidate-review.md#attempt-deadline) owns local review
+timing. Start and deadline are execution facts retained in coordinator history,
+not claim columns or a separate timeout state. Expiry without an on-time completed
+result gives `indeterminate`; confirmed stop gives `interrupted`, and unconfirmed
+stop gives `ambiguous`. Cleanup uses its own disposition above. A timeout does
+not spend a repair round or renew itself on resume.
+
+[task-delivery.md](task-delivery.md#reconcile-before-republishing) owns topology
+and rebase publication boundaries. Changed targets invalidate affected review
+evidence before publication; topology observations are not persisted workflow
+positions or new claim fields.
 
 The [shared repair budget](../../../references/review-repair-budget.md) owns
 round transitions and reservations. Review PR's [monitoring results](../../review-pr/references/states.md)

@@ -17,12 +17,19 @@ prerequisites, coverage, PR grouping and integration. Unfinished prerequisites
 outside selection need permission before implementation; keep independent
 selected work moving.
 
-The current task coordinates delivery and retains its model settings. Rename
-it to `🚚 Deliver · <scope>` when supported, without gating work on its title.
+The intended coordinator is Astra (`gpt-6-astra`) in the current task, with
+the caller's configured reasoning. This skill does not change task settings or
+create a replacement coordinator; explicit caller profile choices take precedence.
+Rename it to `🚚 Deliver · <scope>` when supported, without gating work on its title.
 Use native subagents and isolated implementation worktrees; never create a
 separate visible coordinator or worker task. Before delegation read the selected
 [shared role](../../references/subagents.md): `developer`, `code-reviewer`, or
 `evidence-researcher`.
+
+Own scope, integration choices, evidence acceptance and recovery. Delegate bounded
+execution, consume concise results, and read branch-specific procedures only
+when needed. Choose routine sequencing without extra approval; escalate material
+scope or authority decisions. Do not replay completed work to restate its proof.
 
 Invocation authorizes selected implementation, worktrees, branches, commits,
 pushes, PR publication/readiness, explicit hosted review requests and scoped
@@ -61,9 +68,9 @@ returns to reconciliation. A blocked PR does not stop independent selected work.
 | intake | action | Resolve saved specs, exact selected tasks, repositories and current coordinator. | Explicit delivery or resume request. | Saved contracts, caller scope. | Selection, repository set, coordinator identity. | claim-repositories, closeout | Selection or identity cannot be resolved. | read, transient |  |
 | claim-repositories | action | Acquire and bind ownership to the current task. | Valid selection and current coordinator identity. | Frozen repository set and fencing context. | Verified bound claim. | reconcile, closeout | Ownership cannot be established. | durable |  |
 | reconcile | validation | Reconstruct outcomes, lanes, reviews, budgets and blockers. | Bound ownership or a lane result. | Contracts, Git, PR, CI, agent and claim evidence. | Ready work or preserved pending result. | schedule, release-claims, closeout | Unsafe actor, mutation, preservation or ownership ambiguity. | read, transient |  |
-| schedule | decision | Assign bounded independent work or await active lanes. | Current evidence supports selected work. | Ready units, bases, lanes, role and repair budget. | Scoped assignments. | deliver-unit, reconcile | No new responsible assignment. | read, transient |  |
+| schedule | decision | Assign bounded independent work or await active lanes. | Current evidence supports selected work. | Ready units, supported topology, bases, lanes, role and repair budget. | Scoped assignments. | deliver-unit, reconcile | No new responsible assignment. | read, transient |  |
 | deliver-unit | action | Implement and validate; after review publish and converge one PR. | Verified isolated lane and authorized phase. | Selected task contributions, base, role, review and budget. | Committed candidate, reviewed PR, progress or blocker. | review-candidate, reconcile | Lane or candidate evidence is untrustworthy. | durable, hosted |  |
-| review-candidate | validation | Independently review the immutable committed candidate. | Validated candidate and quiescent developer. | Contract, coverage, base, HEAD, snapshot, role and budget. | Review receipt or execution/cleanup evidence. | reconcile | Independence, target or cleanup is uncertain. | read, transient |  |
+| review-candidate | validation | Independently review the immutable committed candidate. | Validated candidate and quiescent developer. | Contract, coverage, base, HEAD, snapshot, role, deadline and budget. | Review receipt or execution/cleanup evidence. | reconcile | Independence, target or cleanup is uncertain. | read, transient |  |
 | release-claims | action | Release the complete claim after verified quiescence and preservation. | All actors stopped, effects resolved, progress attempted, pending result known. | Exact claim and final delivery or pause evidence. | Verified release plus preserved result. | closeout | Release remains ambiguous or unsafe. | durable |  |
 | closeout | action | Prepare delivery results, run measurements and a generalizable workflow retrospective. | Pending outcome known; safe release attempted wherever possible. | Captured run evidence, measurement coverage, release or retained uncertainty. | Final report preserving delivery outcome. | complete, deferred, blocked | Evidence limits require a concise best-effort report. | read, transient |  |
 | complete | terminal | Report verified delivery of all selected outcomes. | Exact release and all selected delivery/progress gates verified. | Closeout report, final outcome and release evidence. | Delivery report and remaining unselected work. |  | terminal | none | complete |

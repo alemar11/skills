@@ -49,8 +49,10 @@ verifies prerequisite availability, resolves fan-in integration, and uses
 standalone or stacked PRs according to actual Git topology. It does not turn
 planning order into artificial dependencies.
 
-The current task coordinates native subagents using shared developer and
-code-reviewer roles. It composes Implement for initial work and repairs, Adversarial
+The intended coordinator is the current Astra task with caller-configured
+reasoning; the skill preserves task settings and explicit profile overrides.
+It coordinates native subagents using shared developer and code-reviewer roles.
+It composes Implement for initial work and repairs, Adversarial
 Review for local critique, and Review PR for hosted monitoring. Implementation
 lanes have isolated worktrees; the coordinator
 alone holds repository claims. Each committed candidate passes independent local
@@ -62,6 +64,11 @@ updates and exact whole-group release. Safe pauses also release once every actor
 is stopped and work preserved; resume reacquires and reconciles existing work.
 See [task delivery](skills/deliver-features/references/task-delivery.md) and
 [completion](skills/deliver-features/references/completion.md).
+
+Local review has a [bounded attempt deadline](skills/deliver-features/references/candidate-review.md#attempt-deadline).
+Before dependent work, Delivery checks supported managed PR topology; rebasing
+keeps changed candidates local until validation and independent review pass.
+Compound stack synchronization cannot bypass that publication boundary.
 
 Every run ends with a [closeout](skills/deliver-features/references/closeout.md),
 including blocked or stopped work. It reports delivered outcomes, duration and

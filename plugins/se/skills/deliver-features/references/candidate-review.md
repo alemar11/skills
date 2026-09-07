@@ -32,6 +32,29 @@ and verify its path and worktree registration gone. A dirty review snapshot
 invalidates the result; an uncertain path or active reviewer prevents cleanup
 and safe claim release. Do not delete ambiguous or user-owned content.
 
+## Attempt deadline
+
+Default to 30 minutes of wall-clock time per local review attempt, unless the
+caller explicitly sets another duration before launch. Record its start and
+absolute deadline alongside the execution identity in coordinator history and
+include the deadline in the reviewer handoff. Resume retains that deadline;
+activity, progress messages and repeated waits do not extend it.
+
+At expiry, recover a result already completed by the deadline if attributable.
+Otherwise stop the exact reviewer, confirm it stopped, and apply the snapshot
+and cleanup checks above. After confirmed stop, preserve partial findings with
+an `indeterminate` verdict and `interrupted` execution, then pause the affected
+unit. An unconfirmed stop remains `ambiguous`; unproved stop or cleanup retains
+claim uncertainty under the release contract. Continue independent work only
+when it cannot race the unresolved actor.
+
+A timeout spends no repair round and does not authorize another attempt.
+Replacement follows the recovery conditions below; an unchanged timeout requires
+an explicit caller decision before a fresh attempt. Do not infer a new budget
+from a generic resume request. For an active resumed attempt with no recoverable
+deadline, stop and reconcile it rather than starting a new clock. This deadline
+is separate from Review PR's hosted-review request deadline.
+
 ## Review evidence
 
 Return `candidate-review-receipt-v3` in coordinator history. Its fields are:
