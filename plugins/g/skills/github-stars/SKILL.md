@@ -1,6 +1,6 @@
 ---
 name: github-stars
-description: Manage the authenticated GitHub user's stars and star lists. Use to list, add, remove, or organize starred repositories.
+description: "List and manage the authenticated GitHub user’s stars and star lists."
 ---
 
 # GitHub Stars
@@ -17,22 +17,10 @@ Before the first provider-facing shared CLI operation, load
 [`../../references/gh-dependency-preflight.md`](../../references/gh-dependency-preflight.md)
 and require its host and authentication checks.
 
+## Commands
 
-## Role
-
-Manage authenticated-user stars and star lists with `<plugin-root>/scripts/g stars`. This skill
-owns star and list workflows that should not live in repository triage.
-
-## Public Script
-
-```bash
-<plugin-root>/scripts/g stars --help
-<plugin-root>/scripts/g --version
-<plugin-root>/scripts/g --json doctor
-```
-
-The script emits stable JSON success/error envelopes for JSON mode and writes
-no implicit config.
+Use `<plugin-root>/scripts/g stars --help` for syntax and
+[workflows](references/workflows.md) for the selected operation.
 
 ## Workflow
 
