@@ -61,22 +61,20 @@ Before judging behavior:
 
 1. Perform an initial authoritative task read. Read enough earlier turns to
    establish invocation, scope, and the first relevant action.
-2. Track each task by `thread_id`, `host_id`, status, latest observed turn or
-   item, and wait cursor.
-3. When bounded waits are available, wait on at most eight tasks at a time for
-   no more than 45 seconds. Treat compact wait summaries as advisory.
+2. Track each task by stable identity, host, status, and the last observed
+   evidence.
+3. When bounded waits are available, use supported batches and bounded intervals. Treat compact wait summaries as advisory.
 4. Perform a fresh authoritative task read after a material transition, before
    creating or changing a defect annotation, after a cursor or evidence gap,
    and before a terminal judgment.
 5. If bounded waits are unavailable, use bounded task reads. If reads fail,
    time out, or are truncated across the relevant evidence, report the gap; do
    not infer progress or defects.
-6. Treat `needs-attention` as a material nonterminal transition. Report it and
+6. Treat a request for user attention as a material nonterminal transition. Report it and
    continue after the task resumes. Stop only after every selected task has an
    authoritative terminal result or the user stops the monitor.
 
-Emit updates only for material transitions, new or changed annotations, and
-bounded liveness. Silence and elapsed time are not performance evidence.
+Emit updates only for material transitions, new or changed annotations. Silence and elapsed time are not performance evidence.
 
 ## Evaluate Behavior
 
@@ -110,7 +108,7 @@ Each annotation contains:
 - canonical target kind and owning fix surface from `states.md`
 - concise defect statement and impact
 - expected contract file, fingerprint, and relevant section
-- observed `thread_id`, turn or item identity, and evidence summary
+- observed task identity, evidence location, and summary
 - first-seen and last-seen task frontier
 - confidence and the smallest useful remediation
 

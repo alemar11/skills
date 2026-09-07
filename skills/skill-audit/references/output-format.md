@@ -25,11 +25,6 @@ decision-oriented, and evidence-backed.
    scope.
 5. `Priority order`
    Rank the top recommendations by expected value.
-6. `Follow-up question`
-   In full-portfolio audits where `skill-audit` was not explicitly requested,
-   end by asking whether the user wants a follow-up audit of `skill-audit`
-   too.
-
 ## Live Monitor Format
 
 For live monitoring, use a compact rolling report instead of the historical
@@ -47,6 +42,6 @@ roadmap above:
    After authoritative terminal reads, assess each used target separately and
    distinguish target defects from external runtime or repository conditions.
 
-During the run, emit only material changes and bounded liveness updates. Never
+During the run, emit only material changes. Never
 report inferred progress or inferred defects when current task evidence is
 unavailable.

@@ -4,14 +4,14 @@ Use this branch for audits of completed or prior behavior. Live monitoring uses
 `live-monitoring.md` instead and never falls back here to fill a current-state
 gap.
 
-## Canonical Order
+## Evidence selection
 
 1. Read the editable target's current discovery metadata, entrypoint, directly
    relevant references, owning manifest, and adjacent repository docs.
 2. Check cheap current consistency and maintenance evidence such as `git log`
    for the resolved target.
-3. Search the memory index, then open only the one to three rollout summaries
-   most relevant to the target and question.
+3. For historical claims, search the memory index and open relevant rollout
+   summaries. Static wording review does not require session history.
 4. Inspect a representative raw session when claiming runtime behavior, false
    or missed triggers, correctness, orchestration behavior, or low value. If no
    representative trace is available, state that limitation.
