@@ -1,6 +1,6 @@
 ---
 name: git-commit
-description: Create or push Git commits with explicit staging. Use for commit-only, commit-and-push, push-only, fixup, or amend-fixup requests; use $g:send when a pull request is required.
+description: "Create local Git commits or push them when requested. Use $g:send for pull-request publication."
 ---
 
 # Git Commit
@@ -14,19 +14,8 @@ Use direct `git` commands. The only bundled helper is the target-aware editor
 adapter for noninteractive amend-fixup messages; it never stages, commits,
 rebases, or pushes.
 
-For the common case of a small cohesive change and a user ask like `commit`,
-`commit this`, or `commit and push`, normalize the phrase once to
-`commit_operation=commit-only|commit-and-push|push-only`, then stay on the
-shortest safe path:
-
-1. `git status --short --branch`
-2. `git diff --staged --name-status` to identify anything staged before this
-   workflow
-3. `git diff -- <path>` for the intended files
-4. `git add -- <explicit-paths>`
-5. `git diff --staged`
-6. Run the selected regular or targeted commit command.
-7. `git push` only for `commit_operation=commit-and-push`
+Resolve the user request to
+`commit_operation=commit-only|commit-and-push|push-only`, then use the workflow below.
 
 Escalate to broader diff review or split commits only when the worktree is
 mixed, generated files are involved, or the staged scope is still unclear.
@@ -50,66 +39,6 @@ trailers such as `Closes #123` only after staging the intended paths and
 verifying the diff and only with `commit_kind=regular`; never add trailers to
 Git-generated fixup messages. Route GitHub issue comments, labels, type changes,
 follow-up issue creation, or manual closure to `$g:github-issues`.
-
-## Trigger Cues
-
-Use this skill for short or implicit commit-authoring asks such as:
-
-- `commit`
-- `commit this`
-- `create a commit`
-- `commit and push`
-- `push-only`
-- `stage only <paths> and commit`
-- `fixup <commit>`
-- `fixup and push <commit>`
-- `amend fixup <commit>`
-
-If the request expands into branch publication or PR creation, route to `$g:send`
-instead of stretching this skill.
-
-## Observable Command Baseline
-
-Prefer the same command spine for most runs so commit work stays easy to audit
-from session traces:
-
-```bash
-git status --short --branch
-git diff --staged --name-status
-git diff -- <path>
-git add -- <explicit-paths>
-git diff --staged
-git commit -F <message-file>                  # regular
-git commit --fixup=<target-sha>               # fixup
-git commit --fixup=amend:<target-sha>         # amend-fixup; edit replacement message
-git log -1 --pretty=fuller
-```
-
-Run exactly one of the three commit commands. For a targeted kind, first resolve
-and inspect the target as described in `references/workflows.md`. Do not pass
-`commit_kind` or `target_commit` to `commit_operation=push-only`.
-
-For `commit_operation=commit-and-push`, append:
-
-```bash
-git push
-```
-
-For `commit_operation=push-only`, do not use the commit-producing baseline.
-Inspect the existing commit range without staging or committing:
-
-```bash
-git status --short --branch
-git diff --staged --name-status
-git branch --show-current
-git remote get-url origin
-git rev-parse --abbrev-ref --symbolic-full-name @{upstream}
-```
-
-With a verified upstream, inspect `@{upstream}..HEAD` and run `git push`. When
-the branch has no upstream, verify the intended `origin` repository and base,
-inspect `<verified-base>..HEAD`, then use `git push -u origin HEAD`. Stop rather
-than guessing the base, remote, or target branch.
 
 ## Workflow
 

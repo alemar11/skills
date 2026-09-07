@@ -9,8 +9,8 @@ the shared G options reference.
 - `scripts/replace-amend-fixup-message` and
   `scripts/validate-fixup-target` are skill-local Python adapters. They are not
   alternate G runtimes and must remain noninteractive and target-safe.
-- Commit transport and operation journaling belong to the shared
-  `plugins/g/scripts/g` artifact and its maintenance project.
+- Commit transport uses direct `git`; the local adapters do not stage or
+  commit. Shared provider operations remain owned by the G artifact.
 
 ## Maintenance rules
 

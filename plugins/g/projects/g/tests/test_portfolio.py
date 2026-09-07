@@ -18,14 +18,14 @@ class PortfolioScanContractTests(unittest.TestCase):
         with contextlib.redirect_stdout(stdout):
             code = cli.main(["--version"])
         self.assertEqual(code, 0)
-        self.assertEqual(stdout.getvalue().strip(), "2.18.4")
+        self.assertEqual(stdout.getvalue().strip(), "2.18.5")
 
     def test_json_doctor_shape(self) -> None:
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):
             cli.main(["--json", "doctor"])
         payload = json.loads(stdout.getvalue())
-        self.assertEqual(payload["version"], "2.18.4")
+        self.assertEqual(payload["version"], "2.18.5")
         self.assertIn("git", payload["checks"])
         self.assertIn("gh", payload["checks"])
 
