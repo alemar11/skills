@@ -1,6 +1,6 @@
 ---
 name: github-actions
-description: Inspect GitHub Actions checks, logs, and workflow permissions; diagnose failures or implement an explicitly requested CI fix. Use $g:github-delivery-status for whole-PR readiness.
+description: "Inspect GitHub Actions failures, logs, or permissions and implement requested CI fixes."
 ---
 
 # GitHub Actions
