@@ -1,6 +1,6 @@
 [project]
 name = "g-cli"
-version = "2.18.9"
+version = "2.18.10"
 requires-python = ">=3.11"
 description = "Shared G plugin CLI"
 

@@ -1,6 +1,6 @@
 {
   "name": "g",
-  "version": "2.18.9",
+  "version": "2.18.10",
   "description": "Manage Git and GitHub work from commits, issues, and Projects through delivery status, reviewed pull-request delivery, active-session audits, and consistent SemVer versioning.",
   "author": {
     "name": "alemar11",

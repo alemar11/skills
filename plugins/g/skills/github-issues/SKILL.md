@@ -1,6 +1,6 @@
 ---
 name: github-issues
-description: Manage specific GitHub issue content, attachments, metadata, comments, state, relationships, and native dependencies. Use $g:github-tagger when labels or type must be inferred, and $g:github-repository-triage for queues.
+description: "Create or update GitHub issues, comments, attachments, and exact metadata or relationships."
 ---
 
 # GitHub Issues
@@ -28,15 +28,9 @@ Resolve `<plugin-root>` as two directories above the directory containing this
 
 ## Role
 
-Own GitHub issue lifecycle mechanics. Use this skill when another workflow has
-already decided what issue content, label, type, state, or relationship is
-needed and needs the GitHub operation performed or drafted.
-
-Keep product planning, issue splitting, metadata classification and taxonomy
-proposals, queue triage, CI, review threads, releases, stars, commits, and PR
-publishing in their focused skills. `$g:github-tagger` owns evidence-backed
-label and type selection and read-only taxonomy proposals; this skill only
-handles GitHub Issues lifecycle mechanics.
+Own issue lifecycle mechanics and exact caller-selected metadata or
+relationships. Product planning and metadata classification belong to the
+composing workflow; `g:github-tagger` owns label/type selection.
 
 ## Core Rules
 
@@ -139,17 +133,10 @@ handles GitHub Issues lifecycle mechanics.
 
 ## Routing
 
-- Use `$g:github-tagger` when the issue must be read to choose among available
-  labels or native issue types, or when an explicit request asks for
-  repository-backed proposals for missing labels or organization issue types.
-- Use `$g:github-repository-triage` for current-repository queue snapshots, stale/blocker
-  grouping, and PR triage.
-- Use `$g:github-investigation` when the question needs root cause, provenance, or
-  fix-quality judgment before deciding issue disposition.
-- Use `$g:github-review-threads` for PR review-thread context or replies.
-- Use `$g:github-actions` for Actions, checks, and failing PR logs.
-- Use `$g:github-releases` for tags, GitHub Releases, notes, and assets.
-- Use `$g:send` for publishing local work as a branch and draft PR.
+Use `g:github-tagger` for evidence-based label/type selection or taxonomy
+proposals, `g:github-repository-triage` for queues, and
+`g:github-investigation` for root cause or disposition analysis. Other GitHub
+domains route through `g:github`.
 
 ## References
 
