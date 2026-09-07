@@ -1,6 +1,6 @@
 ---
 name: github-tagger
-description: Classify one existing issue using available labels and at most one native type, or explicitly propose missing repository labels and organization issue types read-only. Use $g:github-issues for decided mutations.
+description: "Choose existing issue labels and type, or propose missing taxonomy read-only when requested."
 ---
 
 # GitHub Tagger
@@ -10,19 +10,10 @@ and follow [Network execution](../../references/network-execution.md).
 
 ## Role
 
-Read one exact existing issue, discover the classification metadata currently
-assignable in its repository and organization, and select the smallest
-evidence-backed set of existing labels, including none, plus zero or one native
-issue type.
-
-Only when the user explicitly requests taxonomy analysis, inspect one exact
-repository and a representative issue corpus to propose the smallest useful
-set of missing labels and organization issue types. Proposal mode never mutates
-the taxonomy or any issue.
-
-Own the evidence-backed metadata choice. `$g:github-issues` owns every issue
-mutation after the choice is exact. When the caller already supplies the label
-names or issue type, skip classification and route directly to that skill.
+Choose the smallest evidence-backed set of existing labels, including none,
+and zero or one native issue type for an exact issue. Explicit taxonomy analysis
+instead proposes missing definitions read-only. `g:github-issues` owns writes;
+route there directly when the user already selected exact metadata.
 
 ## Scope
 
@@ -164,16 +155,6 @@ read the issue back before reporting success.
   root-cause, fix-quality, or acceptance-evidence judgment that the issue text
   does not establish, or when taxonomy analysis needs repository history or
   source evidence beyond stable documentation and issue templates.
-
-## Routing
-
-- Use `$g:github-issues` when exact label names or the exact issue type are
-  already known, or for any exact authorized label creation, label removal, or
-  issue metadata mutation.
-- Use `$g:github-repository-triage` to discover or summarize a repository-wide
-  queue when no taxonomy proposal is requested.
-- Use `$g:github-investigation` when classification needs repository evidence
-  beyond the issue and its metadata catalog.
 
 ## References
 
