@@ -29,8 +29,8 @@ require the authority defined by the owning skill.
   token is invalid from that result.
 - Prefer structured provider output and stable fields. Do not classify failures
   from ad hoc stderr substring lists.
-- For authentication proof, run `<plugin-root>/scripts/g --json doctor`
-  with scoped network permission and require `authentication_status=verified`. An
-  `unverified` result is not proof of invalid credentials.
+- Establish authentication through the shared
+  [GitHub CLI preflight](gh-dependency-preflight.md) from the network-enabled
+  execution context. Inconclusive evidence is not proof of invalid credentials.
 - After an ambiguous remote write failure, read back the exact target and
   reconcile current provider state before deciding whether a retry is safe.

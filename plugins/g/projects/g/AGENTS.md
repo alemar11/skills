@@ -25,7 +25,7 @@ This project is maintenance-only source for the plugin-shared `scripts/g` artifa
 - Keep cross-domain repository parsing and deterministic fingerprints in
   `repository.py` and `integrity.py`. Domain modules may re-export these
   helpers for compatibility but must not duplicate their implementations.
-- Keep `ci.py`, `stars.py`, and `reviews.py` as stable command façades. Put
+- Keep `stars.py` and `reviews.py` as stable command façades. Put
   provider transport, parsing/rendering, state validation, and command
   behavior in their adjacent focused modules.
 - For reviews, keep provider reads in `review_provider.py`, observation in

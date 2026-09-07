@@ -38,19 +38,22 @@ automatically.
 
 ## Authentication checks
 
-For a network-bearing `gh` operation, run the shared diagnostic with scoped
-network permission:
+For authenticated provider work, inspect the active account from the same
+network-enabled execution context as the operation:
 
 ```sh
-<plugin-root>/scripts/g --json doctor
+gh auth status --active --hostname github.com --json hosts \
+  --jq '.hosts["github.com"] | map(select(.active == true) | {state, scopes})'
 ```
 
-Require `checks.gh.authentication_status` to be `verified` before using
-`gh` for authenticated provider work. An `unverified` result is inconclusive;
-do not diagnose or change credentials from a restricted-network failure.
+Require exactly one active account with `state=success`. A failed command,
+unusable response, or other state leaves authentication unverified; never
+change credentials from an inconclusive network result. Do not print tokens.
 
-`doctor` is read-only. Authentication proof does not authorize a GitHub
-mutation; retain the mutation authority owned by the focused G skill.
+The shared `g --json doctor` may supply equivalent authentication evidence when
+already needed to diagnose a retained helper. Direct `gh` workflows do not
+require the G artifact or Python. Authentication proof never grants mutation
+authority.
 
 ## GitHub Projects checks
 

@@ -6,7 +6,7 @@ import sys
 from typing import Any
 
 from . import __version__
-from . import attachment, ci, portfolio, reviews, stack, stars
+from . import attachment, reviews, stack, stars
 from .common import GError, envelope, error_envelope, resolve_pr, resolve_repo
 from .delivery_status import inspect_delivery_status
 from .health import doctor, doctor_text
@@ -57,13 +57,6 @@ def parser() -> Parser:
     pr_delivery.add_argument("--repo", required=True)
     pr_delivery.add_argument("--pr", required=True, type=int)
     pr_delivery.add_argument("--expected-head")
-    ci_parser = commands.add_parser(
-        "ci",
-        help="Inspect GitHub Actions checks or repository permissions preflight.",
-    )
-    ci_parser.add_argument("args", nargs=argparse.REMAINDER)
-    portfolio_parser = commands.add_parser("portfolio", help="Scan multiple repositories read-only.")
-    portfolio_parser.add_argument("args", nargs=argparse.REMAINDER)
     reviews_parser = commands.add_parser("reviews", help="Inspect, check, wait for, or respond to PR reviews.")
     reviews_parser.add_argument("args", nargs=argparse.REMAINDER)
     stars_parser = commands.add_parser("stars", help="Manage stars and authenticated-user star lists.")
@@ -190,10 +183,6 @@ def main(argv: list[str] | None = None) -> int:
                 data = inspect_delivery_status(args.repo, args.pr, args.expected_head)
             _emit(data, ["pr", args.verb], args.json)
             return 0
-        if args.domain == "ci":
-            return _forward(ci, args.args, args.json, "inspect")
-        if args.domain == "portfolio":
-            return _forward(portfolio, args.args, args.json, "scan")
         if args.domain == "reviews":
             return _forward(reviews, args.args, args.json, "")
         if args.domain == "stars":

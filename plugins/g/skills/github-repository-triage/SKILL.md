@@ -10,36 +10,17 @@ and follow [Network execution](../../references/network-execution.md).
 
 ## Transport
 
-Use authenticated `gh` for provider reads. Use the read-only portfolio scanner
-for multiple explicit repositories and direct `gh` for one-repository detail.
+Use authenticated `gh` directly for explicitly selected repositories. Before
+provider reads, complete the
+[gh preflight](../../references/gh-dependency-preflight.md).
 This skill never performs GitHub writes; route every write-shaped request to
 its owning skill.
-
-Before the first provider-facing direct `gh` or shared CLI operation, load
-[`../../references/gh-dependency-preflight.md`](../../references/gh-dependency-preflight.md)
-and require its host and authentication checks.
 
 ## Role
 
 Return a concise, URL-first queue assessment. Use `g:github-issues` for
 classification, `g:github-investigation` for disposition analysis, and
 `g:github-issues` for decided mutations. Triage itself is read-only.
-
-## Multi-Repository Script
-
-Resolve `<plugin-root>` as two directories above the directory containing this
-`SKILL.md`, then invoke the helper from the installed plugin root. Do not
-assume the current checkout contains the G source tree.
-
-```bash
-<plugin-root>/scripts/g portfolio scan --help
-<plugin-root>/scripts/g --version
-<plugin-root>/scripts/g --json doctor
-```
-
-The script accepts repeated explicit `owner/repo` inputs or a user-supplied
-repo file, emits stable JSON success/error envelopes in JSON mode, preserves
-per-repository failures, and writes no implicit config.
 
 ## Workflow
 
@@ -53,10 +34,9 @@ per-repository failures, and writes no implicit config.
    only the items needed for the
    queue question, and group them by blocker, stale item, ready-for-review,
    CI/review need, or follow-up owner.
-3. For multiple repositories, run
-   `<plugin-root>/scripts/g portfolio scan` and summarize queue size,
-   blocking CI, release gaps, and next actions per repository. Preserve
-   per-repository failures instead of hiding the rest of the scan.
+3. Read [workflows.md](references/workflows.md) for direct queue reads and
+   multi-repository comparison. Report coverage and per-repository failures;
+   do not present sampled inventories as complete counts.
 4. When queue work identifies one exact issue that needs content-based label or
    type selection, route it to `$g:github-issues`; do not choose metadata from a
    queue summary.
@@ -78,5 +58,4 @@ per-repository failures, and writes no implicit config.
 ## References
 
 - `references/workflows.md`: single- and multi-repository triage workflows.
-- `references/script-summary.md`: `g portfolio scan` command contract.
 - `../../references/options.md`: canonical G invocation fields for routed handoffs.

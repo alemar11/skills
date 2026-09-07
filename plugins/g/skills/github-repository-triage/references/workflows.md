@@ -3,41 +3,60 @@
 ## Queue Snapshot
 
 ```bash
-gh repo view --json nameWithOwner,url,defaultBranchRef
-gh issue list --state open --limit 50 --json number,title,author,labels,createdAt,updatedAt,url
-gh pr list --state open --limit 50 --json number,title,author,isDraft,reviewDecision,mergeStateStatus,statusCheckRollup,createdAt,updatedAt,url
+gh repo view <owner/repo> --json nameWithOwner,url,defaultBranchRef
+gh issue list --repo <owner/repo> --state open --limit 50 --json number,title,author,labels,createdAt,updatedAt,url
+gh pr list --repo <owner/repo> --state open --limit 50 --json number,title,author,isDraft,reviewDecision,mergeStateStatus,statusCheckRollup,createdAt,updatedAt,url
 ```
 
 Report URLs first, then the reason each item matters. Prefer categories such as
-blocked, stale, needs review, needs CI, ready to merge, and needs owner input.
+blocked, stale, needs review, needs CI, and needs owner input.
 
 ## Item Inspection
 
 ```bash
-gh issue view <number> --json number,title,body,author,labels,assignees,comments,url
-gh pr view <number> --json number,title,body,author,isDraft,reviewDecision,mergeStateStatus,statusCheckRollup,comments,url
+gh issue view <number> --repo <owner/repo> --json number,title,body,author,labels,assignees,comments,url
+gh pr view <number> --repo <owner/repo> --json number,title,body,author,isDraft,reviewDecision,mergeStateStatus,statusCheckRollup,comments,url
 ```
 
 Inspect only enough detail to make the triage recommendation. Avoid broad
 historical reads unless the user asks for a deep queue audit.
 
-## Multiple Repository Scan
+## Multiple repository comparison
 
-Resolve `<plugin-root>` as two directories above the directory containing the
-owning `SKILL.md`; this may be an installed or linked package outside the
-current checkout.
+Accept explicit repository identities or a user-supplied file containing one
+`owner/repo` per line. Ignore blank lines and `#` comments; validate identities
+and resolve their host before issuing commands. Do not discover additional
+repositories from organizations, stars, or unrelated local checkouts.
+
+Apply the queue reads above independently to each selected repository with
+explicit `--repo`. For a recent CI/release comparison, add:
 
 ```bash
-<plugin-root>/scripts/g portfolio scan --repo <owner/repo> --repo <owner/repo>
-<plugin-root>/scripts/g portfolio scan --repo-file <repos.txt>
-<plugin-root>/scripts/g --json portfolio scan --repo <owner/repo>
+gh run list --repo <owner/repo> --limit 10 --json databaseId,headSha,status,conclusion,url,createdAt
+gh release list --repo <owner/repo> --limit 10 --json tagName,isDraft,isPrerelease,publishedAt
 ```
 
-Repo files contain one `owner/repo` per line. Ignore blank lines and `#`
-comments. For each repository, report its URL, open issue and pull request
-counts, recent CI state, latest release state, top queue signals, and
-recommended next action. Preserve per-repository failures and keep the entire
-scan read-only.
+Report each repository's URL, queue sizes with their coverage, sampled CI
+failures or pending runs, latest relevant release, and evidence-backed next
+action. Retrieve the selected release's URL if it is part of the report.
+Keep no-release evidence distinct from an unreadable release endpoint; an old
+release alone does not prove a release gap without relevant commits or policy.
+
+The `--limit` commands produce samples. State the limits and filters; when an
+inventory reaches its limit, report at least that many items unless a provider
+total is available. For exact counts or an exhaustive audit, read provider
+connection totals or paginate all issue and pull-request pages with `gh api`.
+GraphQL pagination requires `pageInfo { hasNextPage endCursor }` and an
+`$endCursor` variable; REST pagination follows every next-page link. The REST
+issues endpoint includes PRs, which must be excluded from issue counts.
+
+Preserve unavailable repositories and individual failed reads alongside
+successful evidence from the others. Identify the failed surface and resulting
+coverage gap; do not substitute zero counts or healthy CI. Queue summaries do
+not establish exact-head merge readiness; use `$g:github-delivery-status` when
+that conclusion is needed.
+
+See [gh API pagination](https://cli.github.com/manual/gh_api).
 
 ## Focused Follow-Up Routing
 
