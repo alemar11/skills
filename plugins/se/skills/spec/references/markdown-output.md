@@ -22,7 +22,18 @@ spec because its title resembles the requested one.
 
 Render the complete document before changing the target. Include the main
 specification, acceptance criteria, ordered task index, dependencies, and full
-task details in the same file. Use the stable task IDs as explicit section
+task details in the same file. A new spec starts with the inactive frontmatter
+below; merge it with existing frontmatter when revising, preserving unrelated
+keys and existing authorization under [delivery-authorization.md](delivery-authorization.md).
+Do not duplicate the spec identity fields in frontmatter.
+
+```yaml
+---
+delivery:
+---
+```
+
+Use the stable task IDs as explicit section
 anchors so reordering does not break links. After the main spec, add
 `## Task details`; render each task with `<a id="task-<task_id>"></a>`, an H3
 task title, and H4 subsections. Give the main spec a `spec-<spec_id>` anchor
@@ -39,6 +50,14 @@ acceptance coverage, anchors, dependencies, and preservation of unrelated or
 executor-owned content. An ambiguous write is reconciled against this exact
 path before any retry.
 
+After verifying the whole authoritative file, apply the post-save decision under
+[delivery-authorization.md](delivery-authorization.md). For approval, set the
+frontmatter marker to its exact authorized value; for explicit revocation, empty
+the field. Reread before the scoped metadata edit and verify the resulting marker
+and preservation of the spec body, other frontmatter and execution progress.
+This edit does not increment `spec_revision` or authorize a commit. A failed marker
+write does not undo the saved spec; report the authorization update incomplete.
+
 Use portable repository-relative evidence links or attributable external
 sources. Machine-specific planner paths, prompts, tokens, and task transcripts
 do not belong in the saved specification.
@@ -49,4 +68,5 @@ source constraint prohibits that read on either destination.
 
 For an export from a different authoritative destination, follow
 [existing-specs.md](existing-specs.md): label the file as a snapshot and preserve
-the source identity and revision. A copy does not silently become authoritative.
+the source identity and revision, with an inactive delivery field. A copy does
+not silently become authoritative.

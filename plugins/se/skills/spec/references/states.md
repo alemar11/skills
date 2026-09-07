@@ -3,8 +3,9 @@
 The `spec` namespace describes transient caller choices and operation results,
 not a workflow graph. The saved identity and revision contract belongs to
 [specification.md](specification.md). A request resolves to preview or save;
-review findings return to drafting or clarification, and a verified artifact
-completes the operation. An unresolved required effect remains blocked.
+review findings return to drafting or clarification. A verified artifact completes
+the save; [delivery authorization](delivery-authorization.md) owns the subsequent
+pickup decision. An unresolved required effect remains blocked.
 
 ## Caller choices
 
@@ -34,6 +35,14 @@ additional source access or implementation authority.
 
 A saved spec may contain its semantic revision, explicit assumptions, acceptance
 baselines, and a record of retired identities. It does not persist a current
-workflow node, worker assignment, delivery status, review receipt, or operation
-journal. Task progress and GitHub issue state belong to their execution/provider
-owners; Spec preserves them during revision.
+workflow node, worker assignment, execution status, review receipt, or operation
+journal. The delivery marker is permitted authorization metadata, with its values
+owned by the linked authorization contract. Task progress and GitHub issue state
+belong to their execution/provider owners; Spec preserves them during revision.
+
+Keep save and authorization results separate. A saved spec with an unanswered
+pickup question is awaiting the user's decision, not authorized. A declined
+request leaves a new spec inactive. A requested marker operation must be verified
+or already correct before reporting that effect complete; failure does not change
+a verified `save_result=saved` into a claim that publication failed. No result
+proves that a monitor or worker has started.

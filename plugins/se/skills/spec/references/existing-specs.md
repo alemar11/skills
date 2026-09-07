@@ -8,7 +8,11 @@ Load the authoritative spec and every affected task before drafting. Preserve
 their exact logical and saved identities, retired IDs, unrelated
 content, and executor-owned status, checkboxes, comments, and progress. Record
 the smallest semantic change; increment `spec_revision` once for the accepted
-bundle revision. A save retry or unchanged export does not increment it.
+semantic bundle revision. A save retry or unchanged export does not increment it.
+Preserve pickup authorization under [delivery-authorization.md](delivery-authorization.md);
+ordinary revisions do not reset its marker or repeat an answered pickup question.
+Before reshaping active work, reconcile material changes against existing delivery
+assignments and the user's granted scope. Marker-only edits are nonsemantic.
 
 Reordering or renaming preserves task identity. New tasks receive unused IDs.
 If a task's outcome is replaced rather than refined, retire its old identity
@@ -31,6 +35,8 @@ explicit export preserves `spec_id`, `spec_revision`, task IDs, order,
 dependencies, decisions, and criteria. The exported artifact identifies its
 authoritative source and revision and is a snapshot, not another writable
 authority. Render the complete current spec/task contract for either destination.
+Never copy active pickup authorization into an export: the destination has no
+delivery label or an empty Markdown delivery field, regardless of the source.
 
 For an export to GitHub, record the snapshot source on the parent and link its
 task issues back to that exported parent; apply the same safety and readback

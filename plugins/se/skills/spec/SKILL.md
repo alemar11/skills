@@ -1,6 +1,6 @@
 ---
 name: spec
-description: "Create or revise a feature spec and actionable task plan when explicitly requested; save to GitHub or Markdown."
+description: "Create or revise feature specs and task plans on explicit request; save to GitHub or Markdown and offer delivery authorization."
 ---
 
 # Feature Specification
@@ -70,12 +70,16 @@ Local-source Markdown work and previews need no G access.
 
 Verify the complete saved representation. Reconcile uncertain effects against
 the same artifact before retrying, retaining identities from partial saves.
-Never substitute another destination or preview after a failed save. Perform
-an explicitly requested downstream handoff only after verified save and
-reconcile its result before claiming completion.
+Never substitute another destination or preview after a failed save. After a
+verified authoritative save, follow [delivery authorization](references/delivery-authorization.md)
+to ask whether to enable pickup, reuse established authority and verify any
+requested marker change. Publishing alone never enables automatic delivery.
+Perform an explicitly requested downstream handoff only after verified save and
+any requested marker change; reconcile its result before claiming completion.
 
 Return the saved reference or complete preview, a concise task summary,
-material assumptions, review and save results, and any exact remaining blocker.
+material assumptions, review and save results, observed delivery authorization,
+and any exact remaining blocker or unanswered authorization question.
 Keep operation receipts out of the saved spec. Planning completion proves the
 artifact exists, not that its feature has been implemented.
 

@@ -63,6 +63,9 @@ checks pass but the current session cannot reach the explicit handoff, report
 Idea and Spec hosted operations require `$g:github-issues` for issue
 lifecycle and relationships. Optional classification uses that skill's
 classification branch; classification failure never blocks semantic save.
+Spec's approved delivery-marker creation, application or revocation uses the
+same issue lifecycle owner. A required marker failure leaves that authorization
+change incomplete even when semantic save succeeded.
 
 Review PR requires only the hosted review owner's inspection, request, wait and
 reconciliation operations. It does not use publication, local Git, issue, stack,

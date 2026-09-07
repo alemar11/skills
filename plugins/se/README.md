@@ -37,9 +37,18 @@ and [revision and export rules](skills/spec/references/existing-specs.md).
 
 Spec runs in the current session with its configured model and reasoning and
 updates the task title to `📚 Plan Feature · <outcome>` when supported. It asks
-only material questions through Grilling Session and reviews the complete
+material specification questions through Grilling Session and reviews the complete
 spec/task contract before saving. Planning preserves execution progress and
 does not start delivery implicitly.
+
+After verifying an authoritative save, Spec asks whether to authorize automatic
+delivery to ready PRs unless the answer or authorization is already established.
+Approval applies `ready-for-agent` to the main GitHub issue, creating the label
+if missing, or sets `delivery: ready-for-agent` in Markdown frontmatter. New specs
+remain inactive without approval; Markdown keeps an empty `delivery:` field.
+Ordinary revisions preserve authorization, exports remain inactive, and setting
+the marker does not start a monitor. The [authorization contract](skills/spec/references/delivery-authorization.md)
+owns marker semantics and separates publication from authorization results.
 
 The templates use a compact ordered task list; each task owns its repository
 scope, acceptance links, prerequisites, and paired verification checks. GitHub

@@ -62,6 +62,9 @@ Delivery owns the separate execution section under
 [progress.md](../../deliver-features/references/progress.md). That section and
 provider status are excluded from semantic contract identity and do not advance
 `spec_revision`; all requirements, decisions and task contracts remain included.
+The [delivery-authorization marker](delivery-authorization.md) is also excluded:
+it records permission for pickup, not requirements or execution progress. Its
+exact GitHub and Markdown representations have that reference as their sole owner.
 
 ## Task contract
 

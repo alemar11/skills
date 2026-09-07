@@ -40,7 +40,8 @@ When ownership changes, update affected consumers and remove obsolete routes.
 - Spec owns coherent specs, stable spec/F-AC/task identities, actionable
   task contracts, recommended order, real prerequisites, accepted decisions,
   review, and GitHub/single-file Markdown projections. Its specification
-  reference owns content, and templates project it.
+  reference owns content, and templates project it. Its delivery-authorization
+  reference owns pickup metadata and the post-save decision, not queue execution.
 - Adversarial Review owns independent read-only critique and generic findings;
   composed callers own target identity, lifecycle, and disposition mapping.
 - Delivery Features owns selected-spec/task scheduling, integration and acceptance,

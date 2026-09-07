@@ -15,6 +15,10 @@ Spec owns one coherent spec and actionable task plan, saved to GitHub or one
 Markdown file. Deliver Features owns task-to-PR grouping and integration, with task
 prerequisites independent of Git topology. The Spec content contract is at
 [`specification.md`](skills/spec/references/specification.md).
+Spec also owns the [delivery authorization](skills/spec/references/delivery-authorization.md)
+marker and post-save pickup decision. Authorization is separate from semantic
+revision and execution progress; exports remain inactive snapshots. No monitor
+is started by publishing or marking a spec.
 
 Study, Spec and Deliver Features share subordinate role definitions in
 [`subagents.md`](references/subagents.md). Their callers own delegation and

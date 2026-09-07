@@ -14,8 +14,10 @@ affected repository; its body still names every contributing repository.
 The parent owns the specification and ordered task index. Each child owns its
 detailed task contract, including prerequisites, and links to the parent.
 Use the spec template for the parent and the task template for each child;
-keep task details out of the parent. The parent task list links to every child. Parent and task issue types or
-labels are optional metadata, never identity, readiness, or work-dispatch signals.
+keep task details out of the parent. The parent task list links to every child.
+Issue types and classification labels are optional metadata, never identity or
+dispatch signals. The main spec's [delivery marker](delivery-authorization.md) is
+the explicit pickup-authorization exception.
 
 For `operation=preview`, render the parent, every child body, intended targets,
 and proposed mappings without any hosted write or collision claim. New local
@@ -46,7 +48,8 @@ exact final title/body, including worker- or provider-originated content.
    as a native blocking relationship where supported, and record the result for every edge. An unavailable native
    capability is recorded explicitly; it never changes the semantic graph.
 6. Optionally classify issues through `g:github-issues` after semantic save.
-   Metadata failure does not block completion or imply an implementation order.
+   Classification must not add or remove the delivery marker. Optional
+   classification failure does not block semantic save or imply execution order.
 
 Every required issue identity, body, task association, and task prerequisite
 must be verified. Native relationship/dependency failures are warnings when
@@ -63,3 +66,26 @@ Saving the plan does not close tasks, the parent, or source issues. A separately
 requested source-Idea closure or downstream notification occurs only after the
 complete save is verified and through its authorized owner. Reconcile that
 requested effect before completion.
+
+## Delivery marker
+
+After the complete authoritative bundle is verified, apply the decision from
+[delivery-authorization.md](delivery-authorization.md) through `g:github-issues`.
+For approval, inspect the main issue's exact repository label catalog. Reuse the
+existing label without changing its color or description. If missing, create
+the owned label with description "Fully specified and queue-ready; listed
+dependencies still gate start" and the repository's workflow-label color
+convention, or `0E8A16` when none exists. The user's pickup approval covers this
+creation and application; no taxonomy proposal or second permission is required.
+
+Verify label existence, apply it only to the main spec issue, and read back its
+presence while preserving all other labels. A task issue or an export must never
+receive the pickup marker from this workflow. For explicit revocation, remove
+only this marker from the main issue and verify absence; do not delete the
+repository label.
+
+Marker operations follow the same G preflight, hosted-content safety and
+uncertain-effect reconciliation as other writes. A failed or ambiguous marker
+operation leaves the verified spec saved but the requested authorization change
+incomplete. Retry only the unresolved effect against the same repository/issue;
+do not recreate the spec or report pickup enabled from label creation alone.
