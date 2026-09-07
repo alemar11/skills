@@ -80,13 +80,14 @@ sufficient proof of success.
 ## Workflow
 
 1. Resolve the base repository and PR, then list review threads with resolution
-   state and enough surrounding diff context to understand each comment. For
-   the initial automatic review after a draft-to-ready transition, use
+   state and enough surrounding diff context to understand each comment. When
+   automatic review is configured and selected by the caller, use
    `reviews ready-check` or `reviews ready-wait` with that exact typed
    ready-transition receipt. These operations are read-only and never post
-   `@codex review`; do not create an explicit request for this initial cycle.
-   After a finding is fixed and a new full head SHA is pushed, capture that SHA
-   and a new caller-owned request key, invoke `reviews request`, and persist its
+   `@codex review`. When the caller requires an explicit review, including the
+   first ready PR review, independently verify its ready state and current full
+   head SHA, then use a new caller-owned request key, invoke `reviews request`,
+   and persist its
    complete request receipt. Pass that receipt unchanged to `reviews wait`; the
    waiter fetches the exact provider comment id and never substitutes a newer
    comment.
@@ -122,10 +123,12 @@ sufficient proof of success.
    the thread. Never substitute a top-level PR comment for a thread reply.
 8. After pushing a review fix, request a fresh automated review with a new
    request key when required and check or wait against the new full head SHA.
-   Repeat the fix, push, request, and wait cycle until the current head is clean.
+   Repeat only within the caller's repair budget and acceptance policy. Return
+   findings or blockers to that owner rather than imposing an unbounded loop.
    A generic `not-requested` observation, absence of comments, or zero
-   unresolved threads never substitutes for the terminal result of the initial
-   ready-triggered review.
+   unresolved threads never substitutes for the terminal result of the selected
+   explicit-request or configured automatic-review lineage. An interrupted wait
+   resumes its existing receipt and deadline without posting another request.
    If a bounded wait times out and
    continued monitoring is authorized, return the pending state to the caller;
    scheduling or heartbeat ownership remains with that caller. Callers must use

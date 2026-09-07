@@ -279,7 +279,7 @@ class AttachmentContractTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stderr)
         payload = json.loads(completed.stdout)
         self.assertTrue(payload["ok"])
-        self.assertEqual(payload["version"], "4.0.3")
+        self.assertEqual(payload["version"], "4.0.4")
         self.assertTrue(payload["data"]["dry_run"])
         self.assertEqual(payload["data"]["file"]["name"], "-published proof.svg")
 

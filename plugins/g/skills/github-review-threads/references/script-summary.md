@@ -134,10 +134,12 @@ for a replacement SHA-bearing comment. `ready-check` and `ready-wait` require a
 they correlate only provider artifacts after that ready timestamp and exact
 full SHA. They never create or search for an explicit request comment and
 return a `g-codex-ready-review-certificate:v1` projection with the observation.
-Use this ready lineage for the initial automatic review. After a findings fix
-is pushed, use a fresh explicit `request` and identity-bound `wait` for each new
-full SHA until clean. Do not treat receipt-less `not-requested`, absent comments,
-or zero unresolved threads as a clean automatic-review result.
+Use ready lineage only when automatic review is configured and selected.
+An explicit-review caller uses `request` and identity-bound `wait` for the
+initial ready HEAD and each changed HEAD, within its repair budget and acceptance
+policy. Resume the existing receipt/deadline without a duplicate mention.
+Do not treat receipt-less `not-requested`, absent comments, or zero unresolved
+threads as a clean result for either lineage.
 `wait` also returns `attempts`, `state_transitions`, and `unchanged_attempts`.
 The observation fingerprint excludes those counters and elapsed time, so
 callers can suppress unchanged ledger and progress updates.
