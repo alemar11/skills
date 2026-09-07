@@ -4,4 +4,4 @@ interface:
   brand_color: "#0064a5"
   icon_small: "./assets/postgresql-small.svg"
   icon_large: "./assets/postgresql.png"
-  default_prompt: "Connect to the target Postgres database or inspect local schema code, resolve the minimum PostgreSQL major before using version-dependent SQL, guide schema/data-type/index decisions, review SQL/query performance, use common PostGIS, pgvector, pg_cron, pgmq, or pg_durable patterns when relevant, and summarize the result."
+  default_prompt: "Use $postgres to inspect the target database or prepare the requested SQL, using its configured profile and PostgreSQL version."

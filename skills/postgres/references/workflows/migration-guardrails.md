@@ -6,7 +6,9 @@ and derived migration outcome values.
 
 ## Core rules
 
-- Always ask for approval before making DDL changes.
+- Apply DDL only with authorization for the operation and target database.
+  Honor existing explicit authorization. Preparing a requested migration file
+  is separate from applying it and needs no additional execution approval.
 - Keep pending work in a pending migration file such as `prerelease.sql`.
 - Before editing migrations, resolve the repo's exact `migrations_path` and
   pending migration filename by inspecting `.skills/postgres/config.toml` and

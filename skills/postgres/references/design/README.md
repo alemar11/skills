@@ -28,8 +28,6 @@ Use this quick pass before a deeper schema, migration, or performance review:
 ## Usage
 Use these references when writing SQL, designing schemas, reviewing migrations, or diagnosing production performance and concurrency issues.
 
-For migration reviews, read `schema-design.md`, `query-performance.md`,
-`concurrency-locking.md`, `monitoring-diagnostics.md`, and
-`../workflows/migration-guardrails.md` together. The design files explain what
-to check; the workflow reference defines how pending and released migrations
-must be handled.
+For migration edits, read `../workflows/migration-guardrails.md`; add design
+references only for the affected concern. A migration does not require every
+design checklist.
