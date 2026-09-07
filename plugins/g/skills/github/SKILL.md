@@ -1,6 +1,6 @@
 ---
 name: github
-description: Handle general or mixed GitHub work. Use when a request crosses issues, pull requests, Actions, releases, or local publishing, or when the user is unsure which focused G skill fits.
+description: "Route GitHub requests spanning multiple domains to the relevant G skills."
 ---
 
 # GitHub
@@ -22,25 +22,10 @@ skill and keep that skill's authority and safety rules intact.
 
 ## Transport
 
-- Use authenticated `gh` for every GitHub provider read and write, either
-  directly or through `<plugin-root>/scripts/g`.
-- Use direct `git` for local status, diffs, staging, commits, branches, hooks,
-  tests, and pushes.
-- The shared CLI at `<plugin-root>/scripts/g` uses the same authenticated `gh`
-  session as direct GitHub CLI commands.
-- Use `<plugin-root>/scripts/g stack ...` for the GitHub stacked-PR CLI
-  boundary. It wraps the official `github/gh-stack` extension, checks the
-  extension before invoking it, and never installs the agent skill. Run
-  `stack ensure --install` only when extension installation is explicitly
-  authorized; it is network-bearing and can change the local GitHub CLI setup.
-- Read [`../../references/stack-cli.md`](../../references/stack-cli.md) for the
-  typed command surface, JSON envelope, raw escape hatch, and extension
-  readiness states.
-- Read
-  [`../../references/gh-dependency-preflight.md`](../../references/gh-dependency-preflight.md)
-  for the shared `gh`, authentication, and conditional `gh-stack` gate.
-
-Resolve `<plugin-root>` as two directories above this `SKILL.md`.
+Use direct `git` for local repository operations and authenticated `gh`, directly
+or through `<plugin-root>/scripts/g`, for GitHub. Resolve the plugin root two
+directories above the directory containing this file. For stacks, route to
+`g:github-stack`; installation requires explicit authorization.
 
 ## Routing
 
@@ -62,14 +47,3 @@ Resolve `<plugin-root>` as two directories above this `SKILL.md`.
 
 Do not load every specialist. Select the smallest owner, then return here only
 if the work crosses domains.
-
-## References
-
-- [`../../references/stack-cli.md`](../../references/stack-cli.md): stacked-PR
-  wrapper contract and maintenance commands.
-- [`../github-stack/SKILL.md`](../github-stack/SKILL.md): stack-level routing,
-  lifecycle, and recovery guidance.
-- [`../github-projects/SKILL.md`](../github-projects/SKILL.md): GitHub Projects
-  lifecycle, identity, authorization, and recovery guidance.
-- [`../../references/network-execution.md`](../../references/network-execution.md):
-  shell network and authentication boundaries.
