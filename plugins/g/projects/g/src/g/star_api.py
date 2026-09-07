@@ -112,6 +112,32 @@ def _next_cursor(page_info: object, seen: set[str]) -> str | None:
     return cursor
 
 
+def _collection_page(
+    connection: object, expected_count: int | None, seen_ids: set[str],
+    *, repository_items: bool = False,
+) -> tuple[int, list[dict[str, object]]]:
+    if not isinstance(connection, dict):
+        raise GhError("Unreadable collection; membership state is unverified.")
+    count = connection.get("totalCount")
+    nodes = connection.get("nodes")
+    if type(count) is not int or count < 0 or not isinstance(nodes, list):
+        raise GhError("Invalid collection shape; membership state is unverified.")
+    if expected_count is not None and count != expected_count:
+        raise GhError("Collection changed during pagination; membership state is unverified.")
+    for node in nodes:
+        if not isinstance(node, dict):
+            raise GhError("Unreadable collection item; membership state is unverified.")
+        identity = node.get("id")
+        if not isinstance(identity, str) or not identity.strip() or identity in seen_ids:
+            raise GhError("Missing or duplicate item identity; membership state is unverified.")
+        if repository_items and node.get("__typename") != "Repository":
+            raise GhError("Unrecognized list item; membership state is unverified.")
+        seen_ids.add(identity)
+    if len(seen_ids) > count:
+        raise GhError("Collection count mismatch; membership state is unverified.")
+    return count, nodes
+
+
 def viewer_lists(limit: int = 0) -> dict[str, object]:
     query = """
     query($first: Int!, $after: String) {
@@ -136,7 +162,8 @@ def viewer_lists(limit: int = 0) -> dict[str, object]:
     items: list[dict[str, object]] = []
     cursor: str | None = None
     seen_cursors: set[str] = set()
-    total_count = 0
+    total_count: int | None = None
+    seen_ids: set[str] = set()
     while True:
         payload = graphql(
             query,
@@ -149,14 +176,15 @@ def viewer_lists(limit: int = 0) -> dict[str, object]:
             lists = payload["data"]["viewer"]["lists"]
         except (TypeError, KeyError) as exc:
             raise GhError("Unexpected viewer lists response shape.") from exc
-        total_count = int(lists.get("totalCount") or 0)
-        for node in lists.get("nodes") or []:
-            if isinstance(node, dict):
-                items.append(node)
-                if limit > 0 and len(items) >= limit:
-                    return {"totalCount": total_count, "items": items}
+        total_count, nodes = _collection_page(lists, total_count, seen_ids)
+        for node in nodes:
+            items.append(node)
+            if limit > 0 and len(items) >= limit:
+                return {"totalCount": total_count, "items": items}
         cursor = _next_cursor(lists.get("pageInfo"), seen_cursors)
         if cursor is None:
+            if len(items) != total_count:
+                raise GhError("Incomplete collection; membership state is unverified.")
             break
     return {"totalCount": total_count, "items": items}
 
@@ -233,7 +261,8 @@ def list_items(list_id: str, limit: int = 0) -> dict[str, object]:
     cursor: str | None = None
     seen_cursors: set[str] = set()
     metadata: dict[str, object] | None = None
-    total_count = 0
+    total_count: int | None = None
+    seen_ids: set[str] = set()
     while True:
         payload = graphql(
             query,
@@ -249,6 +278,8 @@ def list_items(list_id: str, limit: int = 0) -> dict[str, object]:
             raise GhError("Unexpected list items response shape.") from exc
         if not isinstance(node, dict) or node.get("__typename") != "UserList":
             raise GhError(f"List id '{list_id}' was not found.", 66)
+        if node.get("id") != list_id:
+            raise GhError("List identity mismatch; membership state is unverified.")
         metadata = {
             "id": node.get("id"),
             "name": node.get("name"),
@@ -259,19 +290,22 @@ def list_items(list_id: str, limit: int = 0) -> dict[str, object]:
             "updatedAt": node.get("updatedAt"),
             "lastAddedAt": node.get("lastAddedAt"),
         }
-        item_connection = node.get("items") or {}
-        total_count = int(item_connection.get("totalCount") or 0)
-        for entry in item_connection.get("nodes") or []:
-            if isinstance(entry, dict) and entry.get("__typename") == "Repository":
-                cleaned = dict(entry)
-                cleaned.pop("__typename", None)
-                items.append(cleaned)
-                if limit > 0 and len(items) >= limit:
-                    metadata["totalCount"] = total_count
-                    metadata["items"] = items
-                    return metadata
+        item_connection = node.get("items")
+        total_count, nodes = _collection_page(
+            item_connection, total_count, seen_ids, repository_items=True
+        )
+        for entry in nodes:
+            cleaned = dict(entry)
+            cleaned.pop("__typename", None)
+            items.append(cleaned)
+            if limit > 0 and len(items) >= limit:
+                metadata["totalCount"] = total_count
+                metadata["items"] = items
+                return metadata
         cursor = _next_cursor(item_connection.get("pageInfo"), seen_cursors)
         if cursor is None:
+            if len(items) != total_count:
+                raise GhError("Incomplete collection; membership state is unverified.")
             break
     if metadata is None:
         raise GhError(f"List id '{list_id}' was not found.", 66)
@@ -287,19 +321,16 @@ def repo_memberships(repo_ids: Iterable[str]) -> dict[str, list[dict[str, object
     }
     if not targets:
         return memberships
-    for user_list in viewer_lists(0).get("items") or []:
-        list_id = user_list.get("id")
-        if not isinstance(list_id, str) or not list_id:
-            continue
+    for user_list in viewer_lists(0)["items"]:
+        list_id = user_list["id"]
         payload = list_items(list_id, 0)
         list_summary = {
             "id": payload.get("id"),
             "name": payload.get("name"),
             "slug": payload.get("slug"),
         }
-        for item in payload.get("items") or []:
-            if isinstance(item, dict):
-                repo_id = item.get("id")
-                if isinstance(repo_id, str) and repo_id in memberships:
-                    memberships[repo_id].append(list_summary)
+        for item in payload["items"]:
+            repo_id = item["id"]
+            if repo_id in memberships:
+                memberships[repo_id].append(list_summary)
     return memberships

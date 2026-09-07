@@ -28,8 +28,14 @@ extension for stacked pull requests. It has no GitHub connector dependency.
 
 - `.codex-plugin/plugin.json` owns plugin identity, version, discovery metadata,
   and bundled-skill exposure.
-- `scripts/g` is the shipped shared CLI artifact. Maintenance source and tests
-  live under `projects/g/`; normal skill execution never runs that source tree.
+- `scripts/g` ships attachment uploads, verified PR publication, review
+  requests/receipts, worktree fingerprints, guarded stack execution, and
+  star-list membership updates. Other workflows use direct `git`/`gh`.
+- Maintenance source and tests live under `projects/g/`; runtime skills never
+  execute that source tree. Direct workflows do not require the G artifact.
+- G 4 removes CI/portfolio/readiness aggregation, identity-resolution wrappers,
+  and ordinary star/list commands. Use the owning skills for direct provider
+  operations; retired CLI commands and their JSON contracts have no aliases.
 - `.agents/plugins/marketplace.json` registers this source as the local
   `alemar11` marketplace entry.
 - Keep the manifest, maintenance package, Python package version, tests, and

@@ -14,7 +14,7 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from g import cli
-from g.common import GError, Result, normalize_remote, resolve_repo
+from g.common import GError, Result, normalize_remote
 from g.publish import _find_open_pr, open_pr, preflight
 
 
@@ -28,13 +28,13 @@ class CliContractTests(unittest.TestCase):
     def test_version(self) -> None:
         code, output = self.invoke(["--version"])
         self.assertEqual(code, 0)
-        self.assertEqual(output.strip(), "4.0.2")
+        self.assertEqual(output.strip(), "4.0.3")
 
     def test_json_doctor_shape(self) -> None:
         doctor_payload = {
             "ok": True,
             "provider_ready": True,
-            "version": "4.0.2",
+            "version": "4.0.3",
             "checks": {
                 "gh_stack": {"status": "missing"},
             },
@@ -43,12 +43,12 @@ class CliContractTests(unittest.TestCase):
             code, output = self.invoke(["--json", "doctor"])
         payload = json.loads(output)
         self.assertIn(code, {0, 1})
-        self.assertEqual(payload["version"], "4.0.2")
+        self.assertEqual(payload["version"], "4.0.3")
         self.assertNotIn("connector", payload["checks"])
         self.assertIn("gh_stack", payload["checks"])
 
     def test_json_argument_error(self) -> None:
-        code, output = self.invoke(["--json", "repo", "resolve", "--repo", "bad"])
+        code, output = self.invoke(["--json", "repo", "snapshot", "--repo", "bad"])
         payload = json.loads(output)
         self.assertEqual(code, 64)
         self.assertFalse(payload["ok"])
@@ -119,12 +119,6 @@ class CliContractTests(unittest.TestCase):
         code, output = self.invoke(["--json", "publish", "template"])
         self.assertEqual(code, 64)
         self.assertEqual(json.loads(output)["error"]["code"], "invalid_arguments")
-
-    def test_repo_resolve_json(self) -> None:
-        code, output = self.invoke(["repo", "resolve", "--repo", "owner/repo", "--json"])
-        payload = json.loads(output)
-        self.assertEqual(code, 0)
-        self.assertEqual(payload["data"]["repo"], "owner/repo")
 
     def test_normalize_remote(self) -> None:
         self.assertEqual(normalize_remote("git@github.com:owner/repo.git"), "owner/repo")

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 import subprocess
 from dataclasses import dataclass
@@ -120,35 +119,6 @@ def checked(
             details=details,
         )
     return result
-
-
-def resolve_repo(value: str | None = None, cwd: Path | None = None) -> dict[str, Any]:
-    if value:
-        if not REPO_PATTERN.fullmatch(value.strip()):
-            raise GError(f"Invalid repository '{value}'. Use owner/repo.", code="invalid_arguments", exit_code=64)
-        repo = value.strip()
-        return {"repo": repo, "source": "argument", "root": None}
-    root_result = checked(["git", "rev-parse", "--show-toplevel"], cwd)
-    root = Path(root_result.stdout.strip())
-    remote = checked(["git", "remote", "get-url", "origin"], root).stdout.strip()
-    repo = normalize_remote(remote)
-    if not repo:
-        raise GError("Could not resolve owner/repo from origin remote.", code="repo_context_missing", exit_code=3)
-    return {"repo": repo, "source": "origin", "root": str(root), "remote": remote}
-
-
-def resolve_pr(repo: str | None = None, pr: str | None = None, cwd: Path | None = None) -> dict[str, Any]:
-    context = resolve_repo(repo, cwd)
-    args = ["gh", "pr", "view"]
-    if pr:
-        args.append(str(pr))
-    args += ["--repo", context["repo"], "--json", "number,url,title,state,isDraft,headRefName,baseRefName"]
-    result = checked(args, Path(context["root"]) if context.get("root") else cwd)
-    try:
-        data = json.loads(result.stdout)
-    except json.JSONDecodeError as exc:
-        raise GError(f"Failed to parse gh JSON output: {exc}") from exc
-    return {"repo": context["repo"], "source": "argument" if pr else "current_branch", "pull_request": data}
 
 
 def envelope(command: list[str], data: Any) -> dict[str, Any]:

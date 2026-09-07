@@ -7,7 +7,9 @@ Composing workflows own product planning, delivery policy, and orchestration.
 
 - `.codex-plugin/plugin.json` owns identity, exposure, and version.
 - `scripts/g` is the shared artifact; `projects/g/AGENTS.md` owns its source,
-  build, tests, and version alignment. Do not add another provider transport.
+  build, tests, and version alignment. Keep executable helpers for fragile
+  mutation and receipt protocols; direct reads and simple operations belong in
+  skills using `git`/`gh`. Do not add a wrapper solely to reshape provider output.
 - `references/options.md` owns invocation fields;
   `references/network-execution.md` owns shell network/auth handling.
 - Each skill owns its narrow runtime contract and state registry. Keep package

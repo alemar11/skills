@@ -7,7 +7,7 @@ from typing import Any
 
 from . import __version__
 from . import attachment, reviews, stack, stars
-from .common import GError, envelope, error_envelope, resolve_pr, resolve_repo
+from .common import GError, envelope, error_envelope
 from .health import doctor, doctor_text
 from .provider_text import worktree_snapshot
 from .publish import open_pr, preflight
@@ -23,15 +23,13 @@ class Parser(argparse.ArgumentParser):
 
 
 def parser() -> Parser:
-    root = Parser(prog="g", description="Safe local Git and GitHub workflow mechanics for G skills.")
+    root = Parser(prog="g", description="Verified publication, review, attachment, stack, and membership helpers for G.")
     root.add_argument("--version", action="version", version=__version__)
     root.add_argument("--json", action="store_true", help="Emit a stable JSON envelope.")
     commands = root.add_subparsers(dest="domain")
     commands.add_parser("doctor", help="Check Python, git, gh, authentication, and checkout readiness.")
-    repo = commands.add_parser("repo", help="Resolve repository identity.")
+    repo = commands.add_parser("repo", help="Fingerprint local repository state.")
     repo_sub = repo.add_subparsers(dest="verb", required=True)
-    repo_resolve = repo_sub.add_parser("resolve", help="Resolve owner/repo from an argument or origin.")
-    repo_resolve.add_argument("--repo")
     repo_sub.add_parser("snapshot", help="Fingerprint the current Git HEAD and porcelain worktree state.")
     attachment_parser = commands.add_parser(
         "attachment",
@@ -47,11 +45,6 @@ def parser() -> Parser:
     attachment_upload.add_argument("--name")
     attachment_upload.add_argument("--content-type")
     attachment_upload.add_argument("--dry-run", action="store_true")
-    pr = commands.add_parser("pr", help="Resolve pull request context.")
-    pr_sub = pr.add_subparsers(dest="verb", required=True)
-    pr_resolve = pr_sub.add_parser("resolve", help="Resolve a PR number/URL or current-branch PR.")
-    pr_resolve.add_argument("--repo")
-    pr_resolve.add_argument("--pr")
     reviews_parser = commands.add_parser("reviews", help="Inspect, check, wait for, or respond to PR reviews.")
     reviews_parser.add_argument("args", nargs=argparse.REMAINDER)
     stars_parser = commands.add_parser("stars", help="Preserve memberships while assigning or unassigning star-list items.")
@@ -80,10 +73,8 @@ def parser() -> Parser:
     return root
 
 
-def _forward(module: Any, args: list[str], json_mode: bool, expected: str) -> int:
+def _forward(module: Any, args: list[str], json_mode: bool) -> int:
     forwarded = list(args)
-    if forwarded and forwarded[0] == expected:
-        forwarded.pop(0)
     if json_mode:
         forwarded.insert(0, "--json")
     return int(module.main(forwarded))
@@ -158,7 +149,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(payload, indent=2) if args.json else doctor_text(payload))
             return 0 if payload["ok"] else 1
         if args.domain == "repo":
-            data = resolve_repo(args.repo) if args.verb == "resolve" else worktree_snapshot()
+            data = worktree_snapshot()
             _emit(data, ["repo", args.verb], args.json)
             return 0
         if args.domain == "attachment":
@@ -171,14 +162,10 @@ def main(argv: list[str] | None = None) -> int:
             )
             _emit(data, ["attachment", args.verb], args.json)
             return 0
-        if args.domain == "pr":
-            data = resolve_pr(args.repo, args.pr)
-            _emit(data, ["pr", args.verb], args.json)
-            return 0
         if args.domain == "reviews":
-            return _forward(reviews, args.args, args.json, "")
+            return _forward(reviews, args.args, args.json)
         if args.domain == "stars":
-            return _forward(stars, args.args, args.json, "")
+            return _forward(stars, args.args, args.json)
         if args.domain == "stack" and args.verb == "ensure":
             data = stack.ensure(install=args.install, json_mode=args.json)
             _emit(data, ["stack", "ensure"], args.json)
