@@ -1,16 +1,9 @@
 ---
 name: deliver-features
-description: "Use when the caller asks to deliver or resume exact published SE parent Feature issues through independently reviewed standalone or stacked pull requests. Coordinates one visible orchestrator and repository ownership; excludes merge, deploy, release, closure, and unrelated cleanup."
+description: "Deliver selected published SE Features through independently reviewed standalone or stacked PRs."
 ---
 
 # Delivery Features
-
-Before entering `review-candidate`, load
-[candidate-review.md](references/candidate-review.md), which composes
-[`se:adversarial-review`](../adversarial-review/SKILL.md) for the generic review
-execution and finding contract. Delivery Features remains authoritative for
-candidate identity, receipts, cleanup, invalidation, repair budget, and
-publication gating.
 
 ## Scope and authority
 
