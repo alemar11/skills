@@ -42,9 +42,10 @@ to benefit from a narrower contract.
 
 - Stay here for mixed route-tree work, route migrations, breadcrumb/design
   questions, or implementation reviews that touch several Router features.
-- Read exactly one focused Router reference when the request is plainly about
+- Start with the matching focused Router reference when the request is plainly about
   search params, path params, navigation, loaders, auth guards, code splitting,
-  not-found/error handling, type registration, SSR, or plugin wiring.
+  not-found/error handling, type registration, SSR, or plugin wiring. Read another
+  only when the evidence reveals a relevant concern it owns.
 - Do not fan out across the entire Router family for ordinary app work; use the
   macro guides first and open focused references only for the narrow issue at
   hand.

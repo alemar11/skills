@@ -45,9 +45,10 @@ Start subdomain.
 
 - Stay here for mixed Start app reviews, server/client boundary audits, or
   framework-level implementation changes that touch several concerns.
-- Read exactly one focused Start reference for isolated server-function,
+- Start with the matching focused Start reference for isolated server-function,
   middleware, execution-model, server-route, deployment, migration, or
-  experimental server-component work.
+  experimental server-component work. Read another only when the evidence reveals
+  a relevant concern it owns.
 - Do not open every Start focused reference during normal implementation; open the
   umbrella reference map first, then use focused guidance only when it will
   reduce ambiguity.
