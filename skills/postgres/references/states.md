@@ -14,6 +14,12 @@ Migration file state is persisted in the repository filesystem.
 | `pending` | The migration remains editable in the repository's resolved pending migration file. | `pending -> released` only through an explicitly authorized release. |
 | `released` | The migration is immutable release history under the resolved released directory. | Terminal for that file; create new pending work instead of editing it. |
 
+Release planning, including `--dry-run`, checks that the pending file is nonempty
+and validates the changelog before the file transition. Changelog validation
+failure preserves pending state.
+Filesystem updates are sequential, so inspect the files after an I/O failure
+before retrying a release.
+
 ## Config migration outcome
 
 `profile migrate-config` emits this transient result. Backup paths and schema

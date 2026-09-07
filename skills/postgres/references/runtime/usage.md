@@ -239,6 +239,9 @@ The CLI resolves connections in this order:
    compatibility input when canonical `config.toml` is absent; persist the
    canonical form only with `profile migrate-config`
 
+Errors in a selected connection source stop resolution. For example, an invalid
+`PGPORT` in a complete libpq environment does not fall back to a saved profile.
+
 Project-root precedence:
 
 1. `--project-root`
@@ -273,6 +276,8 @@ Profiles may declare `access_mode = "read"`, `access_mode = "write"`, or
   inspection commands, except neutral connection commands such as `doctor`,
   `profile resolve`, and `profile test`.
 - Ambiguous SQL or SQL that mixes reads and writes requires `read-write`.
+  Statement boundaries respect quoted strings, identifiers, dollar-quoted
+  bodies, and comments; unrecognized or unterminated tokens are conservative.
 - Access modes are CLI safety guards only. PostgreSQL roles, grants, RLS, and
   server-side read-only settings remain authoritative.
 

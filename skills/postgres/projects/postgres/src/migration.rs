@@ -95,6 +95,13 @@ pub fn build_release_plan(
         .clone()
         .unwrap_or_else(|| derive_summary(&changelog_path, &args.pending_file));
 
+    update_changelog(
+        &changelog_path,
+        &args.pending_file,
+        &release_target,
+        &summary,
+    )?;
+
     Ok(ReleasePlan {
         project_root,
         profile,
@@ -108,6 +115,13 @@ pub fn build_release_plan(
 }
 
 pub fn apply_release(plan: &ReleasePlan, pending_file: &str) -> Result<()> {
+    // Revalidate before mutation in case the changelog changed after planning.
+    let updated_changelog = update_changelog(
+        &plan.changelog_path,
+        pending_file,
+        &plan.release_target,
+        &plan.summary,
+    )?;
     fs::create_dir_all(plan.release_target.parent().expect("release parent"))?;
     fs::rename(&plan.pending_path, &plan.release_target).with_context(|| {
         format!(
@@ -122,12 +136,6 @@ pub fn apply_release(plan: &ReleasePlan, pending_file: &str) -> Result<()> {
             plan.pending_path.display()
         )
     })?;
-    let updated_changelog = update_changelog(
-        &plan.changelog_path,
-        pending_file,
-        &plan.release_target,
-        &plan.summary,
-    )?;
     fs::write(&plan.changelog_path, updated_changelog)
         .with_context(|| format!("Failed to write {}", plan.changelog_path.display()))?;
     Ok(())
@@ -145,7 +153,8 @@ pub fn update_changelog(
         String::new()
     };
     if !existing.trim().is_empty()
-        && (!existing.contains("## WIP") || !existing.contains("## RELEASED"))
+        && (!existing.lines().any(|line| line == "## WIP")
+            || !existing.lines().any(|line| line == "## RELEASED"))
     {
         bail!("CHANGELOG.md must use top-level ## WIP and ## RELEASED sections before release.");
     }
@@ -348,5 +357,36 @@ mod tests {
         )
         .unwrap();
         assert_eq!(derive_summary(&changelog, "prerelease.sql"), "Add table");
+    }
+
+    #[test]
+    fn apply_revalidates_changelog_before_moving_pending_sql() {
+        let temp = tempfile::tempdir().unwrap();
+        let pending_path = temp.path().join("prerelease.sql");
+        let changelog_path = temp.path().join("CHANGELOG.md");
+        fs::write(&pending_path, "SELECT 1;\n").unwrap();
+        fs::write(&changelog_path, "## WIP\n\n## RELEASED\n").unwrap();
+        let plan = ReleasePlan {
+            project_root: temp.path().to_path_buf(),
+            profile: "local".to_string(),
+            migrations_path: temp.path().to_path_buf(),
+            pending_path,
+            release_target: temp.path().join("released/20260907120000.sql"),
+            changelog_path,
+            summary: "Example change".to_string(),
+            dry_run: false,
+        };
+        fs::write(&plan.changelog_path, "# Changed after planning\n").unwrap();
+        let error = apply_release(&plan, "prerelease.sql").unwrap_err();
+        assert!(error.to_string().contains("## WIP and ## RELEASED"));
+        assert_eq!(
+            fs::read_to_string(&plan.pending_path).unwrap(),
+            "SELECT 1;\n"
+        );
+        assert_eq!(
+            fs::read_to_string(&plan.changelog_path).unwrap(),
+            "# Changed after planning\n"
+        );
+        assert!(!plan.release_target.parent().unwrap().exists());
     }
 }

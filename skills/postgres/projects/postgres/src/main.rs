@@ -15,6 +15,8 @@ use postgres_skill_cli::migration::{apply_release, build_release_plan};
 use postgres_skill_cli::output::{print_json, render_table};
 use postgres_skill_cli::tools::{self, ToolSection};
 use serde_json::{Value, json};
+use sqlparser::dialect::{Dialect, PostgreSqlDialect};
+use sqlparser::tokenizer::{Token, Tokenizer};
 use std::env;
 use std::fs;
 use std::io::{self, IsTerminal, Read, Write};
@@ -144,12 +146,67 @@ fn ensure_access(
     )
 }
 
+// Tokenization only: forward PostgreSQL lexical rules but leave U& literals
+// opaque. Decoding their surrogate pairs/custom UESCAPE is the server's job.
+#[derive(Debug)]
+struct AccessDialect;
+
+impl Dialect for AccessDialect {
+    fn dialect(&self) -> std::any::TypeId {
+        std::any::TypeId::of::<PostgreSqlDialect>()
+    }
+
+    fn is_delimited_identifier_start(&self, ch: char) -> bool {
+        PostgreSqlDialect {}.is_delimited_identifier_start(ch)
+    }
+
+    fn is_identifier_start(&self, ch: char) -> bool {
+        PostgreSqlDialect {}.is_identifier_start(ch)
+    }
+
+    fn is_identifier_part(&self, ch: char) -> bool {
+        PostgreSqlDialect {}.is_identifier_part(ch)
+    }
+
+    fn is_custom_operator_part(&self, ch: char) -> bool {
+        PostgreSqlDialect {}.is_custom_operator_part(ch)
+    }
+
+    fn supports_nested_comments(&self) -> bool {
+        PostgreSqlDialect {}.supports_nested_comments()
+    }
+
+    fn supports_string_escape_constant(&self) -> bool {
+        PostgreSqlDialect {}.supports_string_escape_constant()
+    }
+
+    fn supports_numeric_literal_underscores(&self) -> bool {
+        PostgreSqlDialect {}.supports_numeric_literal_underscores()
+    }
+
+    fn supports_geometric_types(&self) -> bool {
+        PostgreSqlDialect {}.supports_geometric_types()
+    }
+
+    fn supports_unicode_string_literal(&self) -> bool {
+        false
+    }
+}
+
 fn classify_sql_access(sql: &str) -> AccessRequirement {
+    let Ok(mut tokens) = Tokenizer::new(&AccessDialect, sql)
+        .with_unescape(false)
+        .tokenize()
+    else {
+        return AccessRequirement::ReadWrite;
+    };
+    tokens.retain(|token| !matches!(token, Token::Whitespace(_)));
     let mut requirement = None;
-    for statement in sql.split(';') {
-        let Some(statement_requirement) = classify_sql_statement_access(statement) else {
+    for statement in tokens.split(|token| *token == Token::SemiColon) {
+        if statement.is_empty() {
             continue;
-        };
+        }
+        let statement_requirement = classify_sql_statement_access(statement);
         requirement = Some(match requirement {
             None => statement_requirement,
             Some(existing) if existing == statement_requirement => existing,
@@ -162,16 +219,16 @@ fn classify_sql_access(sql: &str) -> AccessRequirement {
     requirement.unwrap_or(AccessRequirement::ReadWrite)
 }
 
-fn classify_sql_statement_access(statement: &str) -> Option<AccessRequirement> {
-    let trimmed = trim_leading_sql_trivia(statement);
-    let (keyword, _) = first_sql_keyword(trimmed)?;
-    Some(keyword_access_requirement(&keyword, trimmed))
-}
-
-fn keyword_access_requirement(keyword: &str, statement: &str) -> AccessRequirement {
-    match keyword {
+fn classify_sql_statement_access(statement: &[Token]) -> AccessRequirement {
+    let Some(Token::Word(word)) = statement.first() else {
+        return AccessRequirement::ReadWrite;
+    };
+    if word.quote_style.is_some() {
+        return AccessRequirement::ReadWrite;
+    }
+    match word.value.to_ascii_lowercase().as_str() {
         "select" | "show" | "values" | "table" => AccessRequirement::Read,
-        "explain" => classify_explain_access(statement),
+        "explain" => classify_explain_access(&statement[1..]),
         "insert" | "update" | "delete" | "merge" | "create" | "alter" | "drop" | "truncate"
         | "grant" | "revoke" | "call" | "do" | "refresh" | "reindex" | "vacuum" | "analyze" => {
             AccessRequirement::Write
@@ -180,69 +237,31 @@ fn keyword_access_requirement(keyword: &str, statement: &str) -> AccessRequireme
     }
 }
 
-fn classify_explain_access(statement: &str) -> AccessRequirement {
-    let Some((_, mut rest)) = first_sql_keyword(statement) else {
-        return AccessRequirement::ReadWrite;
-    };
-
-    loop {
-        rest = trim_leading_sql_trivia(rest);
-        if rest.is_empty() {
-            return AccessRequirement::Read;
-        }
-
-        if let Some(after_open) = rest.strip_prefix('(') {
-            let Some(close_index) = after_open.find(')') else {
+fn classify_explain_access(mut tokens: &[Token]) -> AccessRequirement {
+    while let Some(token) = tokens.first() {
+        if *token == Token::LParen {
+            let Some(close_index) = tokens.iter().position(|token| *token == Token::RParen) else {
                 return AccessRequirement::ReadWrite;
             };
-            rest = &after_open[close_index + 1..];
+            tokens = &tokens[close_index + 1..];
             continue;
         }
-
-        let Some((keyword, next)) = first_sql_keyword(rest) else {
+        let Token::Word(word) = token else {
             return AccessRequirement::ReadWrite;
         };
-        match keyword.as_str() {
+        if word.quote_style.is_some() {
+            return AccessRequirement::ReadWrite;
+        }
+        match word.value.to_ascii_lowercase().as_str() {
             "analyze" | "analyse" | "verbose" | "costs" | "buffers" | "format" | "settings"
             | "wal" | "timing" | "summary" | "memory" | "serialize" | "generic_plan" | "true"
             | "false" | "text" | "json" | "yaml" | "xml" => {
-                rest = next;
+                tokens = &tokens[1..];
             }
-            _ => return keyword_access_requirement(&keyword, rest),
+            _ => return classify_sql_statement_access(tokens),
         }
     }
-}
-
-fn first_sql_keyword(statement: &str) -> Option<(String, &str)> {
-    let trimmed = trim_leading_sql_trivia(statement);
-    let first = trimmed.chars().next()?;
-    if !first.is_ascii_alphabetic() {
-        return None;
-    }
-    let keyword = trimmed
-        .chars()
-        .take_while(|ch| ch.is_ascii_alphabetic() || *ch == '_')
-        .collect::<String>();
-    let rest = &trimmed[keyword.len()..];
-    Some((keyword.to_ascii_lowercase(), rest))
-}
-
-fn trim_leading_sql_trivia(mut statement: &str) -> &str {
-    loop {
-        statement = statement.trim_start();
-        if let Some(rest) = statement.strip_prefix("--") {
-            statement = rest.split_once('\n').map(|(_, rest)| rest).unwrap_or("");
-            continue;
-        }
-        if let Some(rest) = statement.strip_prefix("/*") {
-            let Some(end) = rest.find("*/") else {
-                return "";
-            };
-            statement = &rest[end + 2..];
-            continue;
-        }
-        return statement;
-    }
+    AccessRequirement::ReadWrite
 }
 
 #[cfg(test)]
@@ -333,6 +352,50 @@ mod tests {
             classify_sql_access("with x as (select 1) select * from x"),
             AccessRequirement::ReadWrite
         );
+    }
+
+    #[test]
+    fn sql_access_classifier_ignores_semicolons_inside_strings_and_comments() {
+        for sql in [
+            "SELECT 'hello;world' AS message",
+            "SELECT 'it''s; still a string'",
+            r"SELECT E'it\'s; still a string'",
+            r#"SELECT 1 AS "quoted;identifier""#,
+            "SELECT $$hello;world$$",
+            "SELECT $tag$hello;world$tag$",
+            "SELECT $tag$hello;$other$world$tag$",
+            "SELECT 'hello;世界'",
+            r"SELECT U&'\D83D\DE00;hello'",
+            r"SELECT U&'\path;hello' UESCAPE '!'",
+            "-- ignored; DELETE FROM users\nSELECT 1",
+            "/* outer; /* nested; */ still a comment; */ SELECT 1",
+            "SELECT 1 /* ignored; DELETE FROM users */; SELECT 2",
+            "SELECT 1; -- ignored; DELETE FROM users",
+            "EXPLAIN /* ignored; */ (FORMAT JSON) SELECT ';'",
+        ] {
+            assert_eq!(classify_sql_access(sql), AccessRequirement::Read, "{sql}");
+            let mixed = format!("{sql}\n; DELETE FROM users");
+            assert_eq!(
+                classify_sql_access(&mixed),
+                AccessRequirement::ReadWrite,
+                "{mixed}"
+            );
+        }
+    }
+
+    #[test]
+    fn sql_access_classifier_treats_unterminated_tokens_as_ambiguous() {
+        for sql in [
+            "SELECT 'hello;world",
+            "SELECT $$hello;world",
+            "SELECT 1 /* open",
+        ] {
+            assert_eq!(
+                classify_sql_access(sql),
+                AccessRequirement::ReadWrite,
+                "{sql}"
+            );
+        }
     }
 
     #[test]

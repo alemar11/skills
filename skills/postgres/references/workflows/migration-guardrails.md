@@ -69,6 +69,7 @@ DB_PROJECT_ROOT=/path/to/project DB_PROFILE=local \
 The command:
 
 - resolves `migrations_path`
+- validates the pending file and changelog, including during `--dry-run`
 - moves the pending migration file into `released/`
 - recreates an empty pending file
 - updates `CHANGELOG.md`

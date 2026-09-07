@@ -310,11 +310,11 @@ pub fn runtime_context(options: &RuntimeOptions, skill_root: &Path) -> Result<Ru
         .clone()
         .or_else(|| env::var("DB_PROJECT_ROOT").ok().map(PathBuf::from));
 
-    if let Some(url) = options
-        .url_override
-        .clone()
-        .or_else(|| env_url().ok().flatten())
-    {
+    let url = match &options.url_override {
+        Some(url) => Some(url.clone()),
+        None => env_url()?,
+    };
+    if let Some(url) = url {
         let ssl_mode = ssl_mode_from_url(&url).unwrap_or_default();
         let profile_name = options
             .profile_override
