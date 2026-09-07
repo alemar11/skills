@@ -39,7 +39,10 @@ def graphql(query: str, variables: dict[str, object] | None = None) -> object:
             cmd.extend(["-F", f"{key}={'true' if value else 'false'}"])
         else:
             cmd.extend(["-F", f"{key}={value}"])
-    return _run_gh_json(cmd)
+    payload = _run_gh_json(cmd)
+    if isinstance(payload, dict) and payload.get("errors"):
+        raise GhError("GitHub returned GraphQL errors; membership state is unverified.")
+    return payload
 
 
 def repo_view(repo: str) -> dict[str, object]:
@@ -97,6 +100,18 @@ def collect_repo_targets(
     return ordered
 
 
+def _next_cursor(page_info: object, seen: set[str]) -> str | None:
+    if not isinstance(page_info, dict) or not isinstance(page_info.get("hasNextPage"), bool):
+        raise GhError("Missing pagination evidence; membership state is unverified.")
+    if not page_info["hasNextPage"]:
+        return None
+    cursor = page_info.get("endCursor")
+    if not isinstance(cursor, str) or not cursor or cursor in seen:
+        raise GhError("Incomplete pagination; membership state is unverified.")
+    seen.add(cursor)
+    return cursor
+
+
 def viewer_lists(limit: int = 0) -> dict[str, object]:
     query = """
     query($first: Int!, $after: String) {
@@ -120,6 +135,7 @@ def viewer_lists(limit: int = 0) -> dict[str, object]:
     """
     items: list[dict[str, object]] = []
     cursor: str | None = None
+    seen_cursors: set[str] = set()
     total_count = 0
     while True:
         payload = graphql(
@@ -139,11 +155,8 @@ def viewer_lists(limit: int = 0) -> dict[str, object]:
                 items.append(node)
                 if limit > 0 and len(items) >= limit:
                     return {"totalCount": total_count, "items": items}
-        page_info = lists.get("pageInfo") or {}
-        if not page_info.get("hasNextPage"):
-            break
-        cursor = page_info.get("endCursor")
-        if not cursor:
+        cursor = _next_cursor(lists.get("pageInfo"), seen_cursors)
+        if cursor is None:
             break
     return {"totalCount": total_count, "items": items}
 
@@ -218,6 +231,7 @@ def list_items(list_id: str, limit: int = 0) -> dict[str, object]:
     """
     items: list[dict[str, object]] = []
     cursor: str | None = None
+    seen_cursors: set[str] = set()
     metadata: dict[str, object] | None = None
     total_count = 0
     while True:
@@ -256,59 +270,14 @@ def list_items(list_id: str, limit: int = 0) -> dict[str, object]:
                     metadata["totalCount"] = total_count
                     metadata["items"] = items
                     return metadata
-        page_info = item_connection.get("pageInfo") or {}
-        if not page_info.get("hasNextPage"):
-            break
-        cursor = page_info.get("endCursor")
-        if not cursor:
+        cursor = _next_cursor(item_connection.get("pageInfo"), seen_cursors)
+        if cursor is None:
             break
     if metadata is None:
         raise GhError(f"List id '{list_id}' was not found.", 66)
     metadata["totalCount"] = total_count
     metadata["items"] = items
     return metadata
-
-
-def viewer_stars(limit: int = 0) -> dict[str, object]:
-    query = """
-    query($first: Int!, $after: String) {
-      viewer {
-        starredRepositories(first: $first, after: $after, orderBy: {field: STARRED_AT, direction: DESC}) {
-          totalCount
-          nodes { id nameWithOwner url viewerHasStarred }
-          pageInfo { hasNextPage endCursor }
-        }
-      }
-    }
-    """
-    items: list[dict[str, object]] = []
-    cursor: str | None = None
-    total_count = 0
-    while True:
-        payload = graphql(
-            query,
-            {
-                "first": _page_size(limit - len(items) if limit > 0 else 0),
-                "after": cursor,
-            },
-        )
-        try:
-            connection = payload["data"]["viewer"]["starredRepositories"]
-        except (TypeError, KeyError) as exc:
-            raise GhError("Unexpected starred repositories response shape.") from exc
-        total_count = int(connection.get("totalCount") or 0)
-        for node in connection.get("nodes") or []:
-            if isinstance(node, dict):
-                items.append(node)
-                if limit > 0 and len(items) >= limit:
-                    return {"totalCount": total_count, "items": items}
-        page_info = connection.get("pageInfo") or {}
-        if not page_info.get("hasNextPage"):
-            break
-        cursor = page_info.get("endCursor")
-        if not cursor:
-            break
-    return {"totalCount": total_count, "items": items}
 
 
 def repo_memberships(repo_ids: Iterable[str]) -> dict[str, list[dict[str, object]]]:

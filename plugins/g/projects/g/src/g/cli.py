@@ -54,7 +54,7 @@ def parser() -> Parser:
     pr_resolve.add_argument("--pr")
     reviews_parser = commands.add_parser("reviews", help="Inspect, check, wait for, or respond to PR reviews.")
     reviews_parser.add_argument("args", nargs=argparse.REMAINDER)
-    stars_parser = commands.add_parser("stars", help="Manage stars and authenticated-user star lists.")
+    stars_parser = commands.add_parser("stars", help="Preserve memberships while assigning or unassigning star-list items.")
     stars_parser.add_argument("args", nargs=argparse.REMAINDER)
     stack_parser = commands.add_parser("stack", help="Wrap the GitHub gh-stack extension.")
     stack_sub = stack_parser.add_subparsers(dest="verb", required=True)

@@ -1,33 +1,21 @@
-# stars Script Contract
+# Star-list Membership Helper
 
-## Commands
-
-```bash
-<plugin-root>/scripts/g stars --help
-<plugin-root>/scripts/g --version
-<plugin-root>/scripts/g doctor
-<plugin-root>/scripts/g --json doctor
-<plugin-root>/scripts/g stars list
-<plugin-root>/scripts/g stars add <owner/repo>
-<plugin-root>/scripts/g stars remove <owner/repo>
-<plugin-root>/scripts/g stars lists list
-```
-
-## JSON Mode
-
-Global `--json` must appear before the command:
+Read [dependency preflight](../../../references/gh-dependency-preflight.md) before
+the first membership helper call. Invoke only the shipped artifact:
 
 ```bash
-<plugin-root>/scripts/g --json stars list
+<plugin-root>/scripts/g --json stars lists assign <list-id> <owner/repo>
+<plugin-root>/scripts/g --json stars lists unassign <list-id> <owner/repo>
 ```
 
-Success envelopes include `ok`, `version`, `command`, and `data`.
-Errors include `ok`, `version`, `command`, and `error`.
+Use `--list <exact-slug-or-name>` instead of the positional ID when necessary.
+Batch targets use repeated `--repo` or a newline-delimited `--repos-file`.
+`--dry-run` performs reads and reports intended changes without mutations.
+Use `stars lists assign --help` for available flags.
 
-The script does not write configuration files.
-
-## CLI Maintenance
-
-The shipped command is built from the plugin maintenance project and invoked
-only through `<plugin-root>/scripts/g`. Preserve the plugin-aligned
-version and public command/JSON contract when maintaining the project.
+The helper preserves existing unrelated memberships and refuses to assign an
+unstarred repository. It does not star repositories or delete lists. JSON mode
+uses the shared success/error envelope; inspect each target's result and failure
+count even when other targets succeeded. Read [states](states.md) to interpret
+helper results. Follow the workflow's independent
+readback requirement before reporting completion.

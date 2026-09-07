@@ -23,10 +23,7 @@ from .star_api import (
     resolve_list,
     validate_repo_reference,
     viewer_lists,
-    viewer_stars,
 )
-from .star_commands import build_parser as build_stars_parser
-from .star_commands import main as stars_main
 from .star_lists import build_parser as build_lists_parser
 from .star_lists import main as lists_main
 
@@ -89,23 +86,8 @@ def invoke(command: list[str], json_mode: bool) -> int:
         print(build_top_parser().format_help(), end="")
         return 0
     domain = command[0]
-    if domain == "list":
-        argv = ["--list-stars", *command[1:]]
-        main_func = stars_main
-    elif domain == "add":
-        argv = ["--star", *_repo_args(command[1:])]
-        main_func = stars_main
-    elif domain == "remove":
-        argv = ["--unstar", *_repo_args(command[1:])]
-        main_func = stars_main
-    elif domain == "lists" and len(command) >= 2:
-        mapping = {
-            "list": "--list-lists",
-            "items": "--list-items",
-            "delete": "--delete",
-            "assign": "--assign",
-            "unassign": "--unassign",
-        }
+    if domain == "lists" and len(command) >= 2:
+        mapping = {"assign": "--assign", "unassign": "--unassign"}
         if command[1] not in mapping:
             raise SystemExit(f"Unsupported lists command: {command[1]}")
         argv = [mapping[command[1]], *_list_args(command[1], command[2:])]
@@ -124,12 +106,6 @@ def invoke(command: list[str], json_mode: bool) -> int:
     return result.returncode
 
 
-def _repo_args(args: list[str]) -> list[str]:
-    if not args or args[0].startswith("-"):
-        return args
-    return ["--repo", args[0], *args[1:]]
-
-
 def _list_args(action: str, args: list[str]) -> list[str]:
     if not args or args[0].startswith("-"):
         return args
@@ -143,7 +119,7 @@ def _list_args(action: str, args: list[str]) -> list[str]:
 
 def build_top_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="List, star, unstar, and manage authenticated-user GitHub star lists."
+        description="Update authenticated-user GitHub star-list memberships."
     )
     parser.add_argument(
         "--json", action="store_true", help="Emit a stable JSON envelope."
@@ -154,7 +130,7 @@ def build_top_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "command",
         nargs="*",
-        help="Commands: list, add, remove, lists list/items/delete/assign/unassign, doctor.",
+        help="Commands: lists assign/unassign, doctor.",
     )
     return parser
 

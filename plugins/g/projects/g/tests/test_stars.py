@@ -13,7 +13,7 @@ from pathlib import Path
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from g import stars
+from g import star_api, star_lists, stars
 
 SCRIPT = Path(__file__).resolve().parents[3] / "scripts" / "g"
 
@@ -36,7 +36,7 @@ class StarsContractTests(unittest.TestCase):
         manifest = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         package = tomllib.loads((Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8"))
         artifact_version = subprocess.check_output([str(SCRIPT), "--version"], text=True).strip()
-        self.assertEqual(manifest["version"], "4.0.1")
+        self.assertEqual(manifest["version"], "4.0.2")
         self.assertEqual(package["project"]["version"], manifest["version"])
         self.assertEqual(artifact_version, manifest["version"])
         self.assertNotIn("apps", manifest)
@@ -47,14 +47,14 @@ class StarsContractTests(unittest.TestCase):
         with contextlib.redirect_stdout(stdout):
             code = self.stars.main(["--version"])
         self.assertEqual(code, 0)
-        self.assertEqual(stdout.getvalue().strip(), "4.0.1")
+        self.assertEqual(stdout.getvalue().strip(), "4.0.2")
 
     def test_json_doctor_shape(self) -> None:
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):
             self.stars.main(["--json", "doctor"])
         payload = json.loads(stdout.getvalue())
-        self.assertEqual(payload["version"], "4.0.1")
+        self.assertEqual(payload["version"], "4.0.2")
         self.assertIn("gh", payload["checks"])
 
     def test_invalid_command_json(self) -> None:
@@ -65,16 +65,13 @@ class StarsContractTests(unittest.TestCase):
         payload = json.loads(stdout.getvalue())
         self.assertFalse(payload["ok"])
 
-    def test_add_positional_repo_maps_to_repo_flag(self) -> None:
-        captured: list[str] = []
-
-        def fake_helper(_main, argv):
-            captured.extend(argv)
-            return stars.RunResult(0, "", "")
-
-        with mock.patch.object(stars, "helper_result", side_effect=fake_helper):
-            self.assertEqual(stars.invoke(["add", "owner/repo"], False), 0)
-        self.assertEqual(captured[:3], ["--star", "--repo", "owner/repo"])
+    def test_retired_commands_fail_without_provider_access(self) -> None:
+        for command in (["list"], ["add", "owner/repo"], ["remove", "owner/repo"],
+                        ["lists", "list"], ["lists", "items", "L1"], ["lists", "delete", "L1"]):
+            with self.subTest(command=command), mock.patch.object(stars, "helper_result") as helper:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(stars.main(["--json", *command]), 64)
+                helper.assert_not_called()
 
     def test_assign_positional_ids_map_to_flags(self) -> None:
         captured: list[str] = []
@@ -86,6 +83,101 @@ class StarsContractTests(unittest.TestCase):
         with mock.patch.object(stars, "helper_result", side_effect=fake_helper):
             self.assertEqual(stars.invoke(["lists", "assign", "L1", "owner/repo"], False), 0)
         self.assertEqual(captured[:5], ["--assign", "--list-id", "L1", "--repo", "owner/repo"])
+
+
+class MembershipTests(unittest.TestCase):
+    def run_membership(self, action="assign", *, current=None, starred=True, dry_run=False):
+        current = [{"id": "OTHER"}] if current is None else current
+        stdout = io.StringIO()
+        args = [f"--{action}", "--list-id", "TARGET", "--repo", "owner/repo", "--json"]
+        if dry_run:
+            args.append("--dry-run")
+        with mock.patch.object(star_lists, "resolve_list", return_value={"id": "TARGET"}), \
+             mock.patch.object(star_lists, "repo_view", return_value={
+                 "id": "R1", "nameWithOwner": "owner/repo", "url": "https://github.com/owner/repo",
+                 "viewerHasStarred": starred}), \
+             mock.patch.object(star_lists, "repo_memberships", return_value={"R1": current}), \
+             mock.patch.object(star_lists, "_update_memberships", return_value=[]) as update, \
+             contextlib.redirect_stdout(stdout):
+            code = star_lists.main(args)
+        return code, json.loads(stdout.getvalue()), update
+
+    def test_assign_preserves_unrelated_memberships(self):
+        code, payload, update = self.run_membership()
+        self.assertEqual(code, 0)
+        update.assert_called_once_with("R1", ["OTHER", "TARGET"])
+        self.assertEqual(payload["results"][0]["status"], "changed")
+
+    def test_unassign_preserves_unrelated_memberships(self):
+        code, _, update = self.run_membership("unassign", current=[{"id": "OTHER"}, {"id": "TARGET"}])
+        self.assertEqual(code, 0)
+        update.assert_called_once_with("R1", ["OTHER"])
+
+    def test_assignment_never_stars_an_unstarred_repository(self):
+        code, payload, update = self.run_membership(starred=False)
+        self.assertEqual(code, 1)
+        self.assertEqual(payload["failureCount"], 1)
+        update.assert_not_called()
+
+    def test_dry_run_and_noop_never_mutate(self):
+        for options in ({"dry_run": True}, {"current": [{"id": "TARGET"}]}):
+            with self.subTest(options=options):
+                code, _, update = self.run_membership(**options)
+                self.assertEqual(code, 0)
+                update.assert_not_called()
+
+    def test_membership_lookup_reads_every_list_and_item_page(self):
+        calls = []
+        def provider(query, variables):
+            calls.append(variables.copy())
+            after = variables.get("after")
+            if "id" not in variables:
+                return {"data": {"viewer": {"lists": {
+                    "totalCount": 2, "nodes": [{"id": "L2" if after else "L1"}],
+                    "pageInfo": {"hasNextPage": not bool(after), "endCursor": "next" if not after else None}}}}}
+            list_id = variables["id"]
+            return {"data": {"node": {"__typename": "UserList", "id": list_id,
+                "items": {"totalCount": 2, "nodes": [{"__typename": "Repository", "id": "R1" if after else "OTHER"}],
+                    "pageInfo": {"hasNextPage": not bool(after), "endCursor": "items-next" if not after else None}}}}}
+        with mock.patch.object(star_api, "graphql", side_effect=provider):
+            result = star_api.repo_memberships(["R1"])
+        self.assertEqual([item["id"] for item in result["R1"]], ["L1", "L2"])
+        self.assertEqual(len(calls), 6)
+
+    def test_incomplete_membership_inventory_fails_closed(self):
+        for page_info in ({"hasNextPage": True, "endCursor": None}, {}):
+            payload = {"data": {"viewer": {"lists": {"nodes": [], "pageInfo": page_info}}}}
+            with self.subTest(page_info=page_info), mock.patch.object(star_api, "graphql", return_value=payload):
+                with self.assertRaises(star_api.GhError):
+                    star_api.repo_memberships(["R1"])
+
+    def test_repeated_membership_cursor_fails_closed(self):
+        payload = {"data": {"viewer": {"lists": {"nodes": [],
+                   "pageInfo": {"hasNextPage": True, "endCursor": "same"}}}}}
+        with mock.patch.object(star_api, "graphql", return_value=payload) as query:
+            with self.assertRaises(star_api.GhError):
+                star_api.repo_memberships(["R1"])
+        self.assertEqual(query.call_count, 2)
+
+    def test_graphql_partial_errors_do_not_become_membership_state(self):
+        with mock.patch.object(star_api, "_run_gh_json", return_value={"data": {}, "errors": [{"message": "denied"}]}):
+            with self.assertRaises(star_api.GhError):
+                star_api.graphql("query { viewer { login } }")
+
+    def test_batch_reports_partial_failure(self):
+        out = io.StringIO()
+        with mock.patch.object(star_lists, "resolve_list", return_value={"id": "TARGET"}), \
+             mock.patch.object(star_lists, "repo_view", side_effect=[
+                 {"id": "R1", "nameWithOwner": "owner/one", "viewerHasStarred": True},
+                 star_api.GhError("inaccessible")]), \
+             mock.patch.object(star_lists, "repo_memberships", return_value={"R1": []}), \
+             mock.patch.object(star_lists, "_update_memberships", return_value=[]) as update, \
+             contextlib.redirect_stdout(out):
+            code = star_lists.main(["--assign", "--list-id", "TARGET", "--repo", "owner/one", "--repo", "owner/two", "--json"])
+        payload = json.loads(out.getvalue())
+        self.assertEqual(code, 1)
+        self.assertEqual((payload["successCount"], payload["failureCount"]), (1, 1))
+        update.assert_called_once_with("R1", ["TARGET"])
 
 
 if __name__ == "__main__":

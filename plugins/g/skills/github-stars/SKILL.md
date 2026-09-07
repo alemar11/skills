@@ -5,34 +5,19 @@ description: "List and manage the authenticated GitHub user’s stars and star l
 
 # GitHub Stars
 
-Before any shell command that may contact GitHub or a package registry, read
-and follow [Network execution](../../references/network-execution.md).
+Read [network execution](../../references/network-execution.md) before provider
+access. Use authenticated `gh` directly for inventory, ordinary stars, and list
+deletion; use the shipped G helper only for list membership updates.
 
-## Transport
+Read [workflows](references/workflows.md) for the requested operation. Before
+assigning or unassigning list members, also read the
+[membership helper contract](references/script-summary.md) and
+[result states](references/states.md).
 
-Use `<plugin-root>/scripts/g stars`, backed by authenticated `gh`, for every
-provider read and write in this skill.
+Resolve the host, authenticated account, and exact repository or list identities
+before writes. Inspection and dry runs never mutate. An explicit star, unstar,
+assignment, removal, or list-deletion request authorizes only that operation;
+ask only when its target or scope remains ambiguous.
 
-Before the first provider-facing shared CLI operation, load
-[`../../references/gh-dependency-preflight.md`](../../references/gh-dependency-preflight.md)
-and require its host and authentication checks.
-
-## Commands
-
-Use `<plugin-root>/scripts/g stars --help` for syntax and
-[workflows](references/workflows.md) for the selected operation.
-
-## Workflow
-
-1. Run the shared doctor with scoped network permission and require
-   `authentication_status=verified` before private or authenticated-user
-   operations.
-2. Use list operations for inventory and search.
-3. Confirm destructive actions such as unstar or list delete unless the user
-   explicitly asked for them.
-4. Return repository URLs and list names/ids in results.
-
-## References
-
-- `references/workflows.md`: star and star-list workflows.
-- `references/script-summary.md`: `stars` command contract.
+Report repository URLs, list names and IDs, observed outcomes, and incomplete
+coverage or per-target failures. Do not present a write receipt as verified state.

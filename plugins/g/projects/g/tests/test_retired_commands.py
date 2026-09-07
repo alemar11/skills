@@ -15,6 +15,12 @@ SOURCE = Path(__file__).resolve().parents[1] / "src"
 class RetiredCommandsTests(unittest.TestCase):
     def test_removed_commands_cannot_contact_a_provider(self) -> None:
         commands = [
+            ["stars", "list"],
+            ["stars", "add", "owner/repo"],
+            ["stars", "remove", "owner/repo"],
+            ["stars", "lists", "list"],
+            ["stars", "lists", "items", "UL_test"],
+            ["stars", "lists", "delete", "UL_test"],
             ["pr", "delivery-status", "--repo", "owner/repo", "--pr", "1"],
             ["ci", "inspect", "--repo", "owner/repo", "--pr", "1"],
             ["ci", "permissions", "--repo", "owner/repo"],
