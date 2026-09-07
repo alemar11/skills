@@ -1,6 +1,6 @@
 ---
 name: audit
-description: "Monitor active Codex tasks that use G skills and report observable bugs or improvements read-only. Use only after an explicit $g:audit invocation; not for historical or static audits."
+description: "Monitor active tasks using G skills read-only. Use only for an explicit $g:audit request."
 ---
 
 # G Session Audit
