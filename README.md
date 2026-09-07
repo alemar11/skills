@@ -85,7 +85,7 @@ for Apple's native headless MCP server:
 | `skill-audit` | Audit skill or plugin instructions and usage evidence read-only. Use only when explicitly invoked as $skill-audit. |
 | `swift-api-design` | Design, rename, or review Swift API surfaces using the bundled official API Design Guidelines. |
 | `swift-docc` | Author, review, preview, or publish Swift-DocC symbol documentation, articles, and tutorials. |
-| `youtube` | Search YouTube videos and playlists, retrieve timestamped transcripts, and search spoken content across playlists. |
+| `youtube` | Search YouTube videos and playlists or answer from timestamped transcripts. Use for YouTube links and spoken-content research. |
 | `ghostty` | Inspect or arrange Ghostty terminals and edit configuration or keybindings when explicitly requested. |
 | `herdr` | Inspect or control Herdr terminal workspaces, panes, and agents when the user explicitly asks to use Herdr. |
 
