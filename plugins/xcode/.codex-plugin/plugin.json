@@ -1,6 +1,6 @@
 {
   "name": "xcode",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Read official stable and beta Xcode release notes and safely launch Apple's native headless Xcode MCP server.",
   "author": {
     "name": "alemar11",

@@ -1,8 +1,6 @@
 # Xcode Plugin Maintenance
 
-`plugins/xcode/` owns the bundled Xcode skills and the plugin release contract.
-
-## Package contract
+This package owns the bundled Xcode skills and their release contract.
 
 - Keep normal What's New runtime execution on
   `skills/whats-new/scripts/print_xcode_changelog.py`; there is no separate
