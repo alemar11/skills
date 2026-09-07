@@ -1,38 +1,12 @@
 # Socrates State Contract
 
-This reference defines the state vocabulary used by `$socrates`. The workflow
-registry and allowed transitions live in `SKILL.md`; do not add a workflow node
-here without updating that registry and its Mermaid projection in the same
-change.
+This file owns Socrates workflow nodes, transitions, and field meanings.
 
 Socrates persists no learner or workflow state. Workflow position, counters,
 offer suppression, exercise selection, scaffolding, and assessments exist only
 in the current conversation. Repository contents, diffs, test results, logs,
 documentation, and explicit user replies are external evidence rather than
 Socrates-owned state.
-
-## Workflow nodes
-
-| Node | Kind | Plain description |
-| --- | --- | --- |
-| `qualify` | Decision | Determine whether the activation is an explicit exercise request, an eligible implicit opportunity, or no exercise. |
-| `offer` | Output | After any required primary-task handoff, emit one optional implicit offer; emit nothing after the offer. |
-| `await-consent` | Wait | Wait for the user to accept, decline, stop, or ask what the proposed exercise covers. |
-| `prepare` | Action | Resolve the objective, pattern, scaffold, and trustworthy evidence anchor. |
-| `prompt` | Output | Emit exactly one learning task and no answer or hint. |
-| `await-answer` | Wait | Wait for the learner's answer, help request, skip, stop, or objective change. |
-| `evaluate` | Validation | Compare the learner's actual claims with current evidence. |
-| `coach` | Action | Give evidence-linked feedback and either continue, change pattern, or close. |
-| `reconcile` | Recovery | Refresh or replace evidence that is stale, conflicting, or initially insufficient for assessment. |
-| `skipped` | Terminal | End without an exercise because the candidate was ineligible, duplicated, or suppressed. |
-| `declined` | Terminal | End after the learner declines an implicit offer. |
-| `complete` | Terminal | End after the learning objective closes or a requested direct answer is supplied. |
-| `stopped` | Terminal | End because the learner skips, stops, or switches to another objective. |
-| `blocked` | Terminal | End because a trustworthy evidence-backed exercise cannot be formed. |
-
-`offer` must advance to `await-consent` before its response ends. `prompt` must
-advance to `await-answer` before its response ends. Both waits continue only
-after new user input; silence is not an event to fill with more content.
 
 ## Field-qualified states
 
@@ -72,3 +46,22 @@ run at `qualify`; it does not mutate the prior terminal node.
 - Socrates owns only its transient interpretation of that evidence. It never
   persists a learner model, schedule, score, milestone ledger, or mastery
   claim.
+
+## Transitions
+
+| node_id | kind | entry condition | transitions | terminal state |
+| --- | --- | --- | --- | --- |
+| `qualify` | decision | Socrates was explicitly requested or a possible post-work opportunity exists | `offer`, `prepare`, `skipped` | none |
+| `offer` | output | An eligible implicit opportunity exists and the offer gate is open | `await-consent` | none |
+| `await-consent` | wait | One consent question was emitted | `offer`, `prepare`, `declined`, `stopped` | none |
+| `prepare` | action | Consent exists | `prompt`, `blocked`, `stopped` | none |
+| `prompt` | output | One objective, exercise pattern, and trustworthy evidence anchor are ready | `await-answer` | none |
+| `await-answer` | wait | One learning question was emitted | `evaluate`, `stopped` | none |
+| `evaluate` | validation | The learner answered or requested help or the answer | `coach`, `reconcile` | none |
+| `coach` | action | The response was checked against current evidence | `prompt`, `prepare`, `complete`, `stopped` | none |
+| `reconcile` | recovery | Evidence is stale, conflicting, or insufficient for the attempted assessment | `evaluate`, `prepare`, `blocked`, `stopped` | none |
+| `skipped` | terminal | The opportunity was ineligible, duplicated, or suppressed | none | `skipped` |
+| `declined` | terminal | The learner declined an implicit offer | none | `declined` |
+| `complete` | terminal | The objective closed or the requested direct answer was supplied | none | `complete` |
+| `stopped` | terminal | The learner skipped, stopped, or changed objectives | none | `stopped` |
+| `blocked` | terminal | No trustworthy evidence-backed exercise can be formed | none | `blocked` |
