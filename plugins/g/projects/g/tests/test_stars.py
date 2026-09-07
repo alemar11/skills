@@ -36,7 +36,7 @@ class StarsContractTests(unittest.TestCase):
         manifest = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         package = tomllib.loads((Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8"))
         artifact_version = subprocess.check_output([str(SCRIPT), "--version"], text=True).strip()
-        self.assertEqual(manifest["version"], "2.18.8")
+        self.assertEqual(manifest["version"], "2.18.9")
         self.assertEqual(package["project"]["version"], manifest["version"])
         self.assertEqual(artifact_version, manifest["version"])
         self.assertNotIn("apps", manifest)
@@ -47,14 +47,14 @@ class StarsContractTests(unittest.TestCase):
         with contextlib.redirect_stdout(stdout):
             code = self.stars.main(["--version"])
         self.assertEqual(code, 0)
-        self.assertEqual(stdout.getvalue().strip(), "2.18.8")
+        self.assertEqual(stdout.getvalue().strip(), "2.18.9")
 
     def test_json_doctor_shape(self) -> None:
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):
             self.stars.main(["--json", "doctor"])
         payload = json.loads(stdout.getvalue())
-        self.assertEqual(payload["version"], "2.18.8")
+        self.assertEqual(payload["version"], "2.18.9")
         self.assertIn("gh", payload["checks"])
 
     def test_invalid_command_json(self) -> None:

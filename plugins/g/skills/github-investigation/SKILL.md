@@ -1,6 +1,6 @@
 ---
 name: github-investigation
-description: Investigate a GitHub issue, pull request, or proposed fix using repository evidence. Use for root-cause and fix-quality analysis; use $g:github-review-threads for hosted review feedback.
+description: "Investigate an issue, pull request, or proposed fix for root cause and fix quality."
 ---
 
 # GitHub Investigation
@@ -17,26 +17,12 @@ Before the first provider-facing direct `gh` or shared CLI fallback, load
 [`../../references/gh-dependency-preflight.md`](../../references/gh-dependency-preflight.md)
 and require its host and authentication checks.
 
-
 ## Role
 
-Review a GitHub issue, pull request, bug report, or proposed fix when the user
-needs an evidence-backed technical judgment rather than queue triage or review
-thread replies.
-
-Use this skill for questions like:
-
-- `review this PR deeply`
-- `is this issue real?`
-- `what is the root cause?`
-- `is this the best fix?`
-- `did main already fix this?`
-- `should we close this issue?`
-
-Use `$g:github-repository-triage` for current-repo queue summaries, `$g:github-issues` for
-authorized issue lifecycle changes, `$g:github-actions` for Actions failures, and
-`$g:github-review-threads` for listing, drafting, or posting replies to PR review
-threads.
+Give an evidence-backed judgment of the selected issue, PR, or proposed fix.
+Use `g:github-repository-triage` for queues, `g:github-actions` for CI, and
+`g:github-review-threads` for hosted feedback. Investigation alone authorizes
+no edits, comments, closure, merge, or publication.
 
 ## Start
 
@@ -69,8 +55,8 @@ read-only freshness, or `review_operation=reply|request|resolve` with
 `request` uses G's typed full-head/request-key operation and persists its
 complete receipt before any wait; it has no legacy text fallback.
 
-Read local instructions, issue workflows, test guidance, and maintainer runbooks
-before deciding. If the repository is not checked out locally, clone or fetch it
+Read applicable repository instructions and the guidance relevant to the
+selected investigation. If the repository is not checked out locally, clone or fetch it
 only when the review requires code-path evidence that `gh` cannot provide.
 
 ## Review Contract
@@ -98,20 +84,10 @@ canonical `issue_operation`.
 
 ## Code Reading Depth
 
-Read beyond the first touched file. Follow the real path:
-
-- entrypoint -> validation/parsing -> routing/dispatch -> owner module ->
-  shared helper -> persistence/network/runtime boundary
-- config/schema/docs -> runtime usage -> doctor/fix path
-- provider/channel/plugin owner code -> generic core only when multiple owners
-  need the same invariant
-- tests around the touched surface plus adjacent regression tests
-
-When behavior depends on a dependency, read the current package docs, source,
-types, or installed metadata before assuming the contract.
-
-Prefer current source and executable proof over issue comments. Treat stale
-comments, old CI, and old release behavior as hints until rechecked.
+Trace the reported behavior through the relevant ownership boundary and tests;
+expand beyond the diff when needed to establish cause. Check installed
+dependency contracts where behavior depends on them. Prefer current source and
+executable evidence over stale comments, CI, or release reports.
 
 ## Provenance
 
@@ -126,21 +102,12 @@ For bug or regression reviews, include a compact provenance answer when feasible
 - For features, docs, refactors, or untraceable issues, write `N/A` or say what
   evidence is missing.
 
-## Fix Quality Bar
+## Fix Quality
 
-Good fixes usually:
-
-- live at the ownership boundary where the bug belongs;
-- preserve public behavior unless the task is explicitly about changing it;
-- add a regression test at the smallest meaningful seam;
-- avoid broad special cases, hidden conversions, semantic sentinels, and
-  provider/channel IDs in generic core;
-- update docs or changelog when user-visible behavior changes;
-- fail clearly in runtime paths and repair through doctor paths
-  when that is the established contract.
-
-Call out symptom-level fixes. Recommend a larger refactor only when it makes
-the invariant clearer or materially reduces future bugs without widening risk.
+Prefer a correction at the owning boundary with a regression check at the
+smallest meaningful seam. Recommend a larger refactor only when it materially
+improves the invariant without widening risk. Preserve public behavior unless
+changing it is requested.
 
 ## Output Shapes
 
