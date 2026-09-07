@@ -5,6 +5,9 @@ description: "Run an explicitly requested read-only study, refining its handoff 
 
 # Study
 
+Follow the shared [execution scope](../../references/execution-scope.md) for
+standalone and composed invocation.
+
 ## Purpose and boundary
 
 Build one curated handoff, refine it through `se:grilling`, optionally delegate
@@ -38,9 +41,10 @@ GitHub, account, or unrelated external mutation authority.
   selection, or an equivalent direct instruction to execute Study.
 - Do not activate for an ordinary mention of “study” or an implicit planning
   match. `agents/openai.yaml` disables implicit invocation.
-- Only the invoking controller may start the run. A Study-created App
-  controller or subagent must never invoke Study, create another Study
-  controller, or delegate a nested worker layer.
+- Only the invoking session starts setup. Its Study App controller continues
+  that same invocation and may create the one documented native-worker layer.
+  It must not restart Study setup or create another controller. Worker
+  subagents never invoke Study, create controllers, or delegate further work.
 - If a downstream prompt requests recursive Study, decline that part, continue
   the existing bounded assignment when possible, and report the request to the
   controller.
