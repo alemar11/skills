@@ -1,8 +1,0 @@
-interface:
-  display_name: "G Session Audit"
-  short_description: "Monitor active G sessions read-only."
-  brand_color: "#B45309"
-  default_prompt: "Use $g:audit to monitor active Codex tasks using G skills and return a prioritized read-only report of feedback, bugs, and improvements."
-
-policy:
-  allow_implicit_invocation: false

@@ -41,7 +41,6 @@ updates. It has no GitHub connector dependency. It bundles:
 | `g:send` | Confirm scope and caller-provided resolved issues, commit, push, add automatic issue-closing references, and open or update one pull request. Stack linking and review requests are separate. |
 | `g:github-stack` | Manage stacked branches and dependent pull requests through the G stack CLI, including inspection, linking, rebase, sync, navigation, and explicit stack-wide publication or merge. |
 | `g:versioning` | Distinguish versions, tags, and GitHub Releases; suggest SemVer and operate approval-gated release-tag workflows. |
-| `g:audit` | Monitor active sessions using G skills and return a prioritized read-only report. |
 
 SE is the repository's software-delivery workflow plugin. It refines and
 studies ideas, turns them into Feature plans, delivers them through reviewed

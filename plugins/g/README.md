@@ -22,7 +22,6 @@ extension for stacked pull requests. It has no GitHub connector dependency.
 | `g:send` | Commit, push, and open or update one pull request with explicit scope. |
 | `g:github-stack` | Manage stacked branches and dependent pull requests with the G stack wrapper. |
 | `g:versioning` | Apply the shared version, tag, release-line, and approval-gated release-tag conventions. |
-| `g:audit` | Monitor active tasks using G skills and return a prioritized read-only report. |
 
 ## Runtime and development
 

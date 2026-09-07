@@ -1,6 +1,6 @@
 # G Plugin Maintenance
 
-G owns Git/GitHub provider primitives and explicit read-only task monitoring.
+G owns Git/GitHub provider primitives.
 Composing workflows own product planning, delivery policy, and orchestration.
 
 ## Ownership
@@ -19,7 +19,6 @@ Composing workflows own product planning, delivery policy, and orchestration.
   from exact operations within that skill; shared `attachment upload` remains
   the only binary upload transport.
 - `github-projects` uses direct authenticated `gh`, not new shared CLI commands.
-- `audit` observes active G tasks and adds no Git/GitHub transport.
 
 Keep provider access independent of app connectors. Skills use authenticated
 `gh` directly or through the shared artifact; the manifest declares no GitHub

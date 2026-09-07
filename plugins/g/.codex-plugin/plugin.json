@@ -1,7 +1,7 @@
 {
   "name": "g",
-  "version": "4.0.5",
-  "description": "Manage Git and GitHub work from commits, issues, and Projects through delivery status, reviewed pull-request delivery, active-session audits, and consistent SemVer versioning.",
+  "version": "5.0.0",
+  "description": "Manage Git and GitHub work from commits, issues, and Projects through delivery status, reviewed pull-request delivery, and consistent SemVer versioning.",
   "author": {
     "name": "alemar11",
     "url": "https://github.com/alemar11"
@@ -14,7 +14,7 @@
   "interface": {
     "displayName": "G",
     "shortDescription": "Manage Git and GitHub work from issues to reviewed pull requests.",
-    "longDescription": "G bundles focused Git and GitHub workflows for commits, issue lifecycle with verified attachments and exact native blocked-by dependencies, GitHub Projects lifecycle and item fields, evidence-backed selection of existing issue labels and native types, explicit read-only proposals for missing repository labels and organization issue types, repository triage, investigations, Actions failures and permissions preflights, exact-head delivery-status inspection, review threads, drafted or directly published releases with curated notes and description improvements, stars, stacked pull requests, draft pull-request delivery, consistent SemVer versioning suggestions, guarded release-controller operation and authoring, and read-only active-session audits. It uses direct Git for local work and authenticated gh, directly or through its bundled G CLI, for GitHub provider operations.",
+    "longDescription": "G bundles focused Git and GitHub workflows for commits, issue lifecycle with verified attachments and exact native blocked-by dependencies, GitHub Projects lifecycle and item fields, evidence-backed selection of existing issue labels and native types, explicit read-only proposals for missing repository labels and organization issue types, repository triage, investigations, Actions failures and permissions preflights, exact-head delivery-status inspection, review threads, drafted or directly published releases with curated notes and description improvements, stars, stacked pull requests, draft pull-request delivery, consistent SemVer versioning suggestions, and guarded release-controller operation and authoring. It uses direct Git for local work and authenticated gh, directly or through its bundled G CLI, for GitHub provider operations.",
     "developerName": "alemar11",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],
