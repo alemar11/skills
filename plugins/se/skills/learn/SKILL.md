@@ -1,6 +1,6 @@
 ---
 name: learn
-description: "Capture and maintain durable repository knowledge, including project context, hard rules, decisions, localization guidance, and code review rules. Use when the user explicitly asks to remember, save, or preserve a repository rule or other durable knowledge; make only authorized local changes."
+description: "Save or maintain durable repository knowledge when explicitly requested; make only authorized local changes."
 ---
 
 # Learn Project Context
@@ -21,7 +21,7 @@ hosted provider and has no publish mode.
 
 Read [options.md](references/options.md) to resolve the smallest canonical
 `memory_slice`. Read [setup-workflow.md](references/setup-workflow.md) for the
-Project Context pointer preflight on every invocation. Then load only the
+Project Context pointer preflight. Then load only the
 selected branch:
 
 | Work | Read |
@@ -58,8 +58,8 @@ Apply these authority rules:
   item authorizes that item and its smallest required context bootstrap.
 - A composed handoff writes only accepted knowledge with named targets and
   explicit inline-capture authority.
-- AGENTS.md compaction always requires an exact before/after proposal and
-  confirmation before applying it.
+- For AGENTS.md compaction, prepare an exact before/after change. Apply it
+  when the request authorizes the edit; a review-only request stays read-only.
 
 When scope, wording, destination, or a conflict remains material, draft the
 exact change and stop for confirmation. Never infer capture from ordinary

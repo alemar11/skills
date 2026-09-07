@@ -67,7 +67,8 @@ Topic files must declare a clear title, scope, `Read when` condition, owner or
 update logic, and the detailed content. The owning root or subproject
 `CONTEXT.md` indexes them; it does not duplicate their body. Keep shared detail
 at root and subproject-only detail under the local owner. Create the topic file
-and update its index atomically only after the proposal is explicitly approved.
+and update its index atomically when the request authorizes the compaction.
+A size threshold alone never grants write authority.
 
 ## Verification
 

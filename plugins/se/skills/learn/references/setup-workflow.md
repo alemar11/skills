@@ -208,7 +208,8 @@ For an explicit setup or update request:
   named targets, and inline capture authority. Apply required minimal setup
   before the capture write.
 - For compaction, keep mandatory rules in `AGENTS.md`, create flat topic files
-  only after approval, and update the `CONTEXT.md` index in the same change.
+  under explicit compaction authority, and update the `CONTEXT.md` index in
+  the same change.
 - Preserve unrelated or uncertain content in `AGENTS.md`, `CONTEXT.md`,
   `TRANSLATION.md`, ADRs, and project docs.
 - Move subproject-only material to its local owner during an authorized
