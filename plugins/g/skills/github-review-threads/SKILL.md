@@ -28,54 +28,16 @@ Before the first provider-facing shared CLI command, load
 and require its host and authentication checks.
 
 Resolve `<plugin-root>` as two directories above the directory containing this
-`SKILL.md`:
+`SKILL.md`. Before an operation, read the matching section of
+[workflows.md](references/workflows.md): review inspection/waiting, thread
+listing, replies, resolution, or other authorized discussion writes. Read
+[script-summary.md](references/script-summary.md) when exact command/schema
+fields or managed `reviews operation` orchestration are needed.
 
-```bash
-<plugin-root>/scripts/g --help
-<plugin-root>/scripts/g --version
-<plugin-root>/scripts/g --json doctor
-<plugin-root>/scripts/g --json repo snapshot
-<plugin-root>/scripts/g --json reviews address --repo <owner/repo> --pr <number>
-<plugin-root>/scripts/g --json reviews request --provider codex --repo <owner/repo> --pr <number> --head <full-40-sha> --request-key <request-key> --reservation-file <absolute-reservation-file>
-<plugin-root>/scripts/g --json reviews check --provider codex --repo <owner/repo> --pr <number> --head <sha>
-<plugin-root>/scripts/g --json reviews wait --provider codex --repo <owner/repo> --pr <number> --head <full-40-sha> --request-receipt-file <absolute-receipt-file> --timeout <caller-owned-duration>
-<plugin-root>/scripts/g --json reviews terminal-evidence --provider codex --repo <owner/repo> --pr <number> --head <full-40-sha> --request-receipt-file <absolute-receipt-file>
-<plugin-root>/scripts/g --json reviews reply --repo <owner/repo> --pr <number> --head <full-40-sha> --comment-id <id> --request-key <request-key> --request-fingerprint <request-fingerprint> --body-file <absolute-message-file> --reservation-file <absolute-reservation-file> --expected-worktree-fingerprint <sha256>
-<plugin-root>/scripts/g --json reviews resolve --repo <owner/repo> --pr <number> --head <full-40-sha> --request-key <request-key> --request-fingerprint <request-fingerprint> --reply-receipt-file <absolute-receipt-file> --reservation-file <absolute-reservation-file> --expected-worktree-fingerprint <sha256>
-<plugin-root>/scripts/g reviews comment --repo <owner/repo> --pr <number> --head <full-40-sha> --request-key <request-key> --request-fingerprint <request-fingerprint> --body-file <absolute-message-file> --reservation-file <absolute-reservation-file> --expected-worktree-fingerprint <sha256> --dry-run
-```
-
-The CLI validates absolute regular non-symlink UTF-8 files, sends JSON to `gh
-api --input -`, emits byte counts and SHA-256 fingerprints instead of text, and
-verifies provider identity, target, response text, and an optional Git
-worktree fingerprint. It writes no implicit config.
-Its Codex adapter normalizes formal reviews,
-inline findings, authenticated top-level terminal result comments, and clean
-reactions into one current-head state and one stable observation fingerprint.
-
-The current G review contract is self-contained. The four provider mutation
-commands (`request`, timeout-warning `comment`, `reply`, and `resolve`) require
-an exact immutable G reservation packet. G atomically consumes that packet
-before transport and owns the durable one-use marker and recovery readback; it
-does not locate, load, or execute another skill to authorize the mutation.
-Use JSON `reviews address` as the typed source for a review thread's current
-`head_sha` and `thread_fingerprint` before preparing reply or resolution
-authority; do not reproduce the hash locally.
-
-Managed orchestration uses the closed `reviews operation` family. G owns
-the complete request/result schemas for `request`, `wait`, `ready-check`,
-`ready-wait`, `warning`, `reply`, `resolve`, `reconcile-mutation`, and
-`reconcile-terminal`. Preparation and
-validation are read-only. Execution atomically appends a
-`g-review-operation-start:v1` receipt to G's own per-user journal
-before transport; resume and reconciliation read the same exact journal and
-never create a second mutation, repost, or reset a wait deadline.
-For an owned `reply`, prepare derives the exact live thread id and pre-reply
-fingerprint through read-only provider inspection; callers do not supply those
-fields. `resume` reloads the original wait and deadline. `reconcile-mutation`
-keeps marker absence, marker-only state, unique provider readback, and
-conflicting/ambiguous readback distinct, and never treats a consumed marker as
-sufficient proof of success.
+G owns immutable one-use mutation reservations and recovery. Preserve its
+returned identities, fingerprints, and complete receipts; do not reconstruct
+thread hashes or substitute raw GraphQL. Preparation and validation do not
+authorize execution, and a consumed marker alone never proves provider success.
 
 ## Workflow
 

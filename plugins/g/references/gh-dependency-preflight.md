@@ -65,15 +65,9 @@ gh project --help
 gh project <required-command> --help
 ```
 
-For the active `github.com` account, inspect authentication without displaying
-the token:
-
-```sh
-gh auth status --active --hostname github.com --json hosts \
-  --jq '.hosts["github.com"][] | select(.active == true) | {state, scopes}'
-```
-
-Require exactly one active successful account. A pure Projects read requires
+Reuse the active-account state and scopes from the authentication check above
+within the same preflight. Refresh that observation if the host, active account,
+credentials, or network execution context changes. A pure Projects read requires
 `read:project` or `project`; a Projects mutation requires `project`. If the
 required scope or command is unavailable, stop before the requested Projects
 read or mutation and report the missing capability. Suggest

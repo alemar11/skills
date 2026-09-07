@@ -24,7 +24,7 @@ are not mutually exclusive lifecycle stages.
 | --- | --- | --- |
 | `target-unresolved` | Mutation gate | The repository, tag, or comparison range is ambiguous or missing. Stop before a release mutation. |
 | `notes-preview-ready` | Derived | An exact proposed title and body are prepared; mutation depends on the request's existing authorization. |
-| `draft-creation-authorized` | Mutation gate | The user approved the exact ordinary-create preview; create one draft and verify it. |
+| `draft-creation-authorized` | Mutation gate | An explicit creation request or approval authorizes one draft for the resolved target; prepare its notes, create it, and verify it. Preview-only requests do not authorize creation. |
 | `direct-publish-authorized` | Mutation gate | The user explicitly requested create and publish for one resolved release; skip preview and draft, then verify the published release. |
 | `notes-update-authorized` | Mutation gate | The user authorized the notes/title update for the exact existing release. |
 | `verified` | Derived | Provider readback matches the authorized tag, lifecycle state, and text or asset fields. |

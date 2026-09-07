@@ -39,9 +39,9 @@ for `commit_kind=regular` and `commit_operation=push-only`.
 | Pure inspection, check, wait, or other read | Omit `mutation_mode` |
 | List, view, or filter GitHub Projects, fields, or items | Omit `project_operation` and `mutation_mode` |
 | Explicit GitHub Projects mutation with an exact owner and target or complete creation input | Matching `project_operation` plus `mutation_mode=apply` |
-| `create a release` or `create a draft release` without direct publication language | `release_operation=draft`, `mutation_mode=dry-run` for the exact notes preview; after approval, repeat with `mutation_mode=apply` |
+| `create a release` or `create a draft release` without direct publication language | `release_operation=draft`, `mutation_mode=apply`; prepare the notes and create the draft within the requested scope |
 | `create and publish the release` for one resolvable existing tag | `release_operation=publish`, `mutation_mode=apply`; skip the notes preview and draft stage |
-| `improve the release description` | `release_operation=update-notes`, `mutation_mode=dry-run` for the exact replacement or diff; after approval, repeat with `mutation_mode=apply` |
+| `improve the release description` | `release_operation=update-notes`, `mutation_mode=apply`; prepare and apply the replacement within the requested scope |
 | `dry run`, `preview only`, `local only`, or `do not mutate` for a write-shaped request | `mutation_mode=dry-run` |
 | Other explicit create, edit, publish, post, close, or reopen instruction for an exact target | `mutation_mode=apply` plus the matching operation |
 
