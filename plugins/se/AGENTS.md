@@ -17,7 +17,7 @@ When ownership changes, update affected consumers and remove obsolete routes.
 | `references/workflow-graph.md` | Graph vocabulary, registry structure, terminal meanings, authority, and validation. |
 | `references/codex-dependency-preflight.md` | Availability of required G workflows before hosted access. |
 | `references/codex-runtime-surface.md` | Read-only App/CLI classification; capability checks are not surface evidence. |
-| `references/subagents.md` | Reusable subordinate research/review roles and default profiles; callers own orchestration and disposition. |
+| `references/subagents.md` | Reusable research, development and review roles with default profiles; callers own orchestration and disposition. |
 | `references/hosted-content-safety.md` | Portable hosted content, title normalization, and bounded same-artifact repair. |
 | `scripts/validate-hosted-content-safety` | Static ownership, routing, and hosted-template checks. |
 
@@ -36,8 +36,8 @@ When ownership changes, update affected consumers and remove obsolete routes.
   nodes; its specification reference owns content, and templates project it.
 - Adversarial Review owns independent read-only critique and generic findings;
   composed callers own target identity, lifecycle, and disposition mapping.
-- Delivery Features owns selected-Feature scheduling, claims, workers, review
-  gates, and verified standalone/stacked PR delivery. Candidate review mechanics
+- Delivery Features owns selected-spec/task scheduling in the current task,
+  native subagents, claims, per-PR repair budgets, progress, and reviewed PR delivery. Candidate review mechanics
   live in `references/candidate-review.md`; its state meanings live in
   `references/states.md`. G owns hosted review transport and lifecycle.
 - Implement owns selected local implementation without an orchestrator or claims.
@@ -69,13 +69,14 @@ full protocols into this file:
 - Separate Delivery Features concurrency from PR topology. Overlapping writers
   never share a worktree. Parent drift invalidates dependent evidence.
 - Preserve exact-base/full-HEAD candidate and hosted evidence, review-revision
-  budgets, one-use recovery, and final whole-group claim release. Draft,
+  budgets, reconciled recovery, and final whole-group claim release. Draft,
   blocked, and deferred results are not successful delivery.
 - `repository-claims` owns only fenced ownership of the immutable repository set.
   Its schema/version constants are authoritative. Do not persist workflow,
   Feature, worker, Git, PR, review, or CI state there; add no TTL, heartbeat,
   force release, or stale-owner recovery. Only the bound orchestrator uses the
-  token. Blocked/deferred runs retain claims until authorized release.
+  token. Safe pauses preserve work and release after verified quiescence; only
+  unresolved actor, preservation, or release safety retains ownership/uncertainty.
 - Hosted writes pass the shared content-safety owner, including worker output.
   G owns transport/readback; SE owns semantic projection and correction.
 - Graph node IDs and transitions stay synchronized across registries, step

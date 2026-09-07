@@ -1,78 +1,78 @@
 # Completion and Issue Linkage
 
-Read before publication, after material review or topology changes, and before
-final reconciliation. [task-delivery.md](task-delivery.md) owns unit coverage;
-Spec's [specification contract](../../spec/references/specification.md)
-owns the promised outcomes and task checks.
+Read before publication, closing-reference projection, progress completion, and
+final reconciliation. [task-delivery.md](task-delivery.md) owns selection and
+unit coverage; [progress.md](progress.md) owns saved execution status.
 
-## Outcome evidence
+## Selected-outcome verification
 
-For each task, verify all completion checks across its contributing units and
-repositories, or exact evidence that the result is already incorporated. Then
-verify every Feature criterion against the complete assembled result. Passing
-all task checks does not substitute for feature-level integration verification.
+Verify every selected task's completion checks across all contributing units
+and repositories, or exact current evidence of incorporation in the intended
+bases. Then verify the selected work's assembled behavior and relevant feature
+criteria/preservation obligations. For whole-spec selection, verify every
+criterion. For a subset, identify what it proves and explicitly retain criteria
+that require unselected work as outstanding; never claim the entire feature is
+complete. Passing individual task checks does not replace integration evidence.
 
-Bind assembled evidence to the spec revision/content and the full repository,
-base, and candidate HEAD vector. A change invalidates affected evidence; rerun
-the relevant integration and outcome checks. Do not use a stale combination of
-otherwise individually passing PRs.
+Bind evidence to the semantic spec/task identity and the exact repository,
+base, and candidate HEAD vector. Rerun only evidence invalidated by changes.
+Never combine stale, individually passing PRs into a claimed integrated result.
+A merged/deployed prerequisite or acceptance requirement still needs observed
+evidence; pause for that separately authorized action when unavailable.
 
-Delivery completion means all selected outcomes are verified, every remaining
-unit has a current ready PR with admissible candidate review, hosted acceptance,
-and required CI, and the claim release is verified. It does not mean those PRs
-are merged or issues closed. If the spec requires merged/deployed behavior to
-prove an outcome and that evidence is unavailable, defer for that action rather
-than claiming completion. An already-incorporated unit needs current outcome
-evidence in the intended integration base, not a new empty PR.
+Delivery completes when all selected outcomes are verified, each remaining
+unit has a ready PR with admissible independent local review, explicit-request
+hosted acceptance and required CI, progress updates were verified, and claim
+release was proved. Already-incorporated contributions need current outcome
+proof rather than a new PR. A required draft-only output pauses this delivery
+contract; publication alone is not delivery.
+
+Ready PRs may remain unmerged. Report pending merge/rollout actions without
+retaining claims just to await them. Merge, deploy, releases, and direct issue
+closure require separate authorization. A safely paused run reports its verified
+partial results and blocker, not successful delivery of the selected bundle.
 
 ## Exact closing references
 
-Before every G Send handoff, derive the exact `closing_issue_refs` from verified
-task/parent identities and scope evidence. This input is owned by Delivery;
-G must not infer it from branch names, nearby issues, or the parent spec.
+Before each G Send, derive caller-owned `closing_issue_refs` from exact issue
+identities and coverage. Never infer closure from a branch name or nearby issue.
 
-- A task issue qualifies only when the PR fully satisfies its completion
-  checks, including prerequisite and multi-repository contributions already
-  incorporated in their intended bases. A partial contribution gets an ordinary
-  task reference and an explanation of what remains, not a closing keyword.
-- The main spec issue qualifies only when every criterion is satisfied and
-  this PR's merge, together with already-incorporated contributions, completes
-  the entire outcome. Passing unit checks or merely listing every task is
-  insufficient. Do not close the parent from an early task PR.
-- If several unmerged PRs jointly deliver a task or spec and no one PR can
-  establish complete closure safely, omit its closing keyword and report the
-  exact remaining post-merge closure action. Do not fabricate a final PR or
-  close issues directly to satisfy a template promise.
-- A Markdown-only spec has no hosted closing identity. Use portable spec/task
-  references and report an empty closing set unless independently verified
-  associated issues were explicitly supplied.
+- A task issue qualifies only when this PR's merge completes all its task checks,
+  including prerequisite and cross-repository contributions already incorporated
+  in their intended bases. Partial contributions get ordinary task references.
+- A main spec issue qualifies only when this PR's merge plus already-incorporated
+  work completes all tasks and feature criteria. A selected subset cannot close
+  the parent while other work remains.
+- When several unmerged PRs jointly supply an outcome and none can safely close
+  it alone, omit the closing keyword and report the exact post-merge action.
+  Do not invent a final PR or close issues directly.
+- A Markdown-only spec has no GitHub closing identity. Use portable spec/task
+  references and an empty closing set unless exact associated issues were
+  explicitly supplied and verified.
 
-Distinguish task readiness, PR delivery, and provider issue lifecycle. Verify
-closing references against the actual PR base and planned landing sequence;
-stacked PR linkage alone is not proof of automatic issue closure. Report
-deferred closure honestly when topology or provider behavior leaves it pending.
+Check actual PR bases and landing order; a stacked link does not guarantee
+provider automatic closure. Pass the exact justified set to G, then read back
+all closing lines and contribution references, including preserved existing
+lines. Correct any over-broad or stale closing line through G before completing.
+Uncertain identity or coverage blocks that write. Updating an execution status
+to `pr-ready` never closes the corresponding issue.
 
-Pass the verified set to G and read back every resulting closing reference and
-ordinary contribution link. G may preserve existing closing lines on update:
-inspect the entire resulting set, not just newly added lines. A stale or
-over-broad line must be corrected through G before delivery can complete;
-never silently retain it as unrelated body content. Missing exact identity or
-uncertain scope blocks that write until reconciled.
-
-Read [hosted-content safety](../../../references/hosted-content-safety.md)
-before each hosted body write or correction. Do not include local absolute
-spec paths, worker transcripts, or claim tokens in the PR.
+Apply [hosted-content safety](../../../references/hosted-content-safety.md)
+immediately before every hosted write or body correction. Do not publish local
+absolute spec paths, agent transcripts, or claim tokens.
 
 ## Final reconciliation
 
-Reread the authoritative spec and task contracts. Verify all task and feature
-outcomes, the exact combined validation vector, and each unit's actual PR HEAD,
-ready state, base, body contribution/closing references, topology, candidate
-receipt, hosted acceptance, and required CI. Report `provider-clean` separately
-from `adjudicated-clean`. Keep these results in task history, not repository
-claims or planning progress fields.
+Reread the authoritative semantic contracts, selected task outcomes, exact
+combined validation vector, PR heads/bases/deltas, ready or incorporated state,
+local receipts, explicit hosted-review lineage, required CI, and issue linkage.
+Distinguish `provider-clean` from `adjudicated-clean`. Update progress and retain
+the spec/task-to-PR mapping, spent repair counts, remaining tasks, and pending
+merge/closure actions in the coordinator's handoff.
 
-Only after this evidence is current may the orchestrator quiesce all actors
-and follow the existing whole-group release protocol. The final report names
-spec/task-to-PR mappings, integrated validation, closing references and remaining
-closure actions, plus review, CI, and release evidence.
+Then quiesce every actor and perform the final release protocol. Require the
+exact successful release evidence and absence of the old binding; subsequent
+foreign ownership is not this run retaining its claim. A failed progress write
+or unresolved gate produces a safely released pause when possible. Unsafe
+quiescence, preservation, or release leaves a blocked report with exact retained
+ownership or uncertainty.

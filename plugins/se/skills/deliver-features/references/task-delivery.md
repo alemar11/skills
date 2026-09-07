@@ -1,96 +1,95 @@
-# Task Delivery and PR Topology
+# Task Selection and PR Grouping
 
-Read before assigning implementation, choosing PR boundaries, or verifying
-task coverage. Spec owns the saved
-[specification contract](../../spec/references/specification.md); Delivery
-owns how its tasks become reviewed changes.
+Read during Intake and before assigning or regrouping work. Spec owns the
+[specification contract](../../spec/references/specification.md); Delivery owns
+selection, execution units, integration, and PR grouping.
 
-## Selection and delivery units
+## Selected outcomes
 
-Load each explicitly selected saved spec and all its task details. Accept an
-authoritative GitHub bundle or Markdown file; an exported snapshot or older
-unmigrated shape is not authoritative delivery input. A selection contains the
-whole spec and its tasks. Explicit local implementation of a single task may
-instead use Implement; never silently treat a partial selection as delivery of
-the full spec. Read external prerequisites without adding them to the selection.
+Accept an authoritative saved GitHub spec bundle or Markdown spec. Read the
+main spec and its task contracts; reject exported snapshots and unmigrated
+legacy formats. Select all tasks by default. An explicit subset selects exact
+task IDs within their qualified spec identities; an explicit batch may select
+several specs. Read the surrounding spec to preserve constraints, not to expand
+implementation scope.
 
-Freeze all affected implementation repositories before claiming them. A tracker
-owner alone does not imply product-code changes in that repository. Map every
-declared repository to an exact Git identity and local project before writing.
+Read prerequisites outside the selection and verify their declared evidence.
+An unfinished prerequisite requires the caller's decision before adding it.
+Keep its dependent blocked while independent selected work proceeds. Never
+silently implement the prerequisite or claim that delivering a subset completes
+the whole spec. Expansion into another repository requires safe release and
+reacquisition of the newly frozen complete claim set before mutation.
 
-Choose the smallest useful set of delivery units. Each unit owns one spec,
-one repository, one branch, and one PR, and records the task outcomes or
-per-repository contributions it supplies. A unit can cover several related
-tasks. A multi-repository task requires units in each contributing repository;
-no single unit claims the whole task without all its completion evidence.
+Map selected tasks to exact repositories and local checkouts. Claim selected
+implementation repositories plus any repository whose authoritative Markdown
+progress file will be written. A GitHub tracker owner alone does not imply a
+code repository claim. Do not claim every repository in an otherwise unselected
+part of the spec. Branch/worktree and source-file identities must be resolved
+before writing; display titles never establish them.
 
-Assign a stable lower-kebab `delivery_unit_id` within the spec and retain its
-exact coverage and identity in the handoff and task history. This is transient
-execution evidence, never a new plan field or claim-registry column. Do not
-reassign an ID to a different delta. Repartitioning work invalidates affected
-review evidence and never resets the spec-wide revision budget.
+## Delivery units
 
-Before assignment, account for every task and criterion across units or exact
-already-incorporated evidence. Do not schedule overlapping contributions twice.
-One PR per task or per spec is not mandatory. Every unit delta remains bounded
-and reviewable, and its contribution is explicit in the PR body.
+Choose the smallest coherent set of reviewable PRs. A delivery unit owns one
+spec, one repository, one branch, and one PR; it may supply one or several
+selected tasks or their per-repository contributions. Group tightly coupled
+schema/API work when useful; split independent outcomes or an unwieldy delta.
+Explicit caller grouping wins when feasible. Multi-repository work needs a PR
+in each repository that has a new delta. Already-incorporated work needs exact
+current evidence, not an empty PR.
 
-## Ready frontier
+Assign a stable lower-kebab `delivery_unit_id` within the qualified spec and
+bind its exact task coverage before assignment. Bind it to the exact repository
+and PR number when published. Keep unit identity, coverage, branch/base, and
+repair count in the coordinator's history and handoffs. Never reuse an identity
+for unrelated work or assign overlapping contributions twice. Repartitioning
+invalidates affected evidence and preserves the repair history under
+[candidate-review.md](candidate-review.md).
 
-Use recommended task order to choose among ready work. Readiness requires the
-actual `blocked_by` and external prerequisite outcomes, with their declared
-evidence. A list position, closed issue, native edge, or completed agent turn
-alone is insufficient. Native GitHub edges are diagnostic projections of the
-spec's semantic graph.
+Account for every selected task across units or already-incorporated evidence.
+A partial contribution does not complete a multi-repository task. Relevant
+feature criteria and preservation constraints apply even to a subset; distinguish
+criteria fully verified by this selection from those awaiting other tasks.
 
-A prerequisite may be available in the verified integration base or in a
-current validated candidate that the dependent can actually consume. For a
-cross-repository candidate, require its current published PR, exact HEAD, and
-the contract/integration evidence needed by the dependent. Respect an explicit
-merged or deployed prerequisite; delivery does not authorize those effects.
-Missing external prerequisites block the dependent without expanding scope.
+## Readiness and concurrency
 
-Applicable confirmed check failures block readiness unless G diagnosis proves
-they are exclusively infrastructure or flaky and unrelated to correctness.
-Pending checks do not by themselves unblock an otherwise unproved prerequisite.
-Final delivery still requires every required validation and CI result.
+Recommended order chooses among ready work; actual prerequisites determine
+readiness. Verify the declared outcomes, not merely a closed issue, list
+position, native edge, or finished agent turn. A prerequisite must be available
+in the integration base or a validated candidate the dependent can consume.
+Cross-repository candidates require a published PR, exact HEAD, and the needed
+contract/integration evidence. Respect explicit merged/deployed prerequisites;
+Delivery does not authorize those effects.
 
-Several tasks may execute sequentially inside one unit. Do not require a
-separate PR for an internal prerequisite: verify its outcome before starting
-the dependent contribution, and validate the final combined unit. A unit cannot
-wait on a result it can only produce after that dependent work; resolve such
-grouping cycles by regrouping before assignment.
+Several tasks may execute sequentially within one unit. Verify an internal
+prerequisite before its dependent contribution without demanding another PR.
+Regroup before assignment if grouping creates a cycle. Native GitHub edges
+remain diagnostic projections of the spec's semantic dependencies.
 
-Exclude already active unit contributions from the ready frontier. Prefer one
-active lane per repository, reusing clean lanes for serial work. Additional
-lanes require independent work and isolated worktrees. If only active lanes
-remain, take the change-driven reconcile path rather than duplicating workers.
+Default to one active implementation lane per repository. Add concurrent lanes
+only for independent work in separate worktrees. Exclude active contributions
+from scheduling. Block only affected units when a prerequisite, repair budget,
+or review is unavailable; continue independent selected work. When no useful
+work remains, preserve progress and follow the safe-pause protocol.
 
 ## Integration strategy
 
-Planning edges never force a Git stack. Before a dependent mutation, choose
-and verify how every prerequisite will be available:
+Before dependent mutation, verify how all prerequisites will be available:
 
-- use the repository integration base when it already contains the required
-  changes;
-- combine tightly coupled tasks in one unit and validate the sequence;
-- use a stack when one verified immediate parent contains all same-repository
-  prerequisite HEADs and a separate PR remains useful;
-- for independent fan-in, combine contributions in one unit before publication,
-  or use an explicit integration arrangement with non-overlapping PR deltas and
-  a verified final landing path. If existing published units cannot be combined
-  safely, defer for the required integration or merge decision.
+- use the intended integration base when it already includes them;
+- group coupled tasks into one unit and verify the sequence;
+- use a stack when one actual immediate parent contains all same-repository
+  prerequisite HEADs and separate review is useful;
+- combine independent fan-in before publication, or use an explicit integration
+  arrangement with non-overlapping deltas and a verified landing path.
 
-Choose routine local grouping autonomously within scope. Do not introduce a
-semantic dependency between independent tasks, omit a prerequisite, duplicate
-their changes in competing PRs, or perform an unauthorized merge to force
-progress. Record any required human merge/rollout action before starting work
-that depends on it. A spec permitting only assembled validation must have a
-concrete validation target; provisional unit evidence is not final delivery.
+Choose routine grouping autonomously. Defer affected work when existing PRs
+cannot be combined safely without a merge or integration decision. Never add
+fictional semantic edges, duplicate competing PR changes, or merge without
+permission. Cross-repository dependencies never supply a Git base.
 
-Cross-repository dependencies never supply a Git base. For a stack, verify the
-actual immediate parent branch and full HEAD through G. When prerequisite
-changes are already in the integration base, start a new root rather than
-targeting a merged or deleted branch. Parent or integration drift invalidates
-affected ancestry, candidate receipts, and validation; restack or regroup and
-revalidate the affected units before publication.
+A repository-qualified caller base wins; otherwise use the provider's default
+branch. Through G, refresh the intended upstream and resolve its full tip before
+bootstrap. Recheck it before starting another root. For a stack, verify the
+actual immediate parent and full HEAD; use a fresh root once prerequisite
+changes are incorporated. Base, ancestry, or contract drift invalidates affected
+reviews and verification. Regroup/restack and revalidate before publication.

@@ -16,6 +16,8 @@ Markdown file. Delivery owns task-to-PR grouping and integration, with task
 prerequisites independent of Git topology. The Spec content contract is at
 [`specification.md`](skills/spec/references/specification.md).
 
-Study and Spec share subordinate role definitions in
+Study, Spec, and Delivery share subordinate role definitions in
 [`subagents.md`](references/subagents.md). Their callers own delegation and
-lifecycle; controller and Delivery candidate-review profiles remain local.
+lifecycle. Delivery coordinates in the current task, publishes ready PRs after
+local and explicitly requested hosted review, and releases claims on verified
+safe pauses. Delivery owns progress separately from semantic spec content.

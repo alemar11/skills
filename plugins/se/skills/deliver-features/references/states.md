@@ -1,143 +1,127 @@
-# Delivery Features States
+# Delivery States
 
-Delivery Features owns a small transient workflow graph. It has no persisted run
-status, assignment status, checkpoint, effect journal, or delivery-state
-machine. On resume, the orchestrator re-enters the graph through `intake`,
-re-establishes ownership at `claim-repositories`, and derives the continuation
-at `reconcile` from externally owned evidence.
+Workflow position, lane scheduling, and the pending terminal outcome are
+transient. Resume starts at Intake and reconstructs truth from semantic
+contracts, Git/PR/review/CI evidence, execution progress, coordinator history,
+and ownership. The claim registry never stores workflow or delivery status.
 
 ## Workflow nodes
 
-| Node | Kind | Meaning |
-| --- | --- | --- |
-| `intake` | action | Resolve the exact selected specs, their task contracts and prerequisites, repositories, and visible home. |
-| `claim-repositories` | action | Atomically acquire or reuse repository ownership and bind one correlated visible orchestrator. |
-| `reconcile` | validation | Reconstruct current truth from Feature, Git, candidate-review, pull-request, hosted-review/CI, and task owners before another effect. |
-| `schedule` | decision | Compute the ready frontier and choose serial or bounded concurrent work. |
-| `deliver-unit` | action | Run one verified worker lane through implementation, validation, and a stable local commit; after clean candidate review, resume the same lane for standalone or stacked pull-request publication, ready transition, and exact-HEAD hosted review and CI convergence. Several ready lanes may occupy this node concurrently. |
-| `review-candidate` | validation | Run a fresh independent read-only adversarial review of one complete locally committed delivery-unit delta with the required fixed profile. Several independently scheduled candidates may occupy this node concurrently. |
-| `release-claims` | action | After successful delivery or authorized handoff/abandonment, prove all other actors quiescent, make exact whole-group release the orchestrator's final external effect, and read back every repository as unclaimed. |
-| `complete` | terminal | Exact whole-group release is verified and retained evidence proves either successful delivery of every selected Feature or completion of the requested handoff/abandonment. |
-| `deferred` | terminal | A material semantic decision or additional user authority is required. |
-| `blocked` | terminal | No safe transition remains because required capability, identity, ownership, evidence, or reconciliation is unavailable. |
-
-Workflow position is transient. None of these node IDs is stored in the
-repository registry, task metadata, branch names, or pull requests.
-
-## Transient selected-spec disposition
-
-| Disposition | Meaning |
+| Node | Meaning |
 | --- | --- |
-| `delivery-required` | At least one task contribution or feature-level outcome still needs implementation or current delivery evidence across the selected spec's units. |
-| `already-incorporated` | Current exact evidence proves every task completion check and Feature criterion in the intended repository integration bases. |
+| `intake` | Resolve authoritative specs, exact task selection and repositories, and the current coordinator. |
+| `claim-repositories` | Acquire/reuse the frozen set and bind it to the current task. |
+| `reconcile` | Reconcile lanes, evidence, per-PR budgets and blockers; continue independent work or prepare safe release. |
+| `schedule` | Assign dependency-ready units or wait for active lanes without duplicating work. |
+| `deliver-unit` | Implement and validate an isolated candidate; after clean local review, publish and converge its explicit hosted review and CI. |
+| `review-candidate` | Independently review an immutable committed candidate in a detached read-only snapshot. |
+| `release-claims` | After preservation/quiescence, release the exact group while retaining the pending success or pause result. |
+| `complete` | All selected outcomes, progress writes, and review/CI gates are verified and this run released ownership. |
+| `deferred` | A material user decision, explicit stop, or separately authorized action is needed; any acquired claim was safely released. |
+| `blocked` | A capability, validation, review, budget, progress-save, or safety blocker remains; report whether claims were released, retained, or uncertain. |
 
-An unmet prerequisite never removes a task or spec from completion. Account
-for all task contributions, units, and assembled feature-level verification.
-If an outcome has no new delta but lacks incorporation evidence, defer rather
-than creating an empty PR or excluding it. A unit may be already incorporated
-while the rest of its spec still requires delivery.
+A pre-acquisition stop has no claim to release. After acquisition, blocked or
+deferred work follows `reconcile -> release-claims` whenever safe. A release
+failure returns blocked with uncertainty; it does not imply a retained claim
+if successful release already has exact evidence. A later foreign acquisition
+never becomes this coordinator's ownership.
 
-Unit IDs and task contribution mappings are transient task-history evidence
-owned by [task-delivery.md](task-delivery.md). They are not persisted planning
-fields or registry state. Issue open/closed status is provider-owned and never
-substitutes for completion checks or full feature criteria.
+## Selection and delivery evidence
 
-## Transient candidate-review dispositions
+`selected_task_ids` is caller-derived run scope, qualified by spec identity.
+Absent explicit task selection, it contains the whole spec. `delivery_unit_id`
+and task coverage are coordinator-owned execution identities, later bound to
+an exact repository/PR. They are not semantic plan fields or claim columns.
+An unselected dependency can block selected work but cannot enlarge selection.
+
+A selected task may require new delivery or be `already-incorporated`; the latter
+requires exact current outcome evidence in intended integration bases. A subset
+can complete while the parent spec remains outstanding. `pending_outcome` is the
+transient intended `complete`, `deferred`, or `blocked` report preserved across
+release; it is never a persisted workflow position.
+
+## Persisted progress status
+
+[progress.md](progress.md) owns the original artifact's execution section.
+These statuses are evidence summaries and do not schedule or authorize work.
+
+| `delivery_status` | Meaning |
+| --- | --- |
+| `outstanding` | No current evidence establishes completed delivery for this task. |
+| `in-progress` | Implementation or required validation/review is in progress. |
+| `blocked` | A named dependency, decision, capability or review/budget gate prevents current completion. |
+| `pr-ready` | All task contributions, combined outcome checks, both review gates and required CI qualify; all remaining PRs are ready. |
+| `merged` | All task contributions are observed incorporated in intended bases and task outcomes verified there. |
+
+PR publication alone permits neither `pr-ready` nor `merged`. A task becomes
+in-progress from outstanding/blocked when responsible work resumes, and becomes
+pr-ready only after current gates pass. Merge observations plus incorporated
+outcome proof permit merged. Invalidated evidence returns it to in-progress or
+blocked with a reason; preserve historical links and merged PR facts. The parent
+uses the same meanings across all its tasks; partial delivery never upgrades it.
+Provider open/closed and draft/ready/merged remain external facts, not aliases.
+Per-PR repair counts recorded with progress preserve evidence on resume; they
+never grant a new round or replace reconciliation with authoritative history.
+
+## Candidate review
 
 | `candidate_review_disposition` | Meaning |
 | --- | --- |
-| `clean` | The independent reviewer found no material issue blocking publication of the exact reviewed spec/task contract, unit contribution, base, and candidate HEAD. |
-| `findings` | One or more material findings require repair or an evidence-backed rebuttal accepted by a fresh review. |
-| `indeterminate` | Exact target, reviewer execution, or evidence was insufficient for a trustworthy verdict. |
+| `clean` | Independent review finds no material issue blocking this exact unit candidate. |
+| `findings` | Actionable corrections or an evidence-backed rebuttal remain. |
+| `indeterminate` | Target, execution, profile, or evidence does not support a trustworthy verdict. |
 
-These values are transient reviewer results, not workflow nodes or persisted
-claim state. Their meanings are canonical here; the operational review contract
-only produces and consumes them. Any content, ancestry, base, or full-HEAD
-change invalidates them.
-
-## Transient candidate-review execution dispositions
-
-| `candidate_review_execution_disposition` | Meaning |
+| `execution_disposition` | Meaning |
 | --- | --- |
-| `completed` | The independently identified reviewer execution ended and returned an admissible result for its exact snapshot. |
-| `not-executed` | Authoritative evidence proves the reviewer never began; one retry of the identical snapshot is permitted after cleanup. |
-| `interrupted` | The reviewer began but did not return an admissible result; block unless that exact attempt can be recovered. |
-| `ambiguous` | Available evidence cannot establish whether or how the reviewer executed; never launch a replacement blindly. |
+| `completed` | Independent execution ended and returned an attributable result. |
+| `not-executed` | Authoritative evidence proves work never began. |
+| `interrupted` | Work began but no complete admissible result was returned. |
+| `ambiguous` | Execution or effect cannot yet be established. |
 
-## Transient candidate-review checkout dispositions
-
-| `candidate_review_checkout_disposition` | Meaning |
+| `checkout_cleanup_disposition` | Meaning |
 | --- | --- |
-| `not-created` | Authoritative evidence proves no review checkout or worktree registration was created. |
-| `removed` | The exact temporary checkout and its worktree registration were removed and absence was verified. |
-| `cleanup-failed` | Cleanup was attempted but the exact checkout or registration remains; report its path and block. |
-| `unknown` | Cleanup or current path identity cannot be established safely; preserve the target and block. |
+| `not-created` | Authoritative evidence proves no checkout/registration was created. |
+| `removed` | Exact temporary checkout and registration removal were verified. |
+| `cleanup-failed` | Known checkout/registration remains; preserve and report its path. |
+| `unknown` | Current target identity or cleanup result cannot be proved. |
 
-Candidate-review receipts use `review_revision_ordinal` `0`, `1`, or `2`.
-These count review-driven repair/rebuttal revisions across all units of one
-spec, not task order or spec revision. A new unit uses the current ordinal;
-only a repair/rebuttal spends one. A proved non-execution retry keeps its
-ordinal. Unaffected earlier receipts remain admissible when their target
-identities remain current, even after another unit advances the spec budget.
+Execution interruption may recover or be replaced only after confirmed stop,
+understood preserved work, and safe cleanup. Ambiguous liveness never permits
+another concurrent execution. The current candidate-review contract owns
+receipt admissibility and retry decisions; missing result never means clean.
 
-## Transient hosted-review acceptance
+`repair_round` is `0`, `1`, or `2` per unit/PR across local and hosted review.
+Initial review starts at zero. A reserved batch of repair/rebuttal work advances
+once; reviewing that round does not advance again. Infrastructure attempts are
+separate `execution_attempt` facts. Replacements, resumed waits and new HEADs
+preserve the count. Other independent PRs have separate budgets. At two, clean
+may complete; a needed third repair blocks that PR, not the entire selection.
+
+## Hosted acceptance
 
 | `hosted_review_acceptance` | Meaning |
 | --- | --- |
-| `provider-clean` | G returned terminal clean hosted Codex evidence for the exact current HEAD and lineage. |
-| `adjudicated-clean` | G returned terminal findings, but every finding has G-owned disposition evidence, required evidence replies are verified, no code change or user decision remains, and a fresh clean local review accepted the rebuttal on the unchanged HEAD. No-change dispositions remain unresolved when G prohibits resolution. |
+| `provider-clean` | G returned terminal clean for the exact current HEAD and this workflow's explicit request lineage. |
+| `adjudicated-clean` | G returned findings; every finding has an evidenced disposition, required replies are verified, and fresh independent local review accepted the unchanged-HEAD rebuttal with no remaining code change or user decision. |
 
-`adjudicated-clean` is never reported as a clean provider verdict. G-owned
-review states and feedback dispositions retain their own names and meanings;
-this field is only Delivery Features' completion projection.
+Report adjudicated acceptance separately from the provider verdict. No-change
+findings remain unresolved when G prohibits resolving them. Ready-triggered or
+automatic review, missing comments, pending deadline, stale results, ambiguous
+correlation, and provider failure cannot satisfy the explicit hosted gate.
 
-## Persisted repository-claim facts
+## Repository ownership
 
-| State | Representation | Meaning |
-| --- | --- | --- |
-| `provisional` | A claim row whose `orchestrator_task_id` is null. | The immutable repository set is reserved, but task creation has not yet been reconciled and bound. |
-| `bound` | A claim row whose `orchestrator_task_id` is present. | One observed orchestrator task owns the complete repository set. |
-| unclaimed | No row for the repository. | No Delivery Features orchestrator owns the repository on this host. This is absence, not a stored state. |
-
-Every row in one `claim_token` group has the same `home_project_key` and the
-same provisional or bound task value.
-
-## Transient command dispositions
-
-| Disposition | Meaning |
+| Persisted fact | Meaning |
 | --- | --- |
-| `acquired` | The complete unclaimed repository set was inserted provisionally. |
-| `reuse-bound` | The requested repositories already belong to the same bound claim; reuse that orchestrator. |
-| `reconcile-provisional` | The requested repositories already belong to the same provisional claim; determine whether task creation happened before retrying. |
-| `bound` | The complete provisional claim was attached to the independently observed invoking or separately created orchestrator task. |
-| `already-bound` | An idempotent bind observed that the same task already owns the complete claim. |
-| `released` | The complete claim group was removed after an authorized bound release or fenced provisional abandonment. |
+| `provisional` | Rows have null `orchestrator_task_id`; the current coordinator has reserved the set but not completed binding. |
+| `bound` | Rows name the current coordinator's stable task identity. |
+| unclaimed | No row exists; absence is not stored state. |
 
-These dispositions are command results, not persisted states. Errors such as a
-foreign claim, mixed ownership, repository-set expansion, binding conflict, or
-corrupt registry also are not states.
-
-## Transient diagnostic observations
-
-| Observation | Meaning |
-| --- | --- |
-| `status=absent` | `doctor` observed no registry file and did not create one. |
-| `status=ok` | `doctor` verified the existing registry and its claim count. |
-| `database_state=absent` | `inspect` observed no registry file and returned no claims without creating one. |
-
-These observations report the database at command time. They are not persisted
-workflow state and do not authorize creation, binding, release, or repair.
-
-## External observations
-
-Task activity, worktree cleanliness, spec/task prerequisites, branches, commits,
-candidate-review receipts, pull requests, hosted-review results, CI, and merge
-state are observed from their current owners. Candidate review is valid only
-for its immutable spec/task contract, unit identity and coverage, repository,
-base, candidate, tree, delta, profile,
-execution, and cleanup evidence. Final delivery also requires current actual PR
-HEAD, ready state, base branch, body identity, and standalone or stack topology.
-A draft PR, generic `not-requested`, absence of comments or threads, pending
-deadline, stale evidence, provider failure, and ambiguous correlation are not
-hosted acceptance. Review receipts and observations must never be projected
-into the repository registry.
+All rows in a token group share home/binding. The CLI retains its schema names
+for compatibility; no new coordinator task is implied. Command dispositions
+remain `acquired`, `reuse-bound`, `reconcile-provisional`, `bound`, `already-bound`,
+and `released`. They are operation results, not scheduling or delivery state.
+`doctor` status `absent`/`ok` and inspect `database_state=absent` are read-only
+observations. Exact whole-group release evidence proves this run released its
+claim even if another owner acquired afterward; an ambiguous release is not
+proved merely by observing current absence or foreign ownership.

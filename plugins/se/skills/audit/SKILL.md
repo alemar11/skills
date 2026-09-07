@@ -205,21 +205,26 @@ Confirm `graph-violation` only when evidence proves at least one of:
 - a terminal claim incompatible with required evidence.
 
 Missing narration or hidden reasoning is never automatically a violation. For
-the Delivery Features graph, combine orchestrator and worker evidence only
+the Delivery Features graph, combine current-coordinator and native-subagent evidence only
 through independently established session identities and SE handoffs. Several
 Delivery Features workers may occupy `deliver-unit` concurrently after one
 `schedule` decision, and their independently reviewed unit candidates may occupy
 `review-candidate` concurrently before returning to `reconcile`.
 
 For a Delivery Features `complete` claim, require observed
-`reconcile -> release-claims -> complete`, exact whole-group unclaimed readback,
-and retained final delivery or authorized handoff/abandonment evidence. For
-delivery, verify complete spec/task coverage and assembled outcome evidence,
+`reconcile -> release-claims -> complete`, exact whole-group release evidence
+and absence of the old binding, plus retained final delivery evidence. A later
+foreign claim does not invalidate the old release. For delivery, verify all
+selected task contributions and assembled outcome evidence without treating a
+subset as the whole spec,
 exact PR contribution and closing references, and that actual base and topology
 match reviewed intent. Read Delivery
 [completion.md](../deliver-features/references/completion.md) for that gate and
 distinguish `provider-clean` from explicitly reported `adjudicated-clean` hosted
-acceptance. A blocked or deferred Delivery Features run may correctly retain its claim.
+acceptance from an explicit hosted request for the current HEAD. A safely
+paused run follows `release-claims -> deferred` or `release-claims -> blocked`.
+Retained claims require a concrete unresolved quiescence, preservation, ownership,
+or release-safety reason. Successful release does not turn a pause into completion.
 
 A conforming run may still support `graph-design-improvement` when repeated
 loops, ambiguous ownership, weak stopping rules, or unavoidable evidence gaps

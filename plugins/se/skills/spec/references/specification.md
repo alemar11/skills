@@ -56,6 +56,11 @@ Revision and export rules live in [existing-specs.md](existing-specs.md).
 Planning never overwrites executor-owned progress or claims implementation
 completion from a drafted task list.
 
+Delivery owns the separate execution section under
+[progress.md](../../deliver-features/references/progress.md). That section and
+provider status are excluded from semantic contract identity and do not advance
+`spec_revision`; all requirements, decisions and task contracts remain included.
+
 ## Task contract
 
 Tasks are actionable implementation handoffs. A fresh session must be able to

@@ -1,8 +1,8 @@
 # Feature Planner Task Profile
 
 This profile owns the one required application-task launch for `se:spec`.
-It is intentionally separate from Delivery Features orchestration and repository-claim
-handling.
+It is intentionally separate from Delivery's current-task coordination and
+repository-claim handling.
 
 ```yaml
 task_profile: feature-planner

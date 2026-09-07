@@ -56,7 +56,7 @@ audits active work:
 | `se:adversarial-review` | Pressure-test a software change with an independent read-only review and evidence-backed findings. |
 | `se:idea` | Save a concrete proposal for later spec planning, or preview it locally. |
 | `se:spec` | Create or revise one coherent feature spec and actionable task plan, saving to GitHub or a single Markdown file. |
-| `se:deliver-features` | Deliver saved specs and their task contributions through reviewed PRs, assembled outcome verification, and release-before-complete repository ownership. |
+| `se:deliver-features` | Deliver saved specs or selected tasks through isolated subagents, reviewed ready PRs, and verified outcomes from the current task. |
 | `se:implement` | Implement selected local work from a spec, ticket, issue, or direct request, validate it, and commit only the required files without orchestration or publication. |
 | `se:audit` | Observe active SE work and report workflow problems or improvement opportunities without making changes. |
 
@@ -137,13 +137,16 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
   explicit Markdown saves contain the entire spec and task plan in one file.
   A local-source Markdown save or preview requires no G workflow. Existing
   artifacts retain their authority; exports are explicit snapshots.
-- `se:deliver-features` accepts explicitly selected saved specs from GitHub or
-  Markdown and derives repository-bound delivery units from their tasks. Task
-  dependencies do not mandate Git stacks. The orchestrator verifies actual
+- `se:deliver-features` accepts saved GitHub/Markdown specs or explicitly selected
+  tasks and derives repository-bound delivery units from those contributions. Task
+  dependencies do not mandate Git stacks. The current coordinator verifies actual
   prerequisites, useful PR boundaries, complete task coverage, and assembled
   feature outcomes at the exact repository HEAD vector. It preserves isolated
-  workers, immutable repository claims, independent candidate review, exact-head
-  hosted review, required validation/CI, and verified claim release. It supplies
+  subagent worktrees, repository claims, independent candidate review, explicitly
+  requested `@codex review` for each ready PR HEAD, required validation/CI, and
+  two repair rounds per PR. Safe pauses preserve work and release claims after
+  quiescence; resume reacquires and reconciles evidence. Task progress is updated
+  in the original planning destination. It supplies
   exact justified closing references to G; partial work never closes a complete
   spec. Merge, deploy, and direct issue closure remain separately authorized.
 - `se:audit` runs only after explicit invocation and observes a frozen cohort of

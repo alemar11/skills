@@ -84,6 +84,83 @@ class RepositoryClaimsTests(unittest.TestCase):
             )
             self.assertNotEqual(connection.execute("PRAGMA journal_mode").fetchone()[0], "wal")
 
+    def test_semantically_invalid_requests_do_not_initialize_registry(self) -> None:
+        cases = (
+            ("acquire", "--home-project-key", "", "--repository-key", "github:101"),
+            ("acquire", "--home-project-key", "home", "--repository-key", "github:01"),
+            ("acquire", "--home-project-key", "home", "--repository-key", " github:101 "),
+            ("bind", "--orchestrator-task-id", " "),
+            ("release",),
+            ("release", "--orchestrator-task-id", "task", "--abandon-provisional"),
+            ("inspect", "--repository-key", "github:01"),
+        )
+        for arguments in cases:
+            with self.subTest(arguments=arguments):
+                process, payload = self.run_cli(
+                    *arguments, check=False, claim_token=CLAIM_A
+                )
+                self.assertEqual(process.returncode, 2)
+                self.assertEqual(payload["error"]["code"], "invalid-input")
+                self.assertEqual(process.stderr, "")
+                self.assertFalse(self.directory.exists())
+
+    def test_bind_and_release_absent_registry_do_not_create_it(self) -> None:
+        for command in ("bind", "release"):
+            with self.subTest(command=command):
+                process, payload = self.run_cli(
+                    command, "--orchestrator-task-id", "coordinator",
+                    check=False, claim_token=CLAIM_A,
+                )
+                self.assertEqual(process.returncode, 2)
+                self.assertEqual(payload["error"]["code"], "claim-not-found")
+                self.assertFalse(self.directory.exists())
+
+    def test_padded_persisted_identity_blocks_reads_and_new_claims(self) -> None:
+        self.acquire()
+        for column, canonical in (("repository_key", "github:101"), ("claim_token", CLAIM_A)):
+            for malformed in (" " + canonical, canonical + "\t"):
+                with self.subTest(column=column, malformed=malformed):
+                    with closing(sqlite3.connect(self.database)) as connection, connection:
+                        connection.execute(
+                            f"UPDATE repository_claims SET {column} = ?", (malformed,)
+                        )
+                    before = self.database.read_bytes()
+                    for arguments in (
+                        ("doctor",), ("inspect",),
+                        ("acquire", "--home-project-key", "home", "--repository-key", "github:101"),
+                    ):
+                        process, payload = self.run_cli(
+                            *arguments, check=False, claim_token=CLAIM_B
+                        )
+                        self.assertEqual(process.returncode, 2)
+                        self.assertEqual(payload["error"]["code"], "registry-corrupt")
+                        self.assertEqual(self.database.read_bytes(), before)
+                    with closing(sqlite3.connect(self.database)) as connection, connection:
+                        connection.execute(
+                            f"UPDATE repository_claims SET {column} = ?", (canonical,)
+                        )
+
+    def test_release_evidence_survives_reacquisition_and_old_token_is_fenced(self) -> None:
+        self.acquire(CLAIM_A, "github:101", "github:202")
+        self.run_cli("bind", "--orchestrator-task-id", "old", claim_token=CLAIM_A)
+        released = self.run_cli(
+            "release", "--orchestrator-task-id", "old", claim_token=CLAIM_A
+        )[1]["result"]
+        self.acquire(CLAIM_B, "github:101", "github:202")
+        self.run_cli("bind", "--orchestrator-task-id", "new", claim_token=CLAIM_B)
+        self.assertEqual(released, {
+            "disposition": "released",
+            "released_repository_keys": ["github:101", "github:202"],
+        })
+        process, payload = self.run_cli(
+            "release", "--orchestrator-task-id", "old", check=False, claim_token=CLAIM_A
+        )
+        self.assertEqual(process.returncode, 2)
+        self.assertEqual(payload["error"]["code"], "claim-not-found")
+        claims = self.run_cli("inspect")[1]["result"]["claims"]
+        self.assertEqual(len(claims), 2)
+        self.assertEqual({row["orchestrator_task_id"] for row in claims}, {"new"})
+
     def test_bind_inspect_and_bound_release_full_group(self) -> None:
         self.acquire(CLAIM_A, "github:101", "github:202")
         bound = self.run_cli(

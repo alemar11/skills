@@ -65,7 +65,7 @@ def required_text(value: str | None, field: str) -> str:
 
 def repository_key(value: str) -> str:
     key = required_text(value, "repository_key")
-    if not REPOSITORY_KEY.fullmatch(key):
+    if key != value or not REPOSITORY_KEY.fullmatch(key):
         raise ClaimError(
             "invalid-input",
             "repository_key must be canonical github:<decimal-database-id>",
@@ -277,7 +277,8 @@ def verify_schema(connection: sqlite3.Connection) -> None:
     try:
         for row in identity_rows:
             repository_key(row["repository_key"])
-            claim_token(row["claim_token"])
+            if claim_token(row["claim_token"]) != row["claim_token"]:
+                raise ClaimError("invalid-input", "claim_token is not canonical")
     except ClaimError as error:
         raise ClaimError(
             "registry-corrupt", "claim row contains a noncanonical identity"
@@ -545,7 +546,27 @@ def parser() -> argparse.ArgumentParser:
     return result
 
 
+def validate_arguments(args: argparse.Namespace) -> None:
+    """Reject semantic input errors before opening or creating the registry."""
+    if args.command in {"acquire", "inspect"}:
+        for value in args.repository_key or ():
+            repository_key(value)
+    if args.command == "acquire":
+        required_text(args.home_project_key, "home_project_key")
+    if args.command == "bind":
+        required_text(args.orchestrator_task_id, "orchestrator_task_id")
+    if args.command == "release":
+        if args.orchestrator_task_id is not None:
+            required_text(args.orchestrator_task_id, "orchestrator_task_id")
+        if (args.orchestrator_task_id is not None) == bool(args.abandon_provisional):
+            raise ClaimError(
+                "invalid-input",
+                "release requires exactly one of orchestrator_task_id or abandon_provisional",
+            )
+
+
 def execute(args: argparse.Namespace, path: Path) -> dict[str, Any]:
+    validate_arguments(args)
     if args.command == "doctor":
         return doctor(path)
     if args.command == "inspect":
@@ -554,6 +575,8 @@ def execute(args: argparse.Namespace, path: Path) -> dict[str, Any]:
         verify_permissions(path)
         with closing(connect(path, readonly=True)) as connection:
             return inspect(connection, args)
+    if args.command in {"bind", "release"} and not path.exists():
+        raise ClaimError("claim-not-found", "claim token does not exist")
     with closing(connect(path)) as connection:
         initialize(connection)
         verify_permissions(path)

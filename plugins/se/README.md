@@ -11,7 +11,7 @@ task plans, reviewed PR delivery, durable project knowledge, and read-only audit
 | `se:idea` | Save a tentative proposal to GitHub or preview it locally. |
 | `se:spec` | Create or revise a coherent spec with an ordered actionable task plan; save to GitHub or one Markdown file. |
 | `se:adversarial-review` | Independently pressure-test a fixed software change without editing it. |
-| `se:deliver-features` | Deliver explicitly selected saved specs through reviewed PRs and verify the complete outcome. |
+| `se:deliver-features` | Deliver saved specs or selected tasks through reviewed ready PRs from the current task. |
 | `se:implement` | Implement selected local work, validate it, and commit scoped files without publication. |
 | `se:audit` | Observe an attributable frozen cohort of active SE work without changing it. |
 
@@ -41,19 +41,23 @@ progress or starts delivery implicitly.
 
 ## Delivery
 
-Delivery consumes authoritative saved specs from GitHub or Markdown and maps
-task contributions into repository-bound delivery units. Units choose useful
+Delivery consumes authoritative saved specs from GitHub or Markdown, selects
+the whole spec by default or explicit tasks, and maps selected contributions
+into repository-bound delivery units. Units choose useful
 PR boundaries; they are not required to match task or spec counts. Delivery
 verifies prerequisite availability, resolves fan-in integration, and uses
 standalone or stacked PRs according to actual Git topology. It does not turn
 planning order into artificial dependencies.
 
-One visible orchestrator owns an immutable host-local repository claim and
-uses reusable isolated worker lanes. Each unit candidate passes an independent
-local Sol/xhigh review before publication, then exact-HEAD hosted Codex review
-and required validation/CI. Review repair limits span all units of a spec.
-Completion verifies task checks, the assembled feature outcome at the exact
-HEAD vector, PR contribution/closing references, and whole-group claim release.
+The current task coordinates native subagents using shared developer and
+code-reviewer roles. Implementation lanes have isolated worktrees; the coordinator
+alone holds repository claims. Each committed candidate passes independent local
+review before publication, then a ready PR receives an explicit `@codex review`
+request, including its first review. Both gates and required CI must pass for
+the current HEAD. Two repair rounds apply per PR across local and hosted review.
+Completion verifies selected task checks, assembled outcomes, PR linkage, progress
+updates and exact whole-group release. Safe pauses also release once every actor
+is stopped and work preserved; resume reacquires and reconciles existing work.
 See [task delivery](skills/deliver-features/references/task-delivery.md) and
 [completion](skills/deliver-features/references/completion.md).
 
@@ -66,7 +70,7 @@ implementation issues without separate authorization.
 ## Shared boundaries
 
 - [Subagent roles](references/subagents.md) own reusable research and spec-review
-  definitions. Study and Spec select them while retaining their own delegation,
+  definitions. Study, Spec and Delivery select them while retaining their own delegation,
   lifecycle, fallback, and final decisions.
 - G owns GitHub transport, issue lifecycle, review lineage, CI, and stack
   operations. SE runs its dependency preflight before the required handoff;
@@ -77,6 +81,9 @@ implementation issues without separate authorization.
   G owns transport and provider readback.
 - [Workflow graphs](references/workflow-graph.md) and each skill's state reference
   distinguish transient workflow position from saved content and external facts.
+- [Delivery progress](skills/deliver-features/references/progress.md) updates task
+  status and PR links in the original destination without changing semantic
+  requirements. Markdown progress remains local and uncommitted by default.
 - Repository claims store ownership only. No spec/task progress, worker state,
   Git/PR state, review evidence, or workflow node belongs in that registry.
 - Study keeps its separate App controller or current CLI session and optional

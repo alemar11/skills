@@ -1,256 +1,162 @@
-# Delivery Features Orchestration
+# Delivery Orchestration
 
-Load this reference for graph scheduling, multi-repository topology, resume,
-worker concurrency, pull-request stacks, claim conflicts, or workflow
-transitions. `SKILL.md` owns the workflow node registry; this reference owns
-the condition for every declared edge.
+Read before delegation, scheduling, recovery, hosted review, or final
+reconciliation. The skill registry owns graph edges; this reference owns their
+conditions. [states.md](states.md) owns result meanings.
 
-## Workflow transition conditions
+## Transition conditions
 
 | from | to | when |
 | --- | --- | --- |
-| intake | claim-repositories | Every exact selected saved spec, its authoritative task contracts and dependencies, repository identities, and visible home are resolved without a material user choice. |
-| intake | deferred | A material semantic choice remains that the caller can resolve. |
-| intake | blocked | The selection is invalid, cyclic, unreadable, or cannot be mapped to authoritative repositories. |
-| claim-repositories | claim-repositories | One orchestrator-creation attempt is authoritatively proved not applied; retry task creation once under the same provisional claim. |
-| claim-repositories | reconcile | The complete claim is independently acquired or reused, correlated to one stable orchestrator identity, bound, and read back. |
-| claim-repositories | blocked | Claim overlap, provisional task effects, binding, or orchestrator identity cannot be reconciled safely. |
-| reconcile | schedule | At least one selected Feature remains unfinished and current authoritative evidence supports another scheduling decision. |
-| reconcile | release-claims | Final delivery evidence is admissible, or handoff/abandonment is explicitly authorized; every worker and reviewer is stopped, no mutation remains outstanding, and the bound orchestrator is ready to make exact whole-group release its final external effect. |
-| reconcile | deferred | Safe continuation requires a material semantic decision or additional user authority. |
-| reconcile | blocked | Required capability, identity, ownership, receipt, cleanup, review, or effect evidence remains unavailable or ambiguous, or another review-driven repair or rebuttal is required after ordinal `2`. |
-| schedule | deliver-unit | One or more dependency-ready delivery units are not already assigned to an independently observed active lane and have verified bases, topology, trustworthy worker targets, and reconciled candidate-review evidence indicating implementation, repair, review preparation, or publication work. |
-| schedule | reconcile | No new assignment should start because only active lanes remain or until a bounded authoritative refresh observes a material Git, pull-request, review, CI, task, or Feature change. |
-| schedule | deferred | The only responsible continuation requires a material user decision or authority. |
-| schedule | blocked | Unfinished work has no responsible ready, refresh, or user-decision path. |
-| deliver-unit | review-candidate | A worker returns a stable locally committed unit candidate at an exact base and full HEAD with all required validation passing and no clean current candidate review. |
-| deliver-unit | reconcile | A worker returns exact published completion, partial progress that is not ready for candidate review, correction, or blocker evidence; concurrent returns reconcile independently. |
-| review-candidate | reconcile | Candidate Review returns one admissible receipt or exact execution, cleanup, identity, or budget failure evidence. `reconcile` alone chooses the next edge. |
-| release-claims | complete | Exact whole-group release and subsequent unclaimed readback are verified while admissible final delivery or authorized handoff/abandonment evidence is retained. |
-| release-claims | blocked | Release cannot be proved exact and safe. |
+| intake | claim-repositories | Saved spec/task selection and exact affected repository identities are resolved; current coordinator identity is available. |
+| intake | deferred | A material selection or authority decision prevents responsible work before acquisition. |
+| intake | blocked | Input, identity, or required capability cannot be established before acquisition. |
+| claim-repositories | reconcile | The current task acquired/reused, bound, and read back its exact repository set. |
+| claim-repositories | blocked | Ownership cannot be established; safely abandon this invocation's unused provisional claim when possible and report any retained uncertainty. |
+| reconcile | schedule | At least one selected unit has useful dependency-ready work or a justified recovery attempt; omit blocked and already active contributions. |
+| reconcile | release-claims | Selected work is verified or no further useful work can proceed; all actors are stopped, effects resolved, work preserved, progress save attempted, and the pending terminal outcome is known. |
+| reconcile | blocked | An actor, mutation, work-preservation, or ownership ambiguity prevents safe release; report the retained claim/uncertainty. |
+| schedule | deliver-unit | A bounded independent lane has verified ownership, worktree, base, contribution, selected role, and available repair budget for its assignment. |
+| schedule | reconcile | Only active lanes remain, an assignment returns, or current evidence requires recomputing readiness. |
+| deliver-unit | review-candidate | A validated, locally committed candidate is stable, the developer is quiescent, and current independent review is required. |
+| deliver-unit | reconcile | A worker returns publication, progress, findings, interruption, or blocker evidence; reconcile each lane separately. |
+| review-candidate | reconcile | A reviewer returns a verdict, failed attempt, or cleanup evidence; the coordinator decides repair, publication, recovery, or unit pause. |
+| release-claims | complete | Exact release is proved and all selected outcomes, progress writes, reviews, and CI satisfy completion. |
+| release-claims | deferred | Exact release is proved and preserved work awaits a material user decision, explicit stop, merge, or deployment authority. |
+| release-claims | blocked | Exact release is proved but a capability, validation, review, budget, or progress-save blocker remains; or release itself remains uncertain. |
 
-`schedule -> reconcile` is a change-driven wait loop, not a busy poll. Terminal
-nodes have no outgoing transitions. A resumed invocation starts at `intake` and
-reconstructs its continuation through `claim-repositories -> reconcile`; task
-history or a claim row never acts as a persisted current-node pointer.
+Waiting is change-driven and bounded. A lane's blocker does not terminate
+independent work. Once only active lanes remain, wait for their result or a
+material change; do not duplicate work or busy-poll. Before returning a global
+blocked/deferred result with owned claims, use the release path whenever it is
+safe. A retained claim requires an exact unresolved safety reason.
 
-## Orchestrator placement
+## Current coordinator and native subagents
 
-The orchestrator is the visible owner of one caller-selected spec or
-explicit batch. Use the single involved saved project as its home. For a graph
-spanning several projects, prefer the current associated project when it visibly groups
-the whole run; otherwise use the caller-selected coordination project. Ask
-only when several plausible homes remain. The workers still run in their
-repository projects and isolated worktrees. A projectless orchestrator is only
-a warned fallback; use `projectless` as its visible-home claim key. It does not
-change repository ownership.
+The invoking task remains the coordinator and keeps its model/reasoning. When
+supported, request `🚚 Deliver · <spec or selected scope>` as its title. Renaming
+is best effort; titles never establish identity or gate work. Do not create,
+fork, relocate, or hand off to another visible coordinator or worker task.
 
-Reuse the invoking visible task as the orchestrator when its stable identity
-and intended home can be independently observed and correlated to this exact
-Feature selection. Otherwise create one separate visible orchestrator. In both
-cases, complete the acquisition and binding protocol in
-[repository-claims.md](repository-claims.md) before any worker or G-owned
-effect. A title, current directory, or self-report never establishes the
-required identity or correlation.
+Before delegation, read the selected [shared role](../../../references/subagents.md):
+`developer` for implementation/publication, `code-reviewer` for independent local
+review, or `evidence-researcher` for optional bounded investigation. Request the
+role's model/reasoning explicitly unless the caller overrides it. Use native
+subagents with self-contained handoffs. If required implementation or review
+transport is unavailable, preserve and pause safely; do not substitute visible
+tasks, external reviewer processes, or same-context self-review.
 
-Freeze all repository identities before acquisition. Version 1 does not expand
-a live claim because independent multi-repository expansion can deadlock and
-can make the intended visible home ambiguous.
+The coordinator alone holds the claim token, authorizes assignments and
+publication, reserves repair rounds, validates evidence, writes planning
+progress, and performs release. Research/review subagents remain read-only.
+Developer authority covers only its assigned worktree and exact scoped G
+operations; it does not grant merge, deploy, direct issue closure, recursive
+delegation, or claim operations. The coordinator remains the user's contact.
 
-## Task metadata and worker targets
+## Worker handoff and isolation
 
-Set display titles when tasks are created:
+Read [task-delivery.md](task-delivery.md) for readiness, contribution coverage,
+PR grouping, and actual integration bases. A handoff includes the selected
+spec/tasks, unit ID and PR binding, bounded contribution, exact repository,
+worktree, base/HEAD, selected role, relevant instructions, validation method,
+repair count, and G publication/review obligations. Pass evidence references
+without the developer's preferred conclusion to independent reviewers.
 
-- orchestrator: `🤖 Orchestrator · <spec or batch name>`;
-- worker: `🛠 <repository> · <current delivery unit>`.
+Create separate worktrees for implementation lanes. Before content mutation,
+verify actual repository/remote, worktree, branch, and full starting SHA against
+the handoff. Establish and read back the intended unit branch from the verified
+integration or prerequisite HEAD. Never bootstrap from an incidental checkout
+or trust only a task title, cwd, or saved-project label.
 
-Best-effort rename a reused worker for its current unit. Titles and project
-grouping are diagnostics, never identity, correctness evidence, or a reason to
-retry or replace a task.
+Default to one implementation lane per repository; parallel independent lanes
+must have isolated worktrees and non-overlapping assignments. A same-unit
+resume preserves understood dirty work and verifies the existing branch/HEAD.
+Reuse a clean lane for another unit only after proving prior work preserved,
+no old worker can write, and the new branch/base correct. Keep execution-progress
+edits out of implementation commits under [progress.md](progress.md).
 
-Use the configured model and reasoning defaults for the orchestrator and
-implementation workers unless the caller explicitly requests another profile.
-The independent candidate reviewer instead uses its fixed profile from
-[candidate-review.md](candidate-review.md). If a caller makes any other profile
-acceptance-critical, verify it or report that it cannot be established;
-otherwise profile metadata does not gate delivery.
+## Implementation and local review
 
-Resolve one integration branch per repository before scheduling. A
-repository-qualified caller override wins; otherwise use the authoritative
-provider default. Reject a missing, ambiguous, inaccessible, or
-wrong-repository selection without fallback. Through the applicable G-owned
-branch transport, refresh that upstream branch and read its full remote tip.
-Freeze the branch and SHA for the current bootstrap wave, reread them before
-each standalone or stack-root bootstrap, and recompute unstarted work if the tip
-changes. Never infer a base from the current checkout, a stale tracking ref,
-project metadata, or a branch name alone.
+The developer implements the bounded contribution, validates observable
+behavior, commits the candidate, and becomes quiescent with a clean worktree.
+The coordinator then runs [candidate-review.md](candidate-review.md) before any
+push of new candidate content. A clean review authorizes the developer's next
+publication phase for that exact candidate. Findings reserve one repair round;
+return the same understood work to its developer or a safely reconciled
+replacement. Never treat review execution failure as a clean result.
 
-Before any fresh worker mutation, independently observe its actual stable
-repository identity, remote, isolated worktree, current branch, and full
-starting SHA. Require an exact match with its handoff. A fresh worker then
-establishes the intended unit head branch from that verified integration
-base or prerequisite HEAD and reads back the branch and initial HEAD before
-content writes. Missing or mismatched evidence stops that lane.
+## Explicit hosted review
 
-Before reassigning a clean worker, first verify the prior unit's expected
-head branch and current HEAD and prove its worktree clean and unambiguous. Then
-switch through G-owned branch transport to the next unit's independently
-verified integration base or prerequisite HEAD, read back that starting branch
-and SHA, create the new unit head, and read back its initial HEAD before
-content writes. A same-unit resume instead remains on its expected head
-branch, verifies current HEAD, and preserves inspected dirty work. Saved-project
-placement, task title, and prior dialogue never substitute for these facts.
+Before G Send, use [completion.md](completion.md) to derive exact contribution
+and closing references. New draft publication is intermediate. Once the exact
+published candidate is stable, mark the PR ready through G and independently
+verify ready state and unchanged full HEAD. Then use G's explicit Codex review
+request to post `@codex review` bound to that commit, including the initial PR
+review. Automatic reviews and ready-triggered lineages do not satisfy this
+workflow. Do not wait for a ready event to generate review automatically.
 
-## Task scheduling
+Use one request identity per intended review cycle and preserve G's complete
+receipt and original deadline. Reconcile an uncertain request through G before
+retrying; never post another mention merely because output is missing. Resume
+an existing request against its exact PR/HEAD without resetting its deadline.
+A changed candidate must pass local review, be pushed, remain ready, and receive
+one fresh explicit request for its new full HEAD. A task-progress-only update
+does not create another review request for unchanged candidate content.
 
-Read [task-delivery.md](task-delivery.md) before decomposing the selected specs
-into delivery units, computing readiness, or assigning a worker. It owns task
-coverage, unit identities, prerequisite evidence, and integration strategy.
+Pass one total 30-minute duration to the G-owned bounded wait for each explicit
+request lineage. Check required CI and current PR evidence through their G
+owners. Infrastructure failures and timeouts pause the affected unit, with the
+exact request retained. Independent selected units may continue. Generic
+`not-requested`, automatic review evidence, stale results, absence of comments,
+or zero unresolved threads never substitute for this explicit-request result.
 
-A worker handoff includes the current spec and assigned task details, unit
-identity, exact repository and base, required contribution and validation,
-review budget, and G obligations. Reassign a clean worker only after its prior
-unit's branch and HEAD are verified. Same-unit resume preserves inspected dirty
-work; changing units uses the independently verified starting-point protocol.
+Project G's terminal review result into `hosted_review_acceptance`:
 
-## Candidate review
+- `clean` for the current exact HEAD and explicit lineage gives `provider-clean`.
+- `findings` require classification of every finding through G. Code changes
+  reserve the next repair round, then implement, validate, commit, locally
+  review, push, and explicitly request review of the new HEAD. A material
+  user decision pauses that unit.
+- Evidence-backed no-change dispositions may yield `adjudicated-clean` after
+  any authorized exact-thread replies and a fresh clean local review that
+  evaluates the rebuttal. Reserve one round for the rebuttal; the subsequent
+  review belongs to that same round. Do not create an empty commit or request
+  another hosted review for unchanged HEAD merely to manufacture provider-clean.
+  Report the distinction. Resolve only a G-admitted actionable finding whose
+  fix and reply are verified; do not execute a suggested resolution for a
+  no-change disposition.
 
-After implementation and required validation, the worker locally commits the
-stable candidate and becomes quiescent with a clean worktree. It returns its
-exact base and full HEAD. Enter `review-candidate` under
-[candidate-review.md](candidate-review.md) before the first push. Admit only
-its complete current receipt. A clean result returns the same worker for
-publication; findings return it for repair or rebuttal; execution, cleanup,
-identity, and budget failures follow that reference's closed recovery rules.
-Candidate Review never satisfies the later hosted gate.
+Two rounds apply per PR across both gates under candidate-review.md. Exhaustion
+blocks only that PR and its dependents. Provider state/HEAD/base/topology drift
+suspends acceptance: restore and verify the exact reviewed state or revalidate
+and obtain a supported new explicit lineage when the candidate changed. Never
+consume an old result for a new HEAD or bypass required CI.
 
-## Pull-request topology
+## Recovery, progress, and safe pause
 
-Apply [task-delivery.md](task-delivery.md) before choosing or changing a unit's
-base and PR boundary. Return the actual topology and exact task contribution
-mapping with every unit result. Semantic task dependencies do not determine
-standalone versus stacked publication.
+On resume inspect, in order: authoritative selected contracts and progress;
+current branches/commits/worktrees; exact PR/review/CI state; coordinator history,
+worker identities, receipts and repair counts; and claims for ownership only.
+Do not persist a workflow node or scheduling queue. Reacquisition does not reset
+budgets or make stale evidence current.
 
-## Hosted review convergence
+Recover a worker's existing result when attributable. Otherwise replace it only
+once the prior execution is confirmed stopped, its exact work is understood and
+preserved, and no outstanding mutation can race the replacement. Resume the same
+unit's worktree/commits with a focused handoff; repeat only invalidated checks.
+Uncertain liveness or ownership retains the claim. A changed condition may
+justify an automatic retry; repeated unchanged failure pauses the unit instead
+of launching an endless series of replacements.
 
-Apply [completion.md](completion.md) to derive and verify the unit contribution
-and exact closing references before every G Send handoff.
+Write material progress through [progress.md](progress.md). At success or when
+no further useful work can proceed, preserve every worktree and result, resolve
+writes, stop all actors, attempt final progress synchronization, and use
+[repository-claims.md](repository-claims.md) to release the complete set. Store
+the pending result before release: successful delivery, a required decision, or
+a blocker. Release preserves that result; it does not turn a pause into success.
 
-Treat the draft returned by a fresh G Send publication as intermediate
-evidence. When the candidate's full HEAD, body, base, and stack topology are
-stable, the assigned worker must:
-
-1. make the PR ready through the focused G owner and independently verify the
-   draft-to-ready transition against the unchanged full HEAD;
-2. retain the typed transition evidence and use the G-owned ready-wait workflow
-   for the automatic initial Codex review without posting an explicit request;
-3. return to `reconcile` with the exact normalized review and CI evidence.
-
-Use one total 30-minute G-owned wait for each ready or explicit-request
-lineage. If no valid initial ready lineage can be reconstructed, use G-owned
-read-only reconciliation; block when it cannot recover the exact lineage.
-Never substitute an explicit request or toggle the PR back to draft. Resume the
-same receipt and deadline after interruption.
-
-Project the terminal result into one Delivery Features-owned
-`hosted_review_acceptance`:
-
-- G terminal `clean` for the exact HEAD produces `provider-clean`.
-- For G terminal `findings`, classify every finding through G. An `actionable`
-  code change returns the same worker for one budgeted repair, required
-  validation, a new commit, and Candidate Review before push. An `actionable`
-  evidence response follows the unchanged-HEAD rebuttal path below.
-  `needs-user-decision` routes to `deferred`. For evidence-response
-  `actionable`, `already-addressed`, `informational`, or `obsolete`, retain G's
-  evidence, post G-owned evidence replies to addressable findings authorized by
-  this delivery, and retain the disposition for findings without an addressable
-  thread. Resolve only a G-admitted actionable finding after its implemented
-  fix and verified reply; never resolve a no-change disposition. Then spend one
-  review-driven revision on a fresh local Candidate Review of the unchanged
-  HEAD that explicitly evaluates the rebuttal. If it is clean and no code
-  change or user decision remains, produce `adjudicated-clean` without an empty
-  commit or another hosted request.
-
-A changed candidate uses one new full HEAD, invalidates both review gates, and
-requires one fresh explicit hosted re-review lineage after Candidate Review and
-push. If another repair or rebuttal would exceed revision ordinal `2`, route to
-`blocked` without changing the candidate.
-
-`pending-at-deadline`, provider failure, request-correlation failure, or
-ambiguous evidence routes to resumable `blocked` with the claim and exact
-lineage retained. A stale result returns to `reconcile` to inspect the current
-PR and candidate; it never authorizes a duplicate request. `not-requested`,
-absence of comments, zero threads, or draft-only evidence is not hosted
-acceptance.
-
-Before final delivery proof, independently reread the actual PR HEAD, ready
-state, base branch, body identity, and standalone or immediate-parent stack
-topology. Require those facts to match the reviewed contract, candidate
-receipt, and published intent, plus required validation and CI. Accept only
-`provider-clean` or `adjudicated-clean`, and report which one occurred.
-Provider-only PR base, body, or topology drift suspends hosted acceptance. If
-authoritative readback restores every reviewed value while the contract, base
-tip, candidate HEAD, tree, and delta remain unchanged, the prior exact-state
-evidence is admissible; otherwise a new supported review lineage is required.
-
-These receipts and observations remain external delivery evidence available
-from G, GitHub, and task history. Do not persist them in the repository-claims
-registry or add a delivery-state machine.
-
-## Completion and claim release
-
-After [completion.md](completion.md) verifies every selected spec, its tasks,
-assembled outcome evidence, PRs, and linkage dispositions, stop and observe
-every worker and reviewer. No task except the bound orchestrator may remain able to mutate a repository or
-hosted target, and no request, push, reply, resolution, or wait may be
-outstanding. The orchestrator then makes exact whole-group claim release its
-last external effect, inspects every selected repository as unclaimed, and
-enters `complete`. A release or readback failure enters `blocked` and never
-claims successful completion.
-
-For handoff or abandonment performed by another invocation, independently
-observe the old orchestrator stopped as well as every task it created before
-release. `blocked` and `deferred` delivery results retain their claim for a
-legitimate resume.
-
-Before every handoff to a G-owned workflow, the orchestrator or worker making
-that handoff runs the shared
-[codex-dependency-preflight.md](../../../references/codex-dependency-preflight.md).
-Before any hosted pull-request, review, or stack write, that same role applies
-the shared
-[hosted-content-safety.md](../../../references/hosted-content-safety.md)
-contract to the final rendered content. Carry both obligations in every worker
-handoff that permits G-owned work; an orchestrator check never substitutes for
-the worker's own check.
-
-## Resume and replacement
-
-Reconstruct current truth in this order:
-
-1. authoritative saved specs, linked task bodies, and prerequisite declarations;
-2. current repository branches, commits, and worktrees;
-3. current pull-request, hosted-review, and CI state;
-4. visible Codex task history, candidate-review evidence, and worker handoffs;
-5. the repository registry only for orchestrator ownership.
-
-The registry does not prove that a worker is running, a branch is clean, a PR
-exists, or validation passed. Reconcile those facts from their owners.
-
-Recall the same worker for a repair, rebase, or review fix when its task and
-worktree remain trustworthy. Create a replacement lane only when the old lane
-is unavailable or unsafe and current Git state is independently understood.
-Replacing a worker does not replace the orchestrator or alter the claim.
-
-For an ambiguous task or non-G provider effect, inspect current authoritative
-state once. Continue from a proved effect, retry only after proved
-non-application, and stop on unresolved ambiguity. For a G-managed review
-operation, use its owned journal reconciliation and never create a replacement
-mutation when it reports missing, conflicting, ambiguous, or owner-required
-recovery. Do not introduce another operation journal.
-
-A worker may replace an invalid or unavailable evidence command with a
-platform-correct command when outcome, scope, acceptance criteria,
-dependencies, and non-goals remain unchanged. Record the substitution and
-continue in the same task and worktree. Material semantic drift requires user
-direction; a validation-only correction never requires a new claim,
-orchestrator, or worker.
+Every hosted handoff applies the shared
+[G preflight](../../../references/codex-dependency-preflight.md) and
+[hosted-content safety](../../../references/hosted-content-safety.md)
+immediately before its own writes. Project those obligations into developer
+handoffs. A coordinator check never substitutes for the actual writer's check.

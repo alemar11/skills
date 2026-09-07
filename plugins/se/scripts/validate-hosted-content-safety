@@ -39,6 +39,7 @@ for relative in \
   skills/spec/steps/save.md \
   skills/spec/references/github-output.md \
   skills/deliver-features/references/completion.md \
+  skills/deliver-features/references/progress.md \
   skills/spec/templates/maintenance-changelog.md \
   skills/deliver-features/references/orchestration.md; do
   target="$plugin_root/$relative"
