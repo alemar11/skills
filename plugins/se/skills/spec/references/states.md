@@ -1,22 +1,10 @@
-# Feature Specification States
+# Feature Specification Operations and Results
 
-The workflow registry in `SKILL.md` owns nodes and transitions. The content
-contract in [specification.md](specification.md) owns durable spec/task
-identities. Workflow position and operation results are transient.
-
-## Workflow nodes
-
-| Node | Kind | Meaning |
-| --- | --- | --- |
-| `intake` | action | Resolve bounded inputs, repository scope, source authority, and destination/operation. |
-| `analysis` | action | Establish behavior, decisions, constraints, and credible verification. |
-| `clarification` | action | Resolve only material decisions through Grilling Session; ordinary answer waits are nonterminal. |
-| `plan` | action | Draft the coherent main spec and its feature acceptance criteria. |
-| `decompose` | action | Produce the complete actionable task plan with stable identities, order, and real prerequisites. |
-| `review` | validation | Review the whole spec/task contract, correcting with progress or returning a material question. |
-| `save` | action | Render a complete preview or write and verify the selected destination. |
-| `complete` | terminal | The complete preview or requested save and explicitly requested downstream handoff are verified. |
-| `blocked` | terminal | Essential evidence, a material decision, authority, or save reconciliation is unavailable. |
+The `spec` namespace describes transient caller choices and operation results,
+not a workflow graph. The saved identity and revision contract belongs to
+[specification.md](specification.md). A request resolves to preview or save;
+review findings return to drafting or clarification, and a verified artifact
+completes the operation. An unresolved required effect remains blocked.
 
 ## Caller choices
 
@@ -38,7 +26,7 @@ additional source access or implementation authority.
 | `source_route` | `new-source`, `existing-source` | Derived from whether the request creates a spec or revises/exports an existing authoritative artifact. |
 | `planning_readiness` | `ready`, `clarification-required`, `blocked` | Whether evidence supports drafting, a material choice remains, or essential evidence is unavailable. |
 | `grilling_outcome` | `refined`, `user-stopped`, `blocked` | Composed interview result; a stopped handoff is usable only when remaining assumptions are safe. |
-| `review_result` | `clean`, `revision-required`, `clarification-required`, `blocked` | Review disposition under the registered graph. |
+| `review_result` | `clean`, `revision-required`, `clarification-required`, `blocked` | Assessment of the complete spec and task contract. |
 | `save_result` | `previewed`, `saved`, `exported`, `blocked` | Complete non-durable rendering, verified authoritative save, verified snapshot export, or incomplete operation. |
 | `readback` | `verified`, `no-op`, `ambiguous` | Observed exact saved content; no-op requires the target already matches. Ambiguity blocks a required save. |
 | `native_projection_result` | `verified`, `no-op`, `failed`, `unavailable`, `unknown` | GitHub relationship/dependency observation. A recorded native limitation is a warning when the complete semantic body representation is verified. |

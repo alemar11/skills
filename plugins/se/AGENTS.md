@@ -39,8 +39,8 @@ When ownership changes, update affected consumers and remove obsolete routes.
   source handoff. It does not define Feature requirements or durable memory.
 - Spec owns coherent specs, stable spec/F-AC/task identities, actionable
   task contracts, recommended order, real prerequisites, accepted decisions,
-  review, and GitHub/single-file Markdown projections. Its `steps/` own workflow
-  nodes; its specification reference owns content, and templates project it.
+  review, and GitHub/single-file Markdown projections. Its specification
+  reference owns content, and templates project it.
 - Adversarial Review owns independent read-only critique and generic findings;
   composed callers own target identity, lifecycle, and disposition mapping.
 - Delivery Features owns selected-spec/task scheduling, integration and acceptance,
@@ -74,10 +74,9 @@ full protocols into this file:
 - Material spec questions compose Grilling Session in the planner. Safe assumptions
   and explicitly delegated decisions do not require extra interviews. Every
   complete draft passes Review, with progress-bounded correction.
-- Keep Spec planner setup independent of Delivery Features claims and task
-  verification. Preserve its accepted stable-receipt start and first-turn Intake;
-  title metadata does not gate work. Model profiles remain in runtime owners
-  and the repository model index, not duplicated here.
+- Spec runs in the invoking session and updates its title when supported.
+  Title availability does not gate planning. Model profiles remain in runtime
+  owners and the repository model index.
 - Separate Delivery Features concurrency from PR topology. Overlapping writers
   never share a worktree. Parent drift invalidates dependent evidence.
 - For Deliver Features, preserve exact-base/full-HEAD candidate and hosted evidence, review-revision

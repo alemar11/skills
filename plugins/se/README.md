@@ -35,12 +35,11 @@ specs retain their authority; an explicit export creates a labeled snapshot.
 See the canonical [specification contract](skills/spec/references/specification.md)
 and [revision/migration rules](skills/spec/references/existing-specs.md).
 
-Spec uses one directly placed planner with its existing explicit profile and
-stable-receipt startup. It asks only material questions through Grilling Session,
-retains accepted technical decisions, distinguishes them from suggestions, and
-reviews the whole spec/task bundle before saving. Its `steps/` own workflow
-nodes; templates are output resources. Planning never writes implementation
-progress or starts delivery implicitly.
+Spec runs in the current session with its configured model and reasoning and
+updates the task title to `📚 Plan Feature · <outcome>` when supported. It asks
+only material questions through Grilling Session and reviews the complete
+spec/task contract before saving. Planning preserves execution progress and
+does not start delivery implicitly.
 
 ## Deliver
 

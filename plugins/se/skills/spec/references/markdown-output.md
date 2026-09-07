@@ -40,7 +40,7 @@ sources. Machine-specific planner paths, prompts, tokens, and task transcripts
 do not belong in the saved specification.
 
 G is unnecessary for rendering or saving Markdown. If the source is a GitHub
-issue, Intake still performs the G preflight for that source read. A local-only
+issue, perform the G preflight for that source read. A local-only
 source constraint prohibits that read on either destination.
 
 For an export from a different authoritative destination, follow

@@ -18,7 +18,7 @@ labels are optional metadata, never identity, readiness, or work-dispatch signal
 For `operation=preview`, render the parent, every child body, intended targets,
 and proposed mappings without any hosted write or collision claim. New local
 source previews need no G access. An explicit hosted source read remains governed
-by Intake's preflight and caller constraints.
+by the hosted-source preflight and caller constraints.
 
 ## Save and verify
 
