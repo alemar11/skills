@@ -77,60 +77,54 @@ edits out of implementation commits under [progress.md](progress.md).
 
 ## Implementation and local review
 
-The developer implements the bounded contribution, validates observable
-behavior, commits the candidate, and becomes quiescent with a clean worktree.
-The coordinator then runs [candidate-review.md](candidate-review.md) before any
-push of new candidate content. A clean review authorizes the developer's next
-publication phase for that exact candidate. Findings reserve one repair round;
-return the same understood work to its developer or a safely reconciled
-replacement. Never treat review execution failure as a clean result.
+Assign initial implementation and each reserved repair batch through
+[`se:implement`](../../implement/SKILL.md) in the existing developer lane. Supply
+its bounded assignment and mark independent review as coordinator-owned.
+Implement returns a validated committed candidate and becomes quiescent; it does
+not launch a duplicate reviewer or publish within its implementation phase.
 
-## Explicit hosted review
+The coordinator applies [candidate review](candidate-review.md)
+before any push of new candidate content. A clean receipt authorizes publication
+of that exact candidate. Findings return to the coordinator, which alone reserves
+a batch under the [shared repair budget](../../../references/review-repair-budget.md)
+and reassigns Implement or an evidence-backed rebuttal. Review execution failure
+never means clean. The separate G publication phase remains under the coordinator's
+authority even when executed by the same developer agent.
+
+## Hosted review handoff
 
 Before G Send, use [completion.md](completion.md) to derive exact contribution
-and closing references. New draft publication is intermediate. Once the exact
-published candidate is stable, mark the PR ready through G and independently
-verify ready state and unchanged full HEAD. Then use G's explicit Codex review
-request to post `@codex review` bound to that commit, including the initial PR
-review. Automatic reviews and ready-triggered lineages do not satisfy this
-workflow. Do not wait for a ready event to generate review automatically.
+and closing references. New draft publication is intermediate. After the reviewed
+candidate is published, mark the PR ready through G and independently verify
+ready state and unchanged full HEAD.
 
-Use one request identity per intended review cycle and preserve G's complete
-receipt and original deadline. Reconcile an uncertain request through G before
-retrying; never post another mention merely because output is missing. Resume
-an existing request against its exact PR/HEAD without resetting its deadline.
-A changed candidate must pass local review, be pushed, remain ready, and receive
-one fresh explicit request for its new full HEAD. A task-progress-only update
-does not create another review request for unchanged candidate content.
+Compose [`se:review-pr`](../../review-pr/SKILL.md) to request or resume and monitor
+the exact ready candidate's explicit hosted review, including its first review.
+Pass the target and any existing G request receipt/deadline. It returns the
+provider verdict and findings; it owns no agents, repairs, CI or acceptance.
+Inspect required CI separately through its G owner for the current HEAD.
 
-Pass one total 30-minute duration to the G-owned bounded wait for each explicit
-request lineage. Check required CI and current PR evidence through their G
-owners. Infrastructure failures and timeouts pause the affected unit, with the
-exact request retained. Independent selected units may continue. Generic
-`not-requested`, automatic review evidence, stale results, absence of comments,
-or zero unresolved threads never substitute for this explicit-request result.
+The coordinator maps completed provider evidence into the hosted gate:
 
-Project G's terminal review result into `hosted_review_acceptance`:
+- Clean for the exact current HEAD and explicit lineage gives `provider-clean`.
+- Findings require classification of every finding through G. Code changes
+  reserve the next shared round, then use Implement, validation, commit, local
+  candidate review and publication before invoking Review PR for the new HEAD.
+- Evidence-backed no-change dispositions may give `adjudicated-clean` after
+  every finding has evidence, required authorized exact-thread replies are
+  verified, and fresh independent local review accepts the unchanged-HEAD
+  rebuttal. Reserve one round for that rebuttal and its review. Report this
+  separately from the provider verdict; do not create an empty commit or
+  repeat hosted review of unchanged content to manufacture provider-clean.
 
-- `clean` for the current exact HEAD and explicit lineage gives `provider-clean`.
-- `findings` require classification of every finding through G. Code changes
-  reserve the next repair round, then implement, validate, commit, locally
-  review, push, and explicitly request review of the new HEAD. A material
-  user decision pauses that unit.
-- Evidence-backed no-change dispositions may yield `adjudicated-clean` after
-  any authorized exact-thread replies and a fresh clean local review that
-  evaluates the rebuttal. Reserve one round for the rebuttal; the subsequent
-  review belongs to that same round. Do not create an empty commit or request
-  another hosted review for unchanged HEAD merely to manufacture provider-clean.
-  Report the distinction. Resolve only a G-admitted actionable finding whose
-  fix and reply are verified; do not execute a suggested resolution for a
-  no-change disposition.
-
-Two rounds apply per PR across both gates under candidate-review.md. Exhaustion
-blocks only that PR and its dependents. Provider state/HEAD/base/topology drift
-suspends acceptance: restore and verify the exact reviewed state or revalidate
-and obtain a supported new explicit lineage when the candidate changed. Never
-consume an old result for a new HEAD or bypass required CI.
+Resolve only a G-admitted actionable finding whose implemented fix and reply
+are verified; never follow a suggested resolution for a no-change disposition.
+Material user decisions pause the affected unit. Pending reviews, failed CI,
+exhausted budgets, or blocked PRs do not stop independent selected work.
+Review PR's completed result, including findings, never means Delivery complete.
+The coordinator still verifies local review, required CI, assembled outcomes,
+progress and release. Target/base/topology drift invalidates affected evidence;
+reconcile before applying results. Counts and G deadlines survive re-entry.
 
 ## Recovery, progress, and safe pause
 

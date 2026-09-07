@@ -5,6 +5,9 @@ description: "Create or revise a feature spec and actionable task plan when expl
 
 # Feature Specification
 
+Follow the shared [execution scope](../../references/execution-scope.md) for
+standalone and composed invocation.
+
 ## Purpose and authority
 
 Produce one coherent feature specification with an ordered, verifiable task

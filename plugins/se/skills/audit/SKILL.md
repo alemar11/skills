@@ -5,6 +5,9 @@ description: "Monitor a frozen cohort of active SE tasks read-only when explicit
 
 # Audit SE Sessions
 
+Follow the shared [execution scope](../../references/execution-scope.md) for
+standalone and composed invocation.
+
 ## Scope
 
 Use this skill only after an explicit `$se:audit` invocation. Observe the

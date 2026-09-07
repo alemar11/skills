@@ -90,12 +90,9 @@ understood preserved work, and safe cleanup. Ambiguous liveness never permits
 another concurrent execution. The current candidate-review contract owns
 receipt admissibility and retry decisions; missing result never means clean.
 
-`repair_round` is `0`, `1`, or `2` per unit/PR across local and hosted review.
-Initial review starts at zero. A reserved batch of repair/rebuttal work advances
-once; reviewing that round does not advance again. Infrastructure attempts are
-separate `execution_attempt` facts. Replacements, resumed waits and new HEADs
-preserve the count. Other independent PRs have separate budgets. At two, clean
-may complete; a needed third repair blocks that PR, not the entire selection.
+The [shared repair budget](../../../references/review-repair-budget.md) owns
+round transitions and reservations. Review PR's [monitoring results](../../review-pr/references/states.md)
+report provider completion only; this coordinator owns acceptance below.
 
 ## Hosted acceptance
 

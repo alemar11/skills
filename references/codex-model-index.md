@@ -3,7 +3,8 @@
 This is the repository-wide inventory of skill-level Codex execution profiles.
 Keep it synchronized with the linked runtime contracts; it is an index, not a
 runtime policy source. Skills that only run in the current task without
-selecting or delegating another Codex execution are omitted. A
+selecting or delegating another Codex execution are omitted unless an explicit
+composition boundary defines profile inheritance. A
 `configured/default` value records intentional inheritance from the caller or
 active runtime.
 
@@ -20,8 +21,9 @@ active runtime.
 | [`$se:spec`](../plugins/se/skills/spec/SKILL.md) | `gpt-5.6-sol` | `xhigh` | Optional shared [`spec-reviewer`](../plugins/se/references/subagents.md#spec-reviewer) role for the complete draft and task plan; Spec owns review criteria and disposition. |
 | [`$se:adversarial-review`](../plugins/se/skills/adversarial-review/SKILL.md) | `configured/default` | `configured/default` | Independent read-only reviewer profile supplied by the caller or composed workflow; the skill does not select a model or reasoning value. |
 | [`$se:deliver-features`](../plugins/se/skills/deliver-features/SKILL.md) | `configured/default` | `configured/default` | The current task remains coordinator and retains its model and reasoning; no separate coordinator is created. |
-| [`$se:deliver-features`](../plugins/se/skills/deliver-features/SKILL.md) | `gpt-5.6-luna` | `max` | Shared [`developer`](../plugins/se/references/subagents.md#developer) native subagent in an isolated worktree; Delivery owns selection, publication phases and recovery. |
-| [`$se:deliver-features`](../plugins/se/skills/deliver-features/SKILL.md) | `gpt-6-astra` | `medium` | Shared [`code-reviewer`](../plugins/se/references/subagents.md#code-reviewer) native subagent for an immutable candidate; Delivery owns snapshot/receipt validation and the per-PR repair budget. |
+| [`$se:deliver-features`](../plugins/se/skills/deliver-features/SKILL.md) | `gpt-5.6-luna` | `max` | Shared [`developer`](../plugins/se/references/subagents.md#developer) native subagent in an isolated worktree; the composing coordinator owns selection, publication phases and recovery. |
+| [`$se:deliver-features`](../plugins/se/skills/deliver-features/SKILL.md) | `gpt-6-astra` | `medium` | Shared [`code-reviewer`](../plugins/se/references/subagents.md#code-reviewer) native subagent for an immutable candidate; the composing coordinator owns snapshot/receipt validation and the shared per-PR repair budget. |
+| [`$se:implement`](../plugins/se/skills/implement/SKILL.md) | `configured/default` | `configured/default` | Executes in the current task or caller-selected developer subagent; does not select or change its profile. |
 
 Remote Codex review requests or skills that merely execute in the current task
 without owning a model/reasoning profile are not separate rows unless they gain

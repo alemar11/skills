@@ -5,6 +5,9 @@ description: "Save or maintain durable repository knowledge when explicitly requ
 
 # Learn Project Context
 
+Follow the shared [execution scope](../../references/execution-scope.md) for
+standalone and composed invocation.
+
 ## Purpose and boundary
 
 Use `$se:learn` for durable, local repository knowledge: always-active rules in

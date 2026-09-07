@@ -5,6 +5,9 @@ description: "Capture a conversation’s concrete proposal as an Idea when expli
 
 # Idea Capture
 
+Follow the shared [execution scope](../../references/execution-scope.md) for
+standalone and composed invocation.
+
 ## Purpose and boundary
 
 Use `se:idea` only after an explicit request to capture, select, save, or

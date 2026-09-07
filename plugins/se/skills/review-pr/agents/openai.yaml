@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review PR"
+  short_description: "Request, monitor, and report Codex PR reviews."
+  default_prompt: "Use $se:review-pr for this pull request: reuse a current Codex review, wait for a pending one, or request and wait when needed, then report the result."

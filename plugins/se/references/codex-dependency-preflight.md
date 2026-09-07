@@ -22,8 +22,11 @@ Delivery Features always publishes through G, even when its selected spec was
 saved as Markdown. Run the gate before its first authoritative GitHub repository,
 issue, PR, review, CI, or relation read. Passing establishes availability for
 the next focused handoff; it does not broaden source or mutation authority.
-Explicit SE invocation authorizes only the hosted writes required by the
-selected workflow and consistent with caller constraints.
+Review PR runs this gate before hosted access. Its default invocation authorizes
+requesting and waiting for a missing explicit review; audit-only scope remains
+read-only. It does not authorize or own any other hosted action. Explicit SE
+invocation authorizes only the writes required by its selected workflow and
+consistent with caller constraints.
 
 ## Required evidence
 
@@ -50,6 +53,10 @@ checks pass but the current session cannot reach the explicit handoff, report
 Idea and Spec hosted operations require `$g:github-issues` for issue
 lifecycle and relationships. Optional classification uses that skill's
 classification branch; classification failure never blocks semantic save.
+
+Review PR requires only the hosted review owner's inspection, request, wait and
+reconciliation operations. It does not use publication, local Git, issue, stack,
+CI, finding-repair, reply/resolution, or merge-policy workflows.
 
 For Delivery Features, the required workflow set includes the G
 owners needed by the selected publication, review, CI, issue, local Git, and

@@ -16,8 +16,9 @@ file or a registry of running agents.
 The calling skill owns whether to delegate, assignments, concurrency, execution
 location, lifecycle, recovery, and result disposition. Reading a role does not
 authorize delegation or any additional source access. Keep skill-specific
-controllers and Delivery candidate-review target, receipt, and lifecycle
-contracts with their existing owners.
+controllers with their owning skills. Delivery owns its
+[candidate-review lifecycle](../skills/deliver-features/references/candidate-review.md);
+[review-repair-budget.md](review-repair-budget.md) owns its shared repair contract with Implement.
 
 Select a role by its stable ID and request its model and reasoning explicitly.
 An explicit caller override takes precedence; otherwise do not substitute a
@@ -69,8 +70,8 @@ evidence. The owner maps this report to its own review result and transitions.
 
 ## developer
 
-Implement the assigned task contribution in the exact isolated worktree supplied
-by the owner. Preserve accepted contracts and unrelated work, validate observable
+Use [`se:implement`](../skills/implement/SKILL.md) for the assigned task contribution
+or reserved repair batch in the exact isolated worktree supplied by the owner. Preserve accepted contracts and unrelated work, validate observable
 behavior, and commit a stable candidate when authorized. Report material
 ambiguities to the coordinator rather than broadening scope. Never implement
 unselected prerequisites or change requirements to make verification pass.
@@ -81,7 +82,7 @@ relevant G workflows. Do not push a new candidate before the owner's independent
 review gate, spend an unreserved repair round, merge, deploy, close issues
 directly, or edit the source planning progress owned by the coordinator.
 
-**Inputs:** semantic spec/task contract, selected contribution, exact repository,
+**Inputs:** supplied spec/task contract or bounded change requirements, selected contribution, exact repository,
 worktree/branch/base, relevant instructions, validation requirements, current
 phase, per-PR repair count/reservation, and any exact hosted-action authority.
 

@@ -54,6 +54,7 @@ audits active work:
 | `se:grilling` | Refine a topic or handoff through repository-grounded questions with concrete recommended answers. |
 | `se:study` | Grill one curated handoff, then run read-only analysis in one App controller or the current CLI session with optional Luna subagents. |
 | `se:adversarial-review` | Pressure-test a software change with an independent read-only review and evidence-backed findings. |
+| `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |
 | `se:idea` | Save a concrete proposal for later spec planning, or preview it locally. |
 | `se:spec` | Create or revise one coherent feature spec and actionable task plan, saving to GitHub or a single Markdown file. |
 | `se:deliver-features` | Deliver saved specs or selected tasks through isolated subagents, reviewed ready PRs, and verified outcomes from the current task. |
@@ -137,6 +138,13 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
   explicit Markdown saves contain the entire spec and task plan in one file.
   A local-source Markdown save or preview requires no G workflow. Existing
   artifacts retain their authority; exports are explicit snapshots.
+- SE skills retain the same delegation policy standalone and composed. Implement
+  implements, validates and commits; independent review is a separate caller-owned
+  gate, with no reviewer delegation inside Implement.
+- `se:review-pr` reuses a completed current-target review, resumes a pending
+  request, or requests and waits when needed. It returns the provider result to
+  the calling task, standalone or composed, with no subagents, repairs, CI or
+  acceptance decisions. Explicit inspect-only scope remains read-only.
 - `se:deliver-features` accepts saved GitHub/Markdown specs or explicitly selected
   tasks and derives repository-bound delivery units from those contributions. Task
   dependencies do not mandate Git stacks. The current coordinator verifies actual
@@ -144,7 +152,8 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
   feature outcomes at the exact repository HEAD vector. It preserves isolated
   subagent worktrees, repository claims, independent candidate review, explicitly
   requested `@codex review` for each ready PR HEAD, required validation/CI, and
-  two repair rounds per PR. Safe pauses preserve work and release claims after
+  two repair rounds per PR. It composes Implement for local work and Review PR
+  for hosted review monitoring. Safe pauses preserve work and release claims after
   quiescence; resume reacquires and reconciles evidence. Task progress is updated
   in the original planning destination. It supplies
   exact justified closing references to G; partial work never closes a complete

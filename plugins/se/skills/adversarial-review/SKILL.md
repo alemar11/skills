@@ -5,6 +5,9 @@ description: "Independently review a fixed software change read-only when explic
 
 # Adversarial Review
 
+Follow the shared [execution scope](../../references/execution-scope.md) for
+standalone and composed invocation.
+
 Pressure-test the selected software change as a skeptical shipment reviewer.
 Review the complete supplied change and its relevant code paths, then return
 evidence-backed findings or a clean result. This skill is read-only: it never
@@ -17,7 +20,10 @@ Use the caller's verified target, base, repository instructions, and optional
 focus areas. When a composed workflow supplies an immutable snapshot, preserve
 its exact identity and review the whole delta rather than only the latest turn
 or commit. Keep the review independent from the implementation conversation
-when the caller requires independent review.
+when the caller requires independent review. The caller arranges that execution
+context; this skill never launches another reviewer. If implementation context
+is already visible, disclose that limitation rather than claiming independence.
+This applies equally to standalone and composed review.
 
 Inspect risks supported by the change, including correctness, authorization,
 state integrity, concurrency, compatibility, and failure recovery. Do not

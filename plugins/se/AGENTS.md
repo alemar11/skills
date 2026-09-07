@@ -17,6 +17,8 @@ When ownership changes, update affected consumers and remove obsolete routes.
 | `references/workflow-graph.md` | Graph vocabulary, registry structure, terminal meanings, authority, and validation. |
 | `references/codex-dependency-preflight.md` | Availability of required G workflows before hosted access. |
 | `references/codex-runtime-surface.md` | Read-only App/CLI classification; capability checks are not surface evidence. |
+| `references/review-repair-budget.md` | Delivery/Implement per-PR repair budget across local/hosted gates, reservations and recovery. |
+| `references/execution-scope.md` | Uniform standalone/composed responsibilities and delegation policies across SE skills. |
 | `references/subagents.md` | Reusable research, development and review roles with default profiles; callers own orchestration and disposition. |
 | `references/hosted-content-safety.md` | Portable hosted content, title normalization, and bounded same-artifact repair. |
 | `scripts/validate-hosted-content-safety` | Static ownership, routing, and hosted-template checks. |
@@ -36,11 +38,16 @@ When ownership changes, update affected consumers and remove obsolete routes.
   nodes; its specification reference owns content, and templates project it.
 - Adversarial Review owns independent read-only critique and generic findings;
   composed callers own target identity, lifecycle, and disposition mapping.
-- Delivery Features owns selected-spec/task scheduling in the current task,
-  native subagents, claims, per-PR repair budgets, progress, and reviewed PR delivery. Candidate review mechanics
-  live in `references/candidate-review.md`; its state meanings live in
-  `references/states.md`. G owns hosted review transport and lifecycle.
-- Implement owns selected local implementation without an orchestrator or claims.
+- Delivery Features owns selected-spec/task scheduling, integration and acceptance,
+  native subagents, claims, budget reservations, progress, and reviewed PR delivery.
+  It composes Implement, Adversarial Review and Review PR; it does not duplicate
+  their procedures. Delivery owns candidate lifecycle, finding adjudication and
+  hosted acceptance; its state meanings remain in its own `references/states.md`.
+- Review PR requests or resumes one hosted Codex review, waits, and returns the
+  provider result to the calling task. It owns no subagents, repairs, CI or
+  acceptance. G owns provider operations, lineage and bounded waiting.
+- Implement owns bounded local implementation/repairs and candidate handoff;
+  composed callers own independent review, orchestration, claims and publication.
 - Audit owns frozen-cohort observation and evidence-calibrated conformance;
   it has no scripts, ledger, task profile, or persistent report.
 

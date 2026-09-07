@@ -62,29 +62,11 @@ receipts and reviewer self-reports never prove effective settings. An interrupte
 or ambiguous attempt is `indeterminate`, even if it returned partial findings.
 Keep tokens out of every receipt. Present absence alone never proves non-creation.
 
-## Two repair rounds per PR
+## Repair ownership
 
-Each independent unit starts at round `0` before a PR exists. Its exact PR
-inherits that count upon publication. Permit two review-driven repair or
-rebuttal rounds per PR across local and hosted review combined. Batch all known
-actionable findings for that PR into one round and reserve the next round before
-assigning repair. A round covers the repair/rebuttal and subsequent reviews;
-passing through another gate does not spend a second round. Further findings
-requiring another change or rebuttal consume the next round. Infrastructure
-retries, interrupted execution recovery, and repeated waits do not spend rounds.
-
-The coordinator serializes reservations for the same PR; independent PRs have
-independent counts. At round `2`, a clean result may publish or complete. If a
-third round is needed, block that PR and its dependents while other independent
-work continues. Never reset counts by changing HEAD, worker, reviewer, task,
-unit ID, or PR. When regrouping, carry the highest spent/reserved count from the
-contributing work and preserve its history; do not split to evade exhaustion.
-
-On resume, reconstruct counts from coordinator history and attributable repair
-and progress evidence. Old receipts cannot satisfy the new profile/target
-contract, but their attributable spent counts remain spent. If history cannot
-establish a safe count for a PR, pause that PR for reconciliation rather than
-assuming zero or blocking unrelated work.
+Read the [shared repair budget](../../../references/review-repair-budget.md)
+before reservation or resume. Delivery alone owns its unit/PR budget and passes
+the reserved batch to Implement. Review PR only returns the provider result.
 
 ## Recovery and invalidation
 

@@ -11,11 +11,12 @@ task plans, reviewed PR delivery, durable project knowledge, and read-only audit
 | `se:idea` | Save a tentative proposal to GitHub or preview it locally. |
 | `se:spec` | Create or revise a coherent spec with an ordered actionable task plan; save to GitHub or one Markdown file. |
 | `se:adversarial-review` | Independently pressure-test a fixed software change without editing it. |
+| `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |
 | `se:deliver-features` | Deliver saved specs or selected tasks through reviewed ready PRs from the current task. |
 | `se:implement` | Implement selected local work, validate it, and commit scoped files without publication. |
 | `se:audit` | Observe an attributable frozen cohort of active SE work without changing it. |
 
-Learn and Implement permit implicit selection within their descriptions. The
+Learn, Implement and Review PR permit implicit selection within their descriptions. The
 other entrypoints require explicit invocation or an authorized composed handoff.
 
 ## Feature specifications
@@ -50,7 +51,9 @@ standalone or stacked PRs according to actual Git topology. It does not turn
 planning order into artificial dependencies.
 
 The current task coordinates native subagents using shared developer and
-code-reviewer roles. Implementation lanes have isolated worktrees; the coordinator
+code-reviewer roles. It composes Implement for initial work and repairs, Adversarial
+Review for local critique, and Review PR for hosted monitoring. Implementation
+lanes have isolated worktrees; the coordinator
 alone holds repository claims. Each committed candidate passes independent local
 review before publication, then a ready PR receives an explicit `@codex review`
 request, including its first review. Both gates and required CI must pass for
@@ -67,11 +70,29 @@ closure that needs multiple unmerged contributions remains an explicit
 post-merge action. Delivery never merges, deploys, releases, or directly closes
 implementation issues without separate authorization.
 
+## Standalone PR review
+
+Review PR obtains the hosted Codex review result for a ready PR's exact HEAD:
+reuse a completed result, resume a matching pending request, or request and wait
+when review is missing. It preserves the original 30-minute deadline and returns
+pending on timeout. Explicit audit-only inspection remains read-only. Standalone
+and composed calls have the same scope and run in the calling task with no
+subagents, spec or local checkout. Clean and findings both complete monitoring;
+the caller decides any repair, rebuttal or acceptance. G owns request transport,
+lineage, bounded waits and terminal evidence.
+
 ## Shared boundaries
 
-- [Subagent roles](references/subagents.md) own reusable research and spec-review
+- [Execution scope](references/execution-scope.md) preserves the same subagent
+  policy standalone and composed. Implement and Adversarial Review execute work;
+  an orchestrator may assign them to agents but they never launch their own.
+
+- [Subagent roles](references/subagents.md) own reusable research, development and review
   definitions. Study, Spec and Delivery select them while retaining their own delegation,
   lifecycle, fallback, and final decisions.
+- [Repair budget](references/review-repair-budget.md) is shared by Delivery and
+  Implement. Delivery owns [candidate review](skills/deliver-features/references/candidate-review.md),
+  review evidence admissibility and hosted finding adjudication.
 - G owns GitHub transport, issue lifecycle, review lineage, CI, and stack
   operations. SE runs its dependency preflight before the required handoff;
   it never installs or substitutes G. Local-source Spec Markdown work has

@@ -43,7 +43,7 @@ and PR number when published. Keep unit identity, coverage, branch/base, and
 repair count in the coordinator's history and handoffs. Never reuse an identity
 for unrelated work or assign overlapping contributions twice. Repartitioning
 invalidates affected evidence and preserves the repair history under
-[candidate-review.md](candidate-review.md).
+[review-repair-budget.md](../../../references/review-repair-budget.md).
 
 Account for every selected task across units or already-incorporated evidence.
 A partial contribution does not complete a multi-repository task. Relevant

@@ -35,6 +35,7 @@ for relative in \
   skills/idea/SKILL.md \
   skills/spec/SKILL.md \
   skills/deliver-features/SKILL.md \
+  skills/review-pr/SKILL.md \
   skills/idea/references/publishing.md \
   skills/spec/steps/save.md \
   skills/spec/references/github-output.md \

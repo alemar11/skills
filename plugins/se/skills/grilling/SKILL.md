@@ -5,6 +5,9 @@ description: "Refine a topic or handoff one question at a time when explicitly r
 
 # Grilling
 
+Follow the shared [execution scope](../../references/execution-scope.md) for
+standalone and composed invocation.
+
 ## Purpose and boundary
 
 Use `$se:grilling` to turn a topic, proposal, plan, or composed handoff into a

@@ -5,6 +5,9 @@ description: "Deliver saved SE specs or selected tasks through independently rev
 
 # Deliver Features
 
+Follow the shared [execution scope](../../references/execution-scope.md) for
+standalone and composed invocation.
+
 ## Scope and authority
 
 Deliver authoritative saved GitHub or Markdown specs. Select the whole spec by
@@ -31,9 +34,10 @@ unselected work. Preserve inspected dirty work and unrelated content.
 
 Read [orchestration.md](references/orchestration.md) before scheduling, task
 operations, recovery, or hosted review; [repository-claims.md](references/repository-claims.md)
-before claiming/releasing; [candidate-review.md](references/candidate-review.md)
-before local review or repair; [completion.md](references/completion.md) before
-publication, closing-reference projection or completion; and
+before claiming/releasing; [candidate review](references/candidate-review.md)
+before local review and the [repair budget](../../references/review-repair-budget.md)
+before assigning repairs or reconstructing counts;
+[completion.md](references/completion.md) before publication, closing-reference projection or completion; and
 [progress.md](references/progress.md) before saved status updates or resume.
 
 Before every hosted handoff apply the shared
@@ -89,8 +93,8 @@ PRs are ready with current local review, explicit-request hosted acceptance and
 required CI, progress updates are verified, and exact claim release is proved.
 Ready does not mean merged; a task subset does not mean the whole spec delivered.
 
-Allow two repair rounds per PR across both review gates. Pause exhausted PRs or
-those awaiting decisions/capabilities while independent work continues. When
+Apply the shared two-round repair budget per PR across both review gates. Pause
+exhausted PRs or those awaiting decisions/capabilities while independent work continues. When
 no useful work remains, preserve work, stop all actors, save progress, and
 release safely before reporting a pause. Retain claims only when safety or
 release evidence remains uncertain. Resume through Intake, reacquire ownership,
@@ -107,7 +111,10 @@ and resume handoff, never a successful delivery claim.
 
 ## Skill Dependencies
 
-Installed `g@alemar11` owns Git/GitHub transport, publication, review, CI and
-stack operations. Bundled `se:adversarial-review` supplies the local review
-posture; the shared code-reviewer role supplies its selected profile. Delivery
+Bundled [`se:implement`](../implement/SKILL.md) owns bounded implementation and
+repairs; [`se:adversarial-review`](../adversarial-review/SKILL.md) supplies local
+critique under Delivery's candidate-review contract; [`se:review-pr`](../review-pr/SKILL.md)
+requests/monitors hosted review and returns provider evidence. Delivery retains
+review acceptance, scheduling, the shared budget, claims, progress and spec verification. Installed `g@alemar11` owns
+Git/GitHub transport, publication, review operations, CI and stacks. Delivery
 never installs, refreshes, or substitutes dependencies.
