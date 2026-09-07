@@ -26,7 +26,7 @@ a separate state.
 
 | Workflow | Applies | Reads | Does not own |
 | --- | --- | --- | --- |
-| `idea` | Idea hosted shape | Idea title, body, state, and native Issue Type | Feature Plans, implementation units, planning transitions |
+| `idea` | Idea hosted shape | Idea title, body, state, and native Issue Type | Feature specs, implementation units, planning transitions |
 
 A runtime flow must stop when the hosted shape is missing, contradictory, or
 cannot be reconciled with the target repository.

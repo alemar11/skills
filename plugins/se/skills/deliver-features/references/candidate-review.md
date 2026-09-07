@@ -2,7 +2,7 @@
 
 Load this reference before `review-candidate`. It owns reviewer independence,
 the transient receipt, immutable target, fixed profile, checkout lifecycle, and
-the Feature-wide review-revision budget. [states.md](states.md) owns every
+the spec-wide review-revision budget. [states.md](states.md) owns every
 Delivery Features disposition value. G owns the separate hosted review lifecycle.
 Compose [`se:adversarial-review`](../../adversarial-review/SKILL.md) for the
 generic skeptical review posture and finding contract. This reference owns the
@@ -10,12 +10,12 @@ Delivery Features handoff and evidence boundaries around that review.
 
 ## Candidate and checkout
 
-Enter only after the assigned worker has passed required validation, committed
-the stable Feature candidate, become quiescent, and proved its worktree clean.
-Bind the review to the exact Feature-contract content identity, repository,
-intended base branch and full base SHA, candidate branch and full HEAD,
-candidate tree identity, complete Feature delta, repository instructions, and
-validation evidence.
+Enter only after the unit worker has passed required validation, committed the
+stable candidate, become quiescent, and proved its worktree clean. Bind the
+review to the exact spec and task-contract content identity, unit identity and
+contribution mapping, repository, intended base branch and full base SHA,
+candidate branch and full HEAD, candidate tree identity, complete unit delta,
+repository instructions, and validation evidence.
 
 Candidate Review owns one unique detached temporary checkout outside the
 candidate worktree. Materialize it at the bound candidate HEAD, resolve its
@@ -37,27 +37,29 @@ block completion rather than deleting an ambiguous target.
 
 Several candidates may be reviewed concurrently only when the orchestrator
 already authorized their independent worker lanes. Each checkout and reviewer
-remains bound to one repository, Feature, base, and candidate HEAD.
+remains bound to one repository, spec, delivery unit, base, and candidate HEAD.
 
 ## Transient receipt
 
-Return one `candidate-review-receipt-v1` in task history with every field below.
+Return one `candidate-review-receipt-v2` in task history with every field below.
 It is an evidence artifact, not a persisted checkpoint.
 
 | field | requirement |
 | --- | --- |
-| `receipt_version` | Exact value `candidate-review-receipt-v1`. |
-| `feature_contract_identity` | Immutable content identity of the authoritative Feature contract reviewed. |
+| `receipt_version` | Exact value `candidate-review-receipt-v2`. |
+| `spec_contract_identity` | Immutable content identity of the authoritative spec and task contracts reviewed. |
+| `delivery_unit_id` | Stable delivery unit identity within the qualified spec. |
+| `task_contributions` | Exact task outcomes or per-repository contributions reviewed, including prerequisite evidence. |
 | `repository_key` | Canonical repository identity used by the owning claim. |
 | `base_branch` | Intended integration or immediate stack-parent branch. |
 | `base_sha` | Full reviewed base SHA. |
-| `candidate_branch` | Exact Feature candidate branch. |
+| `candidate_branch` | Exact delivery-unit candidate branch. |
 | `candidate_head` | Full reviewed candidate HEAD. |
 | `candidate_tree_identity` | Immutable identity of the complete reviewed candidate tree. |
 | `reviewer_execution_identity` | Independently observed identity of the fresh reviewer execution, or exact `not-created` only when non-creation is authoritative. |
 | `reviewer_model` | Exact value `gpt-5.6-sol`. |
 | `reviewer_reasoning` | Exact value `xhigh`. |
-| `review_revision_ordinal` | `0` for the initial candidate; `1` or `2` for a review-driven repair or rebuttal revision. |
+| `review_revision_ordinal` | Current spec-wide review-revision count: `0`, `1`, or `2`; independent new units do not reset it. |
 | `execution_attempt_ordinal` | `1`, or `2` only when an ordinal-1 receipt for the same immutable review target proves `not-executed`. |
 | `execution_disposition` | One canonical `candidate_review_execution_disposition`. |
 | `pre_review_snapshot` | Cleanliness plus exact base, HEAD, tree, and delta evidence before launch, or exact `not-created` only when checkout non-creation is authoritative. |
@@ -74,6 +76,12 @@ result. `not-executed`, `interrupted`, and `ambiguous` require local disposition
 `indeterminate`; attempt `2` additionally requires the matching attempt-1
 receipt. A valid receipt never contains a claim token.
 
+Receipts from the former shape lack unit coverage and are inadmissible for a
+new unit review. Preserve their historical repair count when reconstructing the
+spec-wide budget; never treat a format change as unused budget. If history cannot establish the
+spent/reserved revision count, block rather than assuming zero. A unit verdict
+covers only its declared contribution, not completion of the entire spec.
+
 ## Execution recovery
 
 A `completed` execution returns its admitted local disposition to `reconcile`.
@@ -89,8 +97,11 @@ regardless of the execution disposition.
 
 ## Revision convergence
 
-The initial stable candidate uses revision ordinal `0`. Permit at most two
-review-driven repair or rebuttal revisions for one selected Feature across
+The first stable candidate uses revision ordinal `0`. Later units use the
+current spec-wide ordinal; creating a unit does not reset or spend the budget.
+Reconcile concurrent review returns before reserving a revision so two repairs
+cannot independently spend the same ordinal. Permit at most two review-driven
+repair or rebuttal revisions for one selected spec across all its units and
 local and hosted review combined. Batch all findings addressed by one worker
 return into one revision. A code repair, a local rebuttal review of unchanged
 code, or a hosted-finding rebuttal review each advances the ordinal once;
@@ -103,12 +114,13 @@ review-driven revision is required after ordinal `2`, preserve the last result
 and return budget-exhaustion evidence to `reconcile -> blocked`.
 
 Reconstruct ordinals from admissible task-history receipts on resume. Never
-reset the budget by changing a finding, HEAD, worker, or reviewer.
+reset the budget by changing a finding, HEAD, unit, task, worker, or reviewer.
 
 ## Invalidation
 
-Any Feature-contract content, candidate content, ancestry, base-tip, full-HEAD,
-tree, or complete-delta change invalidates the receipt. Immediately before
+Any spec/task-contract content, unit coverage, candidate content, ancestry,
+base-tip, full-HEAD, tree, or complete-delta change invalidates the receipt.
+Immediately before
 publication, ready transition, final delivery proof, and claim release, require
 the authoritative contract, intended base branch and tip, candidate HEAD, tree,
 and effective delta to equal the receipt. A changed hosted-review repair must

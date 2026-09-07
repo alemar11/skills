@@ -12,13 +12,13 @@ preview an Idea from the current session or supplied input. A capture or save
 request defaults to the publish branch; preview is available only when
 requested explicitly. The skill first builds a transient in-memory capture
 bundle, then uses that same bundle for preview or verified hosted output. It
-preserves a tentative proposal for later Feature planning and then stops.
+preserves a tentative proposal for later spec planning and then stops.
 
 The workflow is:
 
-`Idea -> Feature -> Delivery Features`
+`Idea -> Spec -> Delivery Features`
 
-Idea capture does not write Feature Plans, acceptance criteria, implementation
+Idea capture does not write Feature specs, acceptance criteria, implementation
 plans, execution graphs, project memory, architecture decisions, or code. It does
 not create an application task, select a model profile, or delegate to another
 task. Ordinary brainstorming must never create or prepare a durable Idea
@@ -247,18 +247,18 @@ or `failed`, with its owner, name, and qualified durable or explicitly
 non-durable ref. Report blockers and safe resume work precisely. Stop after
 capture reporting.
 
-## Feature handoff
+## Spec handoff
 
-When the user explicitly asks to continue a captured proposal into Feature
+When the user explicitly asks to continue a captured proposal into Spec
 planning, render the transient [Idea Source Handoff](references/idea-source.md).
-The handoff is a typed artifact, not an automatic invocation of Feature.
+The handoff is a typed artifact, not an automatic invocation of Spec.
 
 Keep the handoff tentative: preserve the proposal summary, problem or
 opportunity, proposed direction, evidence, repository identity, and open
 questions. Do not add Feature requirements, acceptance criteria, allowed paths,
 execution units, dependency IDs, implementation plans, or readiness claims.
-Feature Intake keeps source_route as new-source, reloads repository context, and
-derives its own Feature Plan fields.
+Spec Intake keeps source_route as new-source, reloads repository context, and
+derives its own Feature spec fields.
 
 ## Independence
 

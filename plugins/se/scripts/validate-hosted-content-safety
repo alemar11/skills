@@ -33,11 +33,13 @@ done
 
 for relative in \
   skills/idea/SKILL.md \
-  skills/feature/SKILL.md \
+  skills/spec/SKILL.md \
   skills/deliver-features/SKILL.md \
   skills/idea/references/publishing.md \
-  skills/feature/steps/publish.md \
-  skills/feature/templates/maintenance-changelog.md \
+  skills/spec/steps/save.md \
+  skills/spec/references/github-output.md \
+  skills/deliver-features/references/completion.md \
+  skills/spec/templates/maintenance-changelog.md \
   skills/deliver-features/references/orchestration.md; do
   target="$plugin_root/$relative"
   rg -Fq -- "hosted-content-safety.md" "$target" || \
@@ -53,8 +55,9 @@ fi
 
 hosted_templates=(
   "$plugin_root/skills/idea/references/idea-template.md"
-  "$plugin_root/skills/feature/templates/plan.md"
-  "$plugin_root/skills/feature/templates/maintenance-changelog.md"
+  "$plugin_root/skills/spec/templates/spec.md"
+  "$plugin_root/skills/spec/templates/task.md"
+  "$plugin_root/skills/spec/templates/maintenance-changelog.md"
 )
 
 if rg -n -- '/Users/|/home/|/private/|[A-Za-z]:\\\\' "${hosted_templates[@]}"; then

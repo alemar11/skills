@@ -1,7 +1,7 @@
 interface:
   display_name: "🚀 Delivery Features"
-  short_description: "Orchestrate independently reviewed Feature PR delivery."
+  short_description: "Deliver spec tasks through independently reviewed PRs."
   brand_color: "#6D28D9"
-  default_prompt: "Use $se:deliver-features to deliver these published Feature issues through independent candidate review and standalone or stacked pull requests."
+  default_prompt: "Use $se:deliver-features to deliver these saved feature specs and their tasks through independent candidate review and standalone or stacked pull requests."
 policy:
   allow_implicit_invocation: false

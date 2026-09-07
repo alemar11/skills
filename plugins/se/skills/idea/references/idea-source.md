@@ -1,7 +1,7 @@
 # Idea Source Handoff
 
 This reference owns the transient source artifact that an explicit Idea
-capture may hand to a later Feature planning run. It is not a Feature Plan and
+capture may hand to a later spec planning run. It is not a Feature spec and
 does not authorize an automatic skill invocation.
 
 ## Canonical shape
@@ -36,6 +36,6 @@ Idea creates this shape only after its local capture bundle is normalized. In
 preview, the artifact and its ref remain non-durable. In publish, the hosted
 Idea may be verified, but the handoff remains transient.
 
-When Feature Intake receives this artifact, it keeps source_route as
+When Spec Intake receives this artifact, it keeps source_route as
 new-source, reloads repository context, preserves open questions as
-clarification evidence, and derives all Feature Plan fields independently.
+clarification evidence, and derives all Feature spec fields independently.

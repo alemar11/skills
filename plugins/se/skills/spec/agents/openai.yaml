@@ -1,0 +1,7 @@
+interface:
+  display_name: "📚 Feature Specification"
+  short_description: "Create feature specs with actionable task plans."
+  brand_color: "#BE185D"
+  default_prompt: "Use $se:spec to create a feature spec with an ordered task plan, saving it to GitHub or one Markdown file."
+policy:
+  allow_implicit_invocation: false

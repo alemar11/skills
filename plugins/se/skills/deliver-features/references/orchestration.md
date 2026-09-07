@@ -9,7 +9,7 @@ the condition for every declared edge.
 
 | from | to | when |
 | --- | --- | --- |
-| intake | claim-repositories | Every exact selected parent Feature, its body-backed dependencies, repository identities, and visible home are resolved without a material user choice. |
+| intake | claim-repositories | Every exact selected saved spec, its authoritative task contracts and dependencies, repository identities, and visible home are resolved without a material user choice. |
 | intake | deferred | A material semantic choice remains that the caller can resolve. |
 | intake | blocked | The selection is invalid, cyclic, unreadable, or cannot be mapped to authoritative repositories. |
 | claim-repositories | claim-repositories | One orchestrator-creation attempt is authoritatively proved not applied; retry task creation once under the same provisional claim. |
@@ -18,13 +18,13 @@ the condition for every declared edge.
 | reconcile | schedule | At least one selected Feature remains unfinished and current authoritative evidence supports another scheduling decision. |
 | reconcile | release-claims | Final delivery evidence is admissible, or handoff/abandonment is explicitly authorized; every worker and reviewer is stopped, no mutation remains outstanding, and the bound orchestrator is ready to make exact whole-group release its final external effect. |
 | reconcile | deferred | Safe continuation requires a material semantic decision or additional user authority. |
-| reconcile | blocked | Required capability, identity, ownership, receipt, cleanup, review, or effect evidence remains unavailable or ambiguous, or the Feature-wide review-revision budget is exhausted. |
-| schedule | deliver-feature | One or more dependency-ready Features are not already assigned to an independently observed active lane and have verified bases, topology, trustworthy worker targets, and reconciled candidate-review evidence indicating implementation, repair, review preparation, or publication work. |
+| reconcile | blocked | Required capability, identity, ownership, receipt, cleanup, review, or effect evidence remains unavailable or ambiguous, or another review-driven repair or rebuttal is required after ordinal `2`. |
+| schedule | deliver-unit | One or more dependency-ready delivery units are not already assigned to an independently observed active lane and have verified bases, topology, trustworthy worker targets, and reconciled candidate-review evidence indicating implementation, repair, review preparation, or publication work. |
 | schedule | reconcile | No new assignment should start because only active lanes remain or until a bounded authoritative refresh observes a material Git, pull-request, review, CI, task, or Feature change. |
 | schedule | deferred | The only responsible continuation requires a material user decision or authority. |
 | schedule | blocked | Unfinished work has no responsible ready, refresh, or user-decision path. |
-| deliver-feature | review-candidate | A worker returns a stable locally committed Feature candidate at an exact base and full HEAD with all required validation passing and no clean current candidate review. |
-| deliver-feature | reconcile | A worker returns exact published completion, partial progress that is not ready for candidate review, correction, or blocker evidence; concurrent returns reconcile independently. |
+| deliver-unit | review-candidate | A worker returns a stable locally committed unit candidate at an exact base and full HEAD with all required validation passing and no clean current candidate review. |
+| deliver-unit | reconcile | A worker returns exact published completion, partial progress that is not ready for candidate review, correction, or blocker evidence; concurrent returns reconcile independently. |
 | review-candidate | reconcile | Candidate Review returns one admissible receipt or exact execution, cleanup, identity, or budget failure evidence. `reconcile` alone chooses the next edge. |
 | release-claims | complete | Exact whole-group release and subsequent unclaimed readback are verified while admissible final delivery or authorized handoff/abandonment evidence is retained. |
 | release-claims | blocked | Release cannot be proved exact and safe. |
@@ -36,9 +36,9 @@ history or a claim row never acts as a persisted current-node pointer.
 
 ## Orchestrator placement
 
-The orchestrator is the visible owner of one caller-selected Feature graph or
-set. Use the single involved saved project as its home. For a graph spanning
-several projects, prefer the current associated project when it visibly groups
+The orchestrator is the visible owner of one caller-selected spec or
+explicit batch. Use the single involved saved project as its home. For a graph
+spanning several projects, prefer the current associated project when it visibly groups
 the whole run; otherwise use the caller-selected coordination project. Ask
 only when several plausible homes remain. The workers still run in their
 repository projects and isolated worktrees. A projectless orchestrator is only
@@ -61,10 +61,10 @@ can make the intended visible home ambiguous.
 
 Set display titles when tasks are created:
 
-- orchestrator: `🤖 Orchestrator · <Feature or graph name>`;
-- worker: `🛠 <repository> · <current Feature>`.
+- orchestrator: `🤖 Orchestrator · <spec or batch name>`;
+- worker: `🛠 <repository> · <current delivery unit>`.
 
-Best-effort rename a reused worker for its current Feature. Titles and project
+Best-effort rename a reused worker for its current unit. Titles and project
 grouping are diagnostics, never identity, correctness evidence, or a reason to
 retry or replace a task.
 
@@ -88,65 +88,30 @@ project metadata, or a branch name alone.
 Before any fresh worker mutation, independently observe its actual stable
 repository identity, remote, isolated worktree, current branch, and full
 starting SHA. Require an exact match with its handoff. A fresh worker then
-establishes the intended Feature head branch from that verified integration
+establishes the intended unit head branch from that verified integration
 base or prerequisite HEAD and reads back the branch and initial HEAD before
 content writes. Missing or mismatched evidence stops that lane.
 
-Before reassigning a clean worker, first verify the prior Feature's expected
+Before reassigning a clean worker, first verify the prior unit's expected
 head branch and current HEAD and prove its worktree clean and unambiguous. Then
-switch through G-owned branch transport to the next Feature's independently
+switch through G-owned branch transport to the next unit's independently
 verified integration base or prerequisite HEAD, read back that starting branch
-and SHA, create the new Feature head, and read back its initial HEAD before
-content writes. A same-Feature resume instead remains on its expected head
+and SHA, create the new unit head, and read back its initial HEAD before
+content writes. A same-unit resume instead remains on its expected head
 branch, verifies current HEAD, and preserves inspected dirty work. Saved-project
 placement, task title, and prior dialogue never substitute for these facts.
 
-## Scheduling
+## Task scheduling
 
-Derive the ready frontier from the body-backed Feature Plan Set registry and
-declared dependency graph plus live delivery evidence. Native GitHub
-`blockedBy` or reciprocal `blocking` observations are diagnostic only: they
-never add, remove, repair, reverse, or gate a body-declared edge. Inspect every
-declared prerequisite whether it is selected or not; selection never expands
-implicitly. An unselected prerequisite is satisfied only when current
-authoritative evidence proves its implementation is already incorporated into
-the intended base or its current candidate meets the same dependency and
-topology rules. Otherwise block the dependent and report the missing
-prerequisite without starting extra work. The orchestrator decides concurrency;
-the graph never forces parallel work.
+Read [task-delivery.md](task-delivery.md) before decomposing the selected specs
+into delivery units, computing readiness, or assigning a worker. It owns task
+coverage, unit identities, prerequisite evidence, and integration strategy.
 
-Exclude every Feature already assigned to an independently observed active
-worker lane from the ready frontier. If only active lanes remain, take the
-change-driven `schedule -> reconcile` path after a bounded wait or authoritative
-refresh. Never create or recall a second lane for the same active Feature.
-
-A cross-repository dependent becomes ready when every declared prerequisite
-has a verified published pull request at its current exact HEAD plus the
-contract and validation evidence needed to implement the dependent safely, or
-is already incorporated into the intended base. Apply this rule to selected
-and unselected prerequisites alike. Merge is unnecessary unless the Feature
-contract itself requires merged or deployed behavior. A cross-repository edge
-never changes either pull request's base.
-
-A current prerequisite candidate does not unblock its dependent while an
-applicable check on that exact HEAD is confirmed failing. Pending checks are
-non-blocking. Bypass a confirmed failure only when G-owned diagnosis verifies
-it as exclusively infrastructure or flaky and unrelated to candidate
-correctness.
-
-Prefer one active lane per repository. Add a lane only when ready Features are
-genuinely independent, the repository can support concurrent isolated changes,
-and the latency benefit exceeds the integration cost. Serialize when work
-overlaps, a dependency supplies code or API needed by its child, or one lane is
-enough to preserve momentum.
-
-Reassign a worker to a different Feature only when its prior work is committed,
-its worktree is clean and unambiguous, and the next base is known. Resume the
-same Feature in the same task and worktree after inspecting and preserving its
-uncommitted work. A worker reassigned to another Feature switches to a new
-verified starting point and branch under the protocol above, then returns new
-exact evidence. Never treat the old Feature title or dialogue as current
-implementation state.
+A worker handoff includes the current spec and assigned task details, unit
+identity, exact repository and base, required contribution and validation,
+review budget, and G obligations. Reassign a clean worker only after its prior
+unit's branch and HEAD are verified. Same-unit resume preserves inspected dirty
+work; changing units uses the independently verified starting-point protocol.
 
 ## Candidate review
 
@@ -159,34 +124,17 @@ publication; findings return it for repair or rebuttal; execution, cleanup,
 identity, and budget failures follow that reference's closed recovery rules.
 Candidate Review never satisfies the later hosted gate.
 
-## Pull-request graph
+## Pull-request topology
 
-Use one branch and one pull request per Feature delta.
-
-- A same-repository dependency creates a stack while its prerequisite remains a
-  current candidate. Branch the child from the verified parent branch or HEAD
-  after the current-head check rule above, and target the child's pull request
-  at the immediate parent branch. When every required same-repository
-  prerequisite exact HEAD is already incorporated into the verified integration
-  base, make the dependent a new stack root from and against that integration
-  base; never target a merged or deleted parent branch.
-- A cross-repository dependency affects readiness only. Each repository keeps
-  a standalone pull request against its own integration base.
-- Independent same-repository Features remain sibling branches. If
-  implementation discovers a semantic ancestry dependency absent from the
-  body-backed Feature graph, stop the affected work for Feature graph or user
-  reconciliation instead of inventing a stack edge.
-
-For same-repository fan-in, choose one immediate parent only when that
-candidate already contains every required prerequisite HEAD. Otherwise stop
-the dependent for Feature graph reconciliation; never omit a prerequisite or
-invent a multi-base pull request.
-
-If a stack parent changes, identify every descendant whose ancestry or
-validation depends on it, restack those branches in order, and revalidate the
-affected exact HEADs. Do not infer readiness from an older parent SHA.
+Apply [task-delivery.md](task-delivery.md) before choosing or changing a unit's
+base and PR boundary. Return the actual topology and exact task contribution
+mapping with every unit result. Semantic task dependencies do not determine
+standalone versus stacked publication.
 
 ## Hosted review convergence
+
+Apply [completion.md](completion.md) to derive and verify the unit contribution
+and exact closing references before every G Send handoff.
 
 Treat the draft returned by a fresh G Send publication as intermediate
 evidence. When the candidate's full HEAD, body, base, and stack topology are
@@ -251,9 +199,9 @@ registry or add a delivery-state machine.
 
 ## Completion and claim release
 
-When every selected Feature has admissible final delivery evidence or is
-proved already incorporated, stop and observe every worker and reviewer. No
-task except the bound orchestrator may remain able to mutate a repository or
+After [completion.md](completion.md) verifies every selected spec, its tasks,
+assembled outcome evidence, PRs, and linkage dispositions, stop and observe
+every worker and reviewer. No task except the bound orchestrator may remain able to mutate a repository or
 hosted target, and no request, push, reply, resolution, or wait may be
 outstanding. The orchestrator then makes exact whole-group claim release its
 last external effect, inspects every selected repository as unclaimed, and
@@ -279,7 +227,7 @@ the worker's own check.
 
 Reconstruct current truth in this order:
 
-1. authoritative Feature issue content and dependency relations;
+1. authoritative saved specs, linked task bodies, and prerequisite declarations;
 2. current repository branches, commits, and worktrees;
 3. current pull-request, hosted-review, and CI state;
 4. visible Codex task history, candidate-review evidence, and worker handoffs;

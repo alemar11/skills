@@ -17,6 +17,7 @@ When ownership changes, update affected consumers and remove obsolete routes.
 | `references/workflow-graph.md` | Graph vocabulary, registry structure, terminal meanings, authority, and validation. |
 | `references/codex-dependency-preflight.md` | Availability of required G workflows before hosted access. |
 | `references/codex-runtime-surface.md` | Read-only App/CLI classification; capability checks are not surface evidence. |
+| `references/subagents.md` | Reusable subordinate research/review roles and default profiles; callers own orchestration and disposition. |
 | `references/hosted-content-safety.md` | Portable hosted content, title normalization, and bounded same-artifact repair. |
 | `scripts/validate-hosted-content-safety` | Static ownership, routing, and hosted-template checks. |
 
@@ -29,9 +30,10 @@ When ownership changes, update affected consumers and remove obsolete routes.
   and synthesis. App/CLI details and worker operations live in its references.
 - Idea owns tentative proposal capture, preview/publication, and the typed Idea
   source handoff. It does not define Feature requirements or durable memory.
-- Feature owns Plan Set semantics, stable Feature/F-AC/Macro identities,
-  dependencies, decision provenance, review, and hosted projections. Its
-  `steps/` own node contracts; `templates/` are not workflow nodes.
+- Spec owns coherent specs, stable spec/F-AC/task identities, actionable
+  task contracts, recommended order, real prerequisites, accepted decisions,
+  review, and GitHub/single-file Markdown projections. Its `steps/` own workflow
+  nodes; its specification reference owns content, and templates project it.
 - Adversarial Review owns independent read-only critique and generic findings;
   composed callers own target identity, lifecycle, and disposition mapping.
 - Delivery Features owns selected-Feature scheduling, claims, workers, review
@@ -47,17 +49,20 @@ When ownership changes, update affected consumers and remove obsolete routes.
 Preserve these boundaries when changing their runtime owners; do not copy their
 full protocols into this file:
 
-- Feature plans express observable outcomes, falsifiable F-ACs, closed Macro
-  registries, verification intent, and provenance. No implementation units,
-  commands, worker scheduling, or executor-owned progress changes belong there.
-- Same-repository Feature dependencies imply stack intent; cross-repository
-  dependencies imply scheduling only. Macro dependencies stay within a parent.
-  Native GitHub edges are diagnostic projections; bodies remain semantic
-  authority. Preserve attempted-edge/result coverage and foreign provider edges.
-- Material Feature questions compose Grilling in the planner. Safe assumptions
+- Feature specs preserve observable outcomes, accepted technical decisions,
+  honest acceptance baselines, task completion checks, and full coverage. Task
+  order is independent of identity and hard prerequisites. Planning never
+  overwrites executor progress or prescribes workers and PR topology.
+- One outcome may span repositories. Delivery maps task contributions into
+  repository-bound units, verifies actual prerequisite availability and assembled
+  outcomes, and owns PR grouping, stack/integration choices, and closing refs.
+- GitHub and Markdown preserve one spec/task contract and one authoritative
+  destination. Exports are explicit snapshots. Native edges are projections;
+  preserve body-backed meaning, per-edge results, and foreign provider edges.
+- Material spec questions compose Grilling in the planner. Safe assumptions
   and explicitly delegated decisions do not require extra interviews. Every
   complete draft passes Review, with progress-bounded correction.
-- Keep Feature planner setup independent of Delivery Features claims and task
+- Keep Spec planner setup independent of Delivery Features claims and task
   verification. Preserve its accepted stable-receipt start and first-turn Intake;
   title metadata does not gate work. Model profiles remain in runtime owners
   and the repository model index, not duplicated here.

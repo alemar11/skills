@@ -10,12 +10,12 @@ at `reconcile` from externally owned evidence.
 
 | Node | Kind | Meaning |
 | --- | --- | --- |
-| `intake` | action | Resolve the exact selected Feature set, its body-backed dependencies, repositories, and visible home. |
+| `intake` | action | Resolve the exact selected specs, their task contracts and prerequisites, repositories, and visible home. |
 | `claim-repositories` | action | Atomically acquire or reuse repository ownership and bind one correlated visible orchestrator. |
 | `reconcile` | validation | Reconstruct current truth from Feature, Git, candidate-review, pull-request, hosted-review/CI, and task owners before another effect. |
 | `schedule` | decision | Compute the ready frontier and choose serial or bounded concurrent work. |
-| `deliver-feature` | action | Run one verified worker lane through implementation, validation, and a stable local commit; after clean candidate review, resume the same lane for standalone or stacked pull-request publication, ready transition, and exact-HEAD hosted review and CI convergence. Several ready lanes may occupy this node concurrently. |
-| `review-candidate` | validation | Run a fresh independent read-only adversarial review of one complete locally committed Feature delta with the required fixed profile. Several independently scheduled candidates may occupy this node concurrently. |
+| `deliver-unit` | action | Run one verified worker lane through implementation, validation, and a stable local commit; after clean candidate review, resume the same lane for standalone or stacked pull-request publication, ready transition, and exact-HEAD hosted review and CI convergence. Several ready lanes may occupy this node concurrently. |
+| `review-candidate` | validation | Run a fresh independent read-only adversarial review of one complete locally committed delivery-unit delta with the required fixed profile. Several independently scheduled candidates may occupy this node concurrently. |
 | `release-claims` | action | After successful delivery or authorized handoff/abandonment, prove all other actors quiescent, make exact whole-group release the orchestrator's final external effect, and read back every repository as unclaimed. |
 | `complete` | terminal | Exact whole-group release is verified and retained evidence proves either successful delivery of every selected Feature or completion of the requested handoff/abandonment. |
 | `deferred` | terminal | A material semantic decision or additional user authority is required. |
@@ -24,23 +24,29 @@ at `reconcile` from externally owned evidence.
 Workflow position is transient. None of these node IDs is stored in the
 repository registry, task metadata, branch names, or pull requests.
 
-## Transient selected-Feature disposition
+## Transient selected-spec disposition
 
 | Disposition | Meaning |
 | --- | --- |
-| `delivery-required` | The selected Feature still requires its own implementation delta and a current ready exact-HEAD pull request whose actual base, body, and standalone or stack topology match the reviewed intent, with an admissible candidate-review receipt, accepted hosted review, required validation, and CI. |
-| `already-incorporated` | Current exact evidence proves the selected Feature's complete acceptance outcome is already present in its integration base. |
+| `delivery-required` | At least one task contribution or feature-level outcome still needs implementation or current delivery evidence across the selected spec's units. |
+| `already-incorporated` | Current exact evidence proves every task completion check and Feature criterion in the intended repository integration bases. |
 
-An unmet dependency remains `delivery-required`; it never makes a selected
-Feature disappear from completion. If a selected Feature has no exclusive
-delta but is not proved already incorporated, defer for user direction rather
-than creating an empty pull request or excluding it as ineligible.
+An unmet prerequisite never removes a task or spec from completion. Account
+for all task contributions, units, and assembled feature-level verification.
+If an outcome has no new delta but lacks incorporation evidence, defer rather
+than creating an empty PR or excluding it. A unit may be already incorporated
+while the rest of its spec still requires delivery.
+
+Unit IDs and task contribution mappings are transient task-history evidence
+owned by [task-delivery.md](task-delivery.md). They are not persisted planning
+fields or registry state. Issue open/closed status is provider-owned and never
+substitutes for completion checks or full feature criteria.
 
 ## Transient candidate-review dispositions
 
 | `candidate_review_disposition` | Meaning |
 | --- | --- |
-| `clean` | The independent reviewer found no material issue blocking publication of the exact reviewed Feature contract, base, and candidate HEAD. |
+| `clean` | The independent reviewer found no material issue blocking publication of the exact reviewed spec/task contract, unit contribution, base, and candidate HEAD. |
 | `findings` | One or more material findings require repair or an evidence-backed rebuttal accepted by a fresh review. |
 | `indeterminate` | Exact target, reviewer execution, or evidence was insufficient for a trustworthy verdict. |
 
@@ -68,9 +74,11 @@ change invalidates them.
 | `unknown` | Cleanup or current path identity cannot be established safely; preserve the target and block. |
 
 Candidate-review receipts use `review_revision_ordinal` `0`, `1`, or `2`.
-Ordinal `0` is the initial candidate; `1` and `2` are the only permitted local
-or hosted review-driven repair or rebuttal revisions. A proved non-execution
-retry keeps the same ordinal.
+These count review-driven repair/rebuttal revisions across all units of one
+spec, not task order or spec revision. A new unit uses the current ordinal;
+only a repair/rebuttal spends one. A proved non-execution retry keeps its
+ordinal. Unaffected earlier receipts remain admissible when their target
+identities remain current, even after another unit advances the spec budget.
 
 ## Transient hosted-review acceptance
 
@@ -122,10 +130,11 @@ workflow state and do not authorize creation, binding, release, or repair.
 
 ## External observations
 
-Task activity, worktree cleanliness, Feature dependencies, branches, commits,
+Task activity, worktree cleanliness, spec/task prerequisites, branches, commits,
 candidate-review receipts, pull requests, hosted-review results, CI, and merge
 state are observed from their current owners. Candidate review is valid only
-for its immutable contract, repository, base, candidate, tree, delta, profile,
+for its immutable spec/task contract, unit identity and coverage, repository,
+base, candidate, tree, delta, profile,
 execution, and cleanup evidence. Final delivery also requires current actual PR
 HEAD, ready state, base branch, body identity, and standalone or stack topology.
 A draft PR, generic `not-requested`, absence of comments or threads, pending

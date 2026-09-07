@@ -1,7 +1,7 @@
 {
   "name": "se",
-  "version": "5.1.12",
-  "description": "Refine and study ideas, turn them into clear Feature plans, deliver reviewed pull requests, maintain project knowledge, and audit active work.",
+  "version": "6.0.0",
+  "description": "Refine ideas, create feature specs with actionable tasks, save to GitHub or Markdown, and deliver reviewed changes.",
   "author": {
     "name": "alemar11",
     "url": "https://github.com/alemar11"
@@ -9,8 +9,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "SE",
-    "shortDescription": "Refine ideas, run studies, plan Features, and deliver changes.",
-    "longDescription": "SE supports a graph-first software-delivery workflow. Learn maintains durable project knowledge, Grilling sharpens a topic or handoff through one-question-at-a-time interviews, and Study composes both before orchestrating a read-only investigation in one visible App controller or the current CLI session with optional native subagents. Idea captures proposals, while Feature admits reachable planning inputs and uses one explicitly profiled planner plus a small transient graph to publish evidence-backed Feature Plan Sets; unclear planning composes Grilling, and plans retain falsifiable acceptance criteria, Macro verification paths, provenance, and validation seams. Adversarial Review independently pressure-tests software changes without editing them. Implement validates selected local work and commits it without orchestration or publication. Delivery Features uses one visible graph orchestrator, coordinates reusable repository workers, composes Adversarial Review for candidate checks, and requires exact-head hosted Codex review before producing standalone or same-repository stacked pull requests. Successful delivery releases its tiny host-local repository claim before completion. Audit observes active SE work without making changes. Delivery Features leaves merge, deploy, release, and post-merge closure to the user.",
+    "shortDescription": "Specify features, plan tasks, and deliver reviewed changes.",
+    "longDescription": "SE supports repository-grounded refinement, read-only study, feature specifications, and reviewed delivery. Spec creates one coherent spec with an ordered actionable task plan, preserves accepted technical decisions, and saves to GitHub as a parent plus task issues or to one Markdown file. Delivery Features maps saved task contracts into independently reviewed PRs, verifies the combined feature outcome, and supplies precise issue-closing references. Learn maintains durable project knowledge; Idea captures tentative proposals; Implement handles selected local work; Audit observes active SE workflows. Delivery keeps claims, exact candidate and hosted review gates, and verified release before completion; merge, deploy, and release remain separately authorized.",
     "developerName": "alemar11",
     "category": "Developer Tools",
     "capabilities": [
@@ -23,7 +23,7 @@
     "termsOfServiceURL": "https://github.com/alemar11/dotagents",
     "defaultPrompt": [
       "Use $se:grilling to sharpen a topic, $se:study to investigate it, or $se:learn to preserve knowledge.",
-      "Use $se:feature to turn related requests into Feature issues and Macro Tasks without writing code.",
+      "Use $se:spec to create a feature spec and actionable tasks, saving to GitHub or one Markdown file.",
       "Use $se:adversarial-review for pressure-testing, $se:deliver-features for PRs, or $se:implement for local work."
     ],
     "brandColor": "#BE185D"

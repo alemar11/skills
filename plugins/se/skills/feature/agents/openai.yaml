@@ -1,7 +1,0 @@
-interface:
-  display_name: "📚 Feature Planning"
-  short_description: "Plan clear Features and coherent Macro Tasks."
-  brand_color: "#BE185D"
-  default_prompt: "Use $se:feature to turn related requests into an evidence-backed Feature Plan Set, ask only material product questions, review the complete semantic graph, and publish it by default without writing code."
-policy:
-  allow_implicit_invocation: false

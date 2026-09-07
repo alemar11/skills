@@ -9,7 +9,7 @@ description: "Monitor a frozen cohort of active SE tasks read-only when explicit
 
 Use this skill only after an explicit `$se:audit` invocation. Observe the
 initial cohort of active application sessions that can be attributed directly
-to Learn, Idea, Feature, Delivery Features, or another non-monitoring skill owned by the
+to Learn, Idea, Spec, Delivery Features, or another non-monitoring skill owned by the
 current SE plugin. Monitor that frozen cohort until every selected session
 becomes terminal or the user stops the audit.
 
@@ -207,14 +207,17 @@ Confirm `graph-violation` only when evidence proves at least one of:
 Missing narration or hidden reasoning is never automatically a violation. For
 the Delivery Features graph, combine orchestrator and worker evidence only
 through independently established session identities and SE handoffs. Several
-Delivery Features workers may occupy `deliver-feature` concurrently after one
-`schedule` decision, and their independently reviewed candidates may occupy
+Delivery Features workers may occupy `deliver-unit` concurrently after one
+`schedule` decision, and their independently reviewed unit candidates may occupy
 `review-candidate` concurrently before returning to `reconcile`.
 
 For a Delivery Features `complete` claim, require observed
 `reconcile -> release-claims -> complete`, exact whole-group unclaimed readback,
 and retained final delivery or authorized handoff/abandonment evidence. For
-delivery, verify that actual PR base and topology match reviewed intent and
+delivery, verify complete spec/task coverage and assembled outcome evidence,
+exact PR contribution and closing references, and that actual base and topology
+match reviewed intent. Read Delivery
+[completion.md](../deliver-features/references/completion.md) for that gate and
 distinguish `provider-clean` from explicitly reported `adjudicated-clean` hosted
 acceptance. A blocked or deferred Delivery Features run may correctly retain its claim.
 

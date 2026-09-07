@@ -54,9 +54,9 @@ audits active work:
 | `se:grilling` | Refine a topic or handoff through repository-grounded questions with concrete recommended answers. |
 | `se:study` | Grill one curated handoff, then run read-only analysis in one App controller or the current CLI session with optional Luna subagents. |
 | `se:adversarial-review` | Pressure-test a software change with an independent read-only review and evidence-backed findings. |
-| `se:idea` | Save a concrete proposal for later Feature planning, or preview it locally. |
-| `se:feature` | Turn admitted requests and references into clear Features and Macro Tasks, clarify through Grilling when needed, and delegate minimal optional issue labels and type without writing code. |
-| `se:deliver-features` | Deliver planned Features through bounded local and hosted review, reusable workers, standalone or stacked pull requests, and release-before-complete repository ownership. |
+| `se:idea` | Save a concrete proposal for later spec planning, or preview it locally. |
+| `se:spec` | Create or revise one coherent feature spec and actionable task plan, saving to GitHub or a single Markdown file. |
+| `se:deliver-features` | Deliver saved specs and their task contributions through reviewed PRs, assembled outcome verification, and release-before-complete repository ownership. |
 | `se:implement` | Implement selected local work from a spec, ticket, issue, or direct request, validate it, and commit only the required files without orchestration or publication. |
 | `se:audit` | Observe active SE work and report workflow problems or improvement opportunities without making changes. |
 
@@ -132,23 +132,20 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
 - `se:grilling` is read-only and explicit or parent-composed. It depends on
   `$se:learn` for context inspection, returns a transient refined handoff, and
   never creates tasks or captures durable knowledge automatically.
-- `se:deliver-features` accepts only caller-supplied published parent Feature issues
-  and treats each parent as the semantic contract. It places one
-  visible graph orchestrator in the single involved project or a selected
-  coordination project. The orchestrator follows a small transient execution
-  graph, reuses repository-bound worker worktrees for serial Features, and adds
-  lanes only when it chooses concurrent work. Same-repository dependencies use
-  stacked branches and pull requests;
-  cross-repository dependencies affect scheduling only. Its host-local SQLite
-  registry atomically protects an immutable repository set and stores only
-  repository ownership, while Features, workers, Git, pull requests, review,
-  and CI remain externally owned. Each stable exact-head pull request must be
-  preceded by an admissible independent local Sol/xhigh adversarial review,
-  then be ready rather than draft with current base/body/topology evidence,
-  accepted exact-head hosted review, required validation, and CI. Review-driven
-  revisions are bounded across both gates. Successful delivery releases the
-  complete repository claim before completion. Delivery Features never merges,
-  deploys, or releases.
+- `se:spec` saves one coherent spec with stable task identities, recommended
+  order, real prerequisites, and completion checks. GitHub is the default;
+  explicit Markdown saves contain the entire spec and task plan in one file.
+  A local-source Markdown save or preview requires no G workflow. Existing
+  artifacts retain their authority; exports are explicit snapshots.
+- `se:deliver-features` accepts explicitly selected saved specs from GitHub or
+  Markdown and derives repository-bound delivery units from their tasks. Task
+  dependencies do not mandate Git stacks. The orchestrator verifies actual
+  prerequisites, useful PR boundaries, complete task coverage, and assembled
+  feature outcomes at the exact repository HEAD vector. It preserves isolated
+  workers, immutable repository claims, independent candidate review, exact-head
+  hosted review, required validation/CI, and verified claim release. It supplies
+  exact justified closing references to G; partial work never closes a complete
+  spec. Merge, deploy, and direct issue closure remain separately authorized.
 - `se:audit` runs only after explicit invocation and observes a frozen cohort of
   active SE sessions until terminal state or user stop. Complete coverage
   requires exhausting every authoritative continuation and host/project
@@ -156,7 +153,6 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
   keeps all evidence transient, treats missing visibility as indeterminate
   rather than a violation, and never contacts tasks or mutates repositories and
   GitHub.
-- Multi-repository runs additionally validate the complete linked Feature Plan Set and finish with one independently verified GitHub PR per implementation-eligible Feature plus one exact HEAD vector.
 
 ## Project-Local Skills
 

@@ -104,7 +104,7 @@ were reserved.
 
 | Slot | Parent controller | Assignment | Slot state | Stable subagent identity | Parent lineage and creation evidence or error | Working-directory context | Requested profile | Profile evidence | Execution state | State reason | Terminal evidence | Key result |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Worker N |  |  |  |  |  |  | `gpt-5.6-luna / max` |  |  |  |  |  |
+| Worker N |  |  |  |  |  |  | `<requested model / reasoning from the selected role or explicit override>` |  |  |  |  |  |
 
 List `not-started`, `creation-failed`, `structural-verification-failed`,
 `settings-drift`, and `unresolved-setup` slots even when no stable worker

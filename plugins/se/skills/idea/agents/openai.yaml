@@ -1,7 +1,7 @@
 interface:
   display_name: "💡 Idea Capture"
-  short_description: "Save a concrete proposal for future Feature planning."
+  short_description: "Save a concrete proposal for future spec planning."
   brand_color: "#D97706"
-  default_prompt: "Use $se:idea when the user explicitly asks to save or preview a proposal. Preserve its open questions and prepare it for later Feature planning without treating ordinary brainstorming as a saved Idea."
+  default_prompt: "Use $se:idea when the user explicitly asks to save or preview a proposal. Preserve its open questions and prepare it for later spec planning without treating ordinary brainstorming as a saved Idea."
 policy:
   allow_implicit_invocation: false

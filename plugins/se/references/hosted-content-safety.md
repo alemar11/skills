@@ -5,7 +5,7 @@ single-line title normalization, and mandatory local-path correction
 immediately before every hosted write, plus bounded post-write repair. It
 applies to issue titles and bodies, comments, pull-request titles and bodies,
 review requests, review text, and Feature maintenance changelogs produced by
-Idea, Feature, or Delivery Features.
+Idea, Spec, or Delivery Features.
 
 The invoking SE skill owns semantic content and must deliver a safe final
 projection. G owns transport, provider mutation, receipts, and readback. G does

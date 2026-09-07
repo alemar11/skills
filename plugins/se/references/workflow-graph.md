@@ -1,55 +1,37 @@
 # SE Workflow Graph Contract
 
 This reference owns the shared structural vocabulary for graph-first SE
-workflows. It applies to Learn, Grilling, Idea, Feature, Delivery Features, and Audit
+workflows. It applies to Learn, Grilling, Idea, Spec, Delivery Features, and Audit
 without turning every skill into the same implementation graph.
 
 The existing workflow-contract.md remains the canonical owner of the Idea
 hosted shape. This reference owns workflow structure only.
-Feature owns Feature Plan Set semantics, Feature identities, Feature-level
-planning dependencies, and the durable local Macro Task projections. Delivery Features
-owns scheduling interpretation and a small transient delivery graph whose
-position is reconstructed from live evidence.
-Learn, Grilling, Idea, and Audit own their skill-specific registries and branch
-details.
+Spec owns the [specification and task contract](../skills/spec/references/specification.md).
+Delivery Features owns transient task-to-unit mapping, scheduling, integration,
+and PR topology. Learn, Grilling, Idea, and Audit own their local graphs.
 
-Every SE skill routes to `references/states.md`. The skill registry remains the
+Every graph-owning skill routes to `references/states.md`. Its registry is the
 structural source of truth for nodes and edges; the state reference explains
-every node in plain language and separates workflow position from
-field-qualified domain, persisted, result, and external states. Same-named
-values from different fields remain distinct.
+workflow position separately from caller choices, durable content, execution
+facts, and external results.
 
 ## Graph model
 
-A workflow graph describes control state and authority boundaries for one skill
-run. It is distinct from the durable Feature Plan Set graph and the Delivery Features
-execution graph:
+A workflow graph describes phases and authority boundaries for one skill run.
+It is distinct from a saved feature's ordered tasks and from Delivery's units:
 
-- a workflow node describes what phase the skill is in;
-- a Feature node describes one genuinely distinct sibling outcome in a Plan
-  Set;
-- a Macro Task node describes one coherent macro planning view of an owning
-  Feature outcome; when the outcome admits clean slices, the view should be
-  vertical rather than a technical-layer split;
-- an execution-unit node describes an independently valuable technical
-  implementation outcome;
-- a workflow graph may contain decisions, validations, actions, and terminal
-  outcomes;
-- Feature-level relations describe planning structure between Feature IDs and
-  may include `blocked_by` context. Delivery Features deterministically projects a
-  same-repository edge as mandatory stack intent and a cross-repository edge as
-  scheduling-only context;
-- Macro Task relations describe planning structure only within one
-  `parent_feature_id` and may include local `blocked_by` context;
-- Implementation scheduling edges may contain only real prerequisites;
-  Feature planning does not publish technical execution edges. Feature-level
-  same-repository `blocked_by` still controls delivery topology rather than the
-  technical unit graph, while cross-repository dependency never becomes a
-  stack.
+- a spec describes one coherent feature outcome across its affected repositories;
+- a task is an actionable contribution with completion checks and validation;
+- recommended order guides work, while task dependencies describe real
+  prerequisite outcomes and evidence;
+- a delivery unit is an execution-owned, repository-bound reviewed delta that
+  can cover one or several task contributions;
+- task dependencies never prescribe branches, PRs, stacks, or worker scheduling;
+- a workflow node describes an action, decision, validation, or terminal result.
 
-Feature IDs, Macro Task IDs, parent/child identities, and both dependency
-scopes are owned by the Feature Plan Set contract, not by the workflow-node
-registry below.
+Spec/task identities, criteria, order, and dependencies are owned by Spec's
+content contract. Unit identity and PR mapping belong to Delivery and are never
+persisted as planning fields or repository-claim columns.
 
 Each graph registry declares the following fields:
 
@@ -93,7 +75,7 @@ Markdown surface owned by the skill:
 
 - a transition-condition matrix in the same `SKILL.md` for a table-owned
   registry;
-- the standard node header for Feature step contracts; or
+- the standard node header for Spec step contracts; or
 - a routed node reference explicitly assigned by the skill's ownership map.
 
 The owning skill must make condition ownership explicit and cover exactly the
@@ -103,7 +85,7 @@ list, move outgoing conditions into `entry_conditions`, or treat Mermaid labels
 as the source of truth. Explanatory prose may clarify a condition but must not
 add an unregistered edge.
 
-Feature keeps its planning step files and registry as its local source of truth.
+Spec keeps its spec-authoring step files and registry as its local source of truth.
 Learn, Grilling, Idea, Delivery Features, and Audit keep their registries in their
 SKILL.md files while branch-specific details remain in routed references.
 
@@ -116,7 +98,7 @@ SKILL.md files while branch-specific details remain in routed references.
 - blocked: a required contract, evidence, authority, dependency, or
   reconciliation result is unavailable.
 
-Each skill declares the subset it supports. Feature retains its existing
+Each skill declares the subset it supports. Spec retains its existing
 complete and blocked terminal contract. Learn uses all four meanings. Idea
 uses reported, deferred, complete, and blocked.
 Delivery Features uses complete, deferred, and blocked.
@@ -127,8 +109,9 @@ cannot continue.
 
 ## Authority and side effects
 
-Preview branches declared local-only must not inspect provider or tracker
-hosted state. A read-only branch may inspect external state only when its owning
+Preview never authorizes durable or hosted writes. A caller or skill branch
+that requires local-only sources must not inspect hosted state; otherwise an
+explicit hosted input may be read through its owning availability gate. A read-only branch may inspect external state only when its owning
 skill explicitly requires observational reads, as Audit does for application
 sessions, and must never mutate that state. A durable or hosted side effect
 requires an in-scope authority decision from the explicit invoking workflow and
@@ -147,9 +130,9 @@ A handoff is a typed transient artifact, not an implicit runtime invocation or
 a graph edge between skills. The receiving skill must validate the handoff,
 reload its own repository context, and derive its own planning fields.
 
-The Idea-to-Feature handoff is owned by
+The Idea-to-Spec handoff is owned by
 skills/idea/references/idea-source.md. It preserves tentative source evidence
-and open questions while excluding Feature Plan requirements, acceptance
+and open questions while excluding Feature spec requirements, acceptance
 criteria, execution dependencies, implementation plans, and readiness claims.
 
 ## Validation

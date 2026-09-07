@@ -7,6 +7,15 @@ Scope: `plugins/se/`
 ## Project Purpose Delta
 
 SE is the repository's graph-first software-delivery plugin. Its bundled Learn,
-Grilling, Study, Idea, Feature, Adversarial Review, Delivery Features,
+Grilling, Study, Idea, Spec, Adversarial Review, Delivery Features,
 Implement, and Audit skills have distinct runtime contracts, while `AGENTS.md`
 and `README.md` define package maintenance ownership and routing.
+
+Spec owns one coherent spec and actionable task plan, saved to GitHub or one
+Markdown file. Delivery owns task-to-PR grouping and integration, with task
+prerequisites independent of Git topology. The Spec content contract is at
+[`specification.md`](skills/spec/references/specification.md).
+
+Study and Spec share subordinate role definitions in
+[`subagents.md`](references/subagents.md). Their callers own delegation and
+lifecycle; controller and Delivery candidate-review profiles remain local.

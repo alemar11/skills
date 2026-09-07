@@ -39,7 +39,7 @@ workflow's current node.
 | Hosted reconciliation outcome | `created`, `reused`, `missing`, `failed` | Result fact; transient report | Records what readback verified after a hosted operation and determines the safe resume point. It is not hosted issue state. |
 | `idea_ref_state` | `proposed-non-durable`, `verified-hosted` | Typed handoff field; transient | Distinguishes a preview-only proposed ref from a hosted identity verified by readback. It does not duplicate the hosted issue's own state. |
 | `source_kind` | `idea-source` | Typed handoff discriminator; transient | Identifies the artifact as an Idea Source Handoff. |
-| Feature `source_route` | `new-source` | Receiving-workflow field; transient | Tells Feature to treat the handoff as tentative source evidence and derive its own plan fields. |
+| Spec `source_route` | `new-source` | Receiving-workflow field; transient | Tells Spec to treat the handoff as tentative source evidence and derive its own plan fields. |
 | Hosted issue `state` | `open` | External persisted domain state | A durable Idea is an open hosted issue. |
 | Hosted native `Issue Type` | unset | External persisted domain state | Idea deliberately leaves the provider-native Issue Type unset. |
 | Hosted collision observation | exact equivalent, near title match, materially different collision | Derived external fact; transient | Guides reuse or user clarification. These descriptions are not a persisted enum or workflow state. |

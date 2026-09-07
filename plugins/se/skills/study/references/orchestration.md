@@ -43,6 +43,11 @@ explicit report justification.
 
 ## Assignment contract
 
+Before assigning workers, read the shared
+[`evidence-researcher`](../../../references/subagents.md#evidence-researcher)
+role. It owns the worker's purpose, read-only boundary, model settings, and
+evidence memo; Study owns the refined assignment, slot lifecycle, and synthesis.
+
 Reserve every planned slot before creation and number it once from 1 through
 5. Each worker assignment must include:
 
@@ -53,7 +58,7 @@ Reserve every planned slot before creation and number it once from 1 through
 - evidence and acceptance expectations;
 - dependencies on other assignments, if any;
 - a concise Markdown memo shape;
-- the read-only boundary, fixed Luna/max profile, and slot number;
+- the selected research role, read-only boundary, and slot number;
 - an absolute prohibition on invoking Study or creating child workers.
 
 Assignments should be mutually distinct and collectively sufficient. Serialize
@@ -65,7 +70,7 @@ the active Study controller, not directly to another worker.
 For each positive planned slot, create one native subagent under the active
 Study controller:
 
-- Request `gpt-5.6-luna` with `max` reasoning explicitly.
+- Request the shared `evidence-researcher` profile explicitly.
 - Keep the assignment in the controller's working-directory context.
 - Supply the slot number, refined handoff slice, read-only boundary, evidence
   expectations, concise Markdown memo shape, and recursion prohibition.
@@ -96,7 +101,7 @@ For each slot:
 4. An uncertain effect sets `pending-setup`. Reconcile it through at most three
    bounded authoritative observations. Stop later creation until it resolves.
 5. A stable subagent outside the active controller lineage sets
-   `structural-verification-failed`; observed Luna/max drift sets
+   `structural-verification-failed`; observed drift from the requested role profile sets
    `settings-drift`. Preserve the identity, create no replacement, and stop
    later creation.
 6. Failed reconciliation sets `unresolved-setup`; leave later slots

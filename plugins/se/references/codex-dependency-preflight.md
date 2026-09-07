@@ -12,21 +12,18 @@ this gate never changes that authoritative result.
 
 ## When to run
 
-For Learn, do not load this gate: Learn is local-repository-only and has no
-hosted dependency. For Idea, `publish` is the default; run the gate before its
-first hosted read or write, while an explicitly requested `preview` remains
-local and does not access GitHub. For Feature Plans, `publish` is the default
-and Intake reaches this gate before any hosted source read, while Publish
-reaches it before the first hosted publication operation. An explicitly
-requested `preview` from a new local source does not load this gate. A preview
-whose source is hosted, including a hosted Idea or issue, still runs the gate
-for that read. Delivery Features has no local-only or preview mode:
-run the gate before its mandatory first authoritative GitHub Feature Plan,
-PR, review, label, or relation read. A passing gate authorizes only the next
-handoff to the applicable G-owned workflow; it does not broaden the mutation
-scope. For an explicit SE request, the exact hosted writes required by that
-selected workflow are already implicitly authorized; the gate only verifies
-that the owner is available.
+For Learn, do not load this gate: Learn has no hosted dependency. Idea runs it
+before its first hosted read/write on the publish branch; Idea preview remains
+local. Spec runs it before any hosted source read or GitHub save. A local
+source preview or Markdown save needs no G workflow. A Markdown destination or
+preview does not waive the gate for an explicitly admitted hosted source read.
+
+Delivery Features always publishes through G, even when its selected spec was
+saved as Markdown. Run the gate before its first authoritative GitHub repository,
+issue, PR, review, CI, or relation read. Passing establishes availability for
+the next focused handoff; it does not broaden source or mutation authority.
+Explicit SE invocation authorizes only the hosted writes required by the
+selected workflow and consistent with caller constraints.
 
 ## Required evidence
 
@@ -50,13 +47,9 @@ require source and installed versions to match as part of this gate. When local
 checks pass but the current session cannot reach the explicit handoff, report
 `codex-dependency-unresolved`.
 
-For Idea, the required workflow set contains `$g:github-issues`. Every Feature
-hosted source read or publication, including maintenance, requires
-`$g:github-issues` for exact issue lifecycle operations. Optional repository-owned
-classification uses that skill's classification branch; classification failure
-never blocks semantic publication.
-The Feature preview route for a new local source requires no G workflow
-because it performs no hosted access.
+Idea and Spec hosted operations require `$g:github-issues` for issue
+lifecycle and relationships. Optional classification uses that skill's
+classification branch; classification failure never blocks semantic save.
 
 For Delivery Features, the required workflow set includes the G
 owners needed by the selected publication, review, CI, issue, local Git, and
