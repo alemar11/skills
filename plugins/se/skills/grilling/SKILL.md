@@ -1,6 +1,6 @@
 ---
 name: grilling
-description: "Run a focused, one-question-at-a-time interview that challenges assumptions and refines a topic or supplied handoff using current repository context. Use when the user explicitly invokes $se:grilling or an SE parent workflow requires interactive handoff refinement."
+description: "Refine a topic or handoff one question at a time when explicitly requested or composed by SE."
 ---
 
 # Grilling
@@ -75,8 +75,7 @@ until the Grilling outcome is `refined` or `user-stopped`.
 
 ## Workflow graph
 
-The registry is the structural source of truth. Mermaid is its maintained
-projection.
+The registry owns transitions; Mermaid is its projection.
 
 | node_id | kind | purpose | entry_conditions | inputs | outputs | transitions | stop_if | side_effects | terminal_states |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
