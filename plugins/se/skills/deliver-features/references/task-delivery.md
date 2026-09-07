@@ -8,8 +8,7 @@ selection, execution units, integration, and PR grouping.
 ## Selected outcomes
 
 Accept an authoritative saved GitHub spec bundle or Markdown spec. Read the
-main spec and its task contracts; reject exported snapshots and unmigrated
-legacy formats. Select all tasks by default. An explicit subset selects exact
+main spec and every task contract, including task-owned prerequisites. Reject exported snapshots. Select all tasks by default. An explicit subset selects exact
 task IDs within their qualified spec identities; an explicit batch may select
 several specs. Read the surrounding spec to preserve constraints, not to expand
 implementation scope.

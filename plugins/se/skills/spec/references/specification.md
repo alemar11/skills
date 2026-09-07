@@ -33,8 +33,6 @@ and operational outcomes directly. Omit empty optional sections.
 | `spec_revision` | Positive integer, incremented once for each accepted semantic revision. |
 | `owner_repository` | Verified repository that owns the main spec, independent of planner task placement. |
 | `repositories` | Exact affected repository identities; task ownership must be drawn from this set. |
-| `source_refs` | Attributable input and decision evidence. References do not grant authority. |
-| `acceptance_high_water` | Highest allocated Feature acceptance number; retired numbers are never reused. |
 
 The spec's identity is its owner repository plus `spec_id`. Titles, list
 positions, local paths, and hosted issue numbers are not substitutes. Use exact
@@ -44,13 +42,17 @@ external prerequisite by a bare title or ID.
 Acceptance criteria retain the external bracketed `F-AC-NN` spelling. They are
 contract identifiers, not checkboxes or execution progress. Renaming or
 reordering a criterion preserves its identity. New criteria allocate above the
-high-water mark; semantic replacement retires the old criterion explicitly.
+highest active or retired criterion number, starting at 01 for a new spec.
+Semantic replacement records the retired ID in a compact revision note; never
+reuse it. Keep source links beside the decisions or claims they support rather
+than maintaining a duplicate source registry.
 
 One saved destination is authoritative. On GitHub, the parent body owns the
-spec, acceptance criteria, task membership, recommended order, and dependencies;
-each linked child body owns its detailed task contract. In a Markdown save,
-the single file owns all of these. Child dependency summaries and native edges
-are projections of the parent index, not independent authorities.
+spec, acceptance criteria, task membership, and recommended order. Each linked
+child body owns its task contract, including repository scope, acceptance links,
+and prerequisites. In a Markdown save, the single file contains these same
+authorities in its main spec and task sections. Native dependency edges project
+task prerequisites; they never define additional requirements.
 
 Revision and export rules live in [existing-specs.md](existing-specs.md).
 Planning never overwrites executor-owned progress or claims implementation
@@ -75,18 +77,19 @@ prerequisites, and completion checks without the drafting conversation.
 | `outcome` | Observable capability or enabling result delivered by this task. |
 | `scope` | Included work and relevant exclusions. |
 | `acceptance_refs` | Existing F-AC IDs to which this task contributes; contribution alone does not prove a criterion satisfied. |
-| `completion_checks` | Concrete conditions for this task to be done, including per-repository evidence for multi-repository work. |
-| `validation` | Observable verification method and the practical boundary at which to exercise it. |
+| `checks` | Each check pairs an observable completion condition with its test or observation; include per-repository and assembled integration evidence where needed. |
 | `blocked_by` | Other task IDs in this spec that supply real prerequisites, each with the required outcome or evidence. |
 | `external_prerequisites` | Exact external artifact references and required evidence, or none. They never expand implementation selection. |
 
-The parent task index owns recommended order, task membership, repository
-ownership, acceptance references, and dependency declarations. Detail sections
-or child bodies own outcomes, scope, completion checks, and validation. Any
-repeated index fields in a child are verified projections. A stable task
-identity is the qualified spec identity plus `task_id`; its display position
-may change independently. All local dependency targets must exist, and the
-graph must be acyclic. Retain retired IDs in a compact revision note.
+The parent task index is an ordered list of task IDs, titles, and detail links.
+It owns membership and recommended order; task details own all other task
+fields. Do not duplicate repository assignments, acceptance links, or dependency
+descriptions in the index. Read every task to establish coverage and the full
+dependency graph. Task titles in the index mirror their details.
+
+A stable task identity is the qualified spec identity plus `task_id`; display
+position may change independently. All local dependency targets must exist and
+the graph must be acyclic. Retain retired IDs in a compact revision note.
 
 Every task contributes to at least one feature criterion, and the complete
 task plan covers every criterion. Preparatory work records the criteria it
@@ -116,15 +119,24 @@ an accepted contract. Relevant repository-relative paths may cite current
 evidence; they are not an exhaustive edit list. Leave incidental helpers,
 commands, worker assignment, and Git operations to implementation.
 
-Every F-AC states observable success and a credible verification method. Record
-the observed baseline with its evidence, or `unknown` when it has not been
-established. A known missing new behavior should fail the success criterion;
-an observation that disproves that criterion is a falsifier, not another
-condition required to be false. Separate preservation obligations from new
-behavior. An unknown baseline is not invented failure evidence and blocks only
-when the missing fact is needed to decide scope, feasibility, or verification.
+Every F-AC pairs observable success with a credible verification method. Add
+current-behavior evidence when it affects scope, regression preservation,
+migration, feasibility, or verification; do not require a baseline field on
+every criterion. Label an unverified material baseline as unknown and investigate
+it when a decision depends on it. Never invent failure evidence or confuse a
+completed preparatory task with the requested feature outcome. Separate
+preservation obligations from new behavior.
 
 Prefer an existing verification boundary that exercises the relevant external
 behavior. Propose a new boundary only with a concrete adequacy reason. Review
 the feature-level outcome as well as individual task checks: task completion
 alone never proves the whole feature works.
+
+## Rendering
+
+Templates are presentation guides, not text to publish verbatim. Omit empty
+optional sections and authoring instructions. Keep required task metadata and
+explicit `none` prerequisites so missing information is distinguishable from
+no dependency. GitHub uses standalone task bodies; Markdown embeds task sections
+with stable anchors and headings nested under the main spec. Output references
+own those destination details.

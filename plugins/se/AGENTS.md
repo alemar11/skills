@@ -62,7 +62,7 @@ Preserve these boundaries when changing their runtime owners; do not copy their
 full protocols into this file:
 
 - Feature specs preserve observable outcomes, accepted technical decisions,
-  honest acceptance baselines, task completion checks, and full coverage. Task
+  relevant baseline evidence, paired task verification checks, and full coverage. Task
   order is independent of identity and hard prerequisites. Planning never
   overwrites executor progress or prescribes workers and PR topology.
 - One outcome may span repositories. Delivery maps task contributions into

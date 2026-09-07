@@ -33,13 +33,17 @@ associated task issues. An explicit Markdown save writes one complete file
 containing the spec and every task. Preview writes neither destination. Existing
 specs retain their authority; an explicit export creates a labeled snapshot.
 See the canonical [specification contract](skills/spec/references/specification.md)
-and [revision/migration rules](skills/spec/references/existing-specs.md).
+and [revision and export rules](skills/spec/references/existing-specs.md).
 
 Spec runs in the current session with its configured model and reasoning and
 updates the task title to `📚 Plan Feature · <outcome>` when supported. It asks
 only material questions through Grilling Session and reviews the complete
 spec/task contract before saving. Planning preserves execution progress and
 does not start delivery implicitly.
+
+The templates use a compact ordered task list; each task owns its repository
+scope, acceptance links, prerequisites, and paired verification checks. GitHub
+stores task bodies in child issues; Markdown nests them in the same file.
 
 ## Deliver
 

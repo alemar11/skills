@@ -18,7 +18,7 @@ contract is local, not the shared developer role used by Deliver Features.
 Accept a saved SE spec, selected issues/tasks, or directly described bounded work.
 Resolve the intended outcome, repository identities, acceptance checks and caller
 constraints. A saved spec selects the whole spec unless the caller names a subset;
-read its task contracts and accepted decisions without rewriting requirements.
+read all task contracts and accepted decisions without rewriting requirements.
 Do not implement unselected prerequisites. Ask only for material unresolved
 scope or authority; keep independent selected work moving.
 

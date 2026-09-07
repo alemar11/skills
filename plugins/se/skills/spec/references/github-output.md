@@ -12,7 +12,9 @@ task in the spec's owner repository unless the caller explicitly chooses another
 affected repository; its body still names every contributing repository.
 
 The parent owns the specification and ordered task index. Each child owns its
-detailed task contract and links to the parent. Parent and task issue types or
+detailed task contract, including prerequisites, and links to the parent.
+Use the spec template for the parent and the task template for each child;
+keep task details out of the parent. The parent task list links to every child. Parent and task issue types or
 labels are optional metadata, never identity, readiness, or work-dispatch signals.
 
 For `operation=preview`, render the parent, every child body, intended targets,
@@ -35,18 +37,18 @@ exact final title/body, including worker- or provider-originated content.
    read back each artifact before proceeding. Existing revisions update the
    same artifacts under [existing-specs.md](existing-specs.md).
 3. Once all identities exist, reconcile the parent task index with their exact
-   references and all child parent/dependency summaries. Read back the complete
+   references and each child's parent reference. Read back the complete
    spec and task bundle; no task detail may disappear during projection.
 4. Establish parent-child relationships and verify them. If a native relation
    is unsupported, record the observed limitation and retain verified reciprocal
    body links as the association. Missing or incorrect body links block.
-5. Attempt each canonical task dependency as a native blocking relationship
-   where supported, and record the result for every edge. An unavailable native
+5. Derive dependencies from every task body and attempt each canonical dependency
+   as a native blocking relationship where supported, and record the result for every edge. An unavailable native
    capability is recorded explicitly; it never changes the semantic graph.
 6. Optionally classify issues through `g:github-issues` after semantic save.
    Metadata failure does not block completion or imply an implementation order.
 
-Every required issue identity, body, task association, and dependency summary
+Every required issue identity, body, task association, and task prerequisite
 must be verified. Native relationship/dependency failures are warnings when
 the complete body-backed representation is verified; absent result coverage
 is not success. Preserve foreign provider edges and metadata. On revision,

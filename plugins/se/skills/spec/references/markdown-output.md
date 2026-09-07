@@ -23,7 +23,11 @@ spec because its title resembles the requested one.
 Render the complete document before changing the target. Include the main
 specification, acceptance criteria, ordered task index, dependencies, and full
 task details in the same file. Use the stable task IDs as explicit section
-anchors so reordering does not break links. Do not create per-task files or
+anchors so reordering does not break links. After the main spec, add
+`## Task details`; render each task with `<a id="task-<task_id>"></a>`, an H3
+task title, and H4 subsections. Give the main spec a `spec-<spec_id>` anchor
+for task back-links. The ordered task list links to these detail anchors.
+Do not create per-task files or
 require GitHub identities, labels, or native relationships.
 
 For `operation=preview`, return that complete candidate and proposed path
