@@ -1,6 +1,6 @@
 ---
 name: feature
-description: "Turn admitted requests, handoffs, references, and repository evidence into an evidence-backed Feature Plan Set with falsifiable acceptance criteria, coherent Macro Tasks, and explicit dependency intent. Use when the user explicitly requests new SE Feature planning or bounded Plan Set maintenance; clarify through Grilling when planning is not ready, publish by default, and never implement code."
+description: "Plan or revise SE Feature Plan Sets when explicitly requested; publish by default without implementing code."
 ---
 
 # Feature Planning
@@ -74,106 +74,31 @@ only when planning is ready or block.
 
 ## Feature Plan Set contract
 
-For every affected repository, read the applicable `AGENTS.md` hierarchy and
-the sources it requires. Treat repository and source identity as planning
-evidence gathered during Intake, not application-task metadata. A planner task
-may read every repository explicitly in scope; its application project does not
-create a primary-repository or correctness boundary.
+Read each affected repository's applicable instructions during Intake. The
+planner's application project does not restrict the explicitly selected
+repository set. Validate typed Idea input with
+[idea-source.md](../idea/references/idea-source.md).
 
-When Intake receives a typed Idea source, validate it against the canonical
-[idea-source.md](../idea/references/idea-source.md) handoff before deriving any
-Feature fields.
+Before drafting, read [Plan](steps/plan.md), which owns Feature boundaries,
+F-AC coverage, Macro verification, and dependency semantics. Use the canonical
+[plan](templates/plan.md) and [Macro](templates/macro-task.md) templates.
+Existing-source revisions preserve exact identities and executor-owned progress.
 
-The Plan Set contains:
-
-- a stable lower-kebab `feature_plan_set_id`, monotonic revision, source map,
-  and selected `preview` or `publish` operation;
-- one entry per genuinely independent Feature with a stable lower-kebab
-  `feature_id`, repository identity, problem, observable outcome, scope,
-  non-goals, context evidence, constraints, assumptions, risks, and validation
-  intent;
-- ordinary list-item acceptance criteria with stable bracketed `F-AC-NN`
-  identities, a monotonic high-water mark per Feature, and the observation that
-  would prove each criterion false. A new-behavior criterion must be false
-  before the Feature's work; an existing invariant is recorded separately as a
-  preservation obligation rather than counted alone as new Feature evidence;
-- a closed Macro Task registry per Feature. Each lower-kebab `macro_task_id`
-  describes a coherent outcome or vertical slice, maps to one or more F-ACs,
-  records an observable verification path or explicit integrated-verification
-  rationale, and never acts as an implementation unit or PR boundary;
-- hard-outcome Feature `blocked_by` edges and same-parent Macro `blocked_by`
-  edges, both acyclic;
-- resolved material questions, their provenance, and explicit assumptions;
-- review findings and dispositions when they materially changed the plan;
-- an implementation-neutral handoff that lets Delivery Features
-  derive technical work while preserving every Feature criterion and available
-  Macro outcome.
-
-Multiple source issues may converge into one Feature. Create siblings only
-when a distinct usable landing state, acceptance obligation, ownership
-boundary, or delivery reason remains. Never create a container or integration
-Feature merely to group the set.
-
-A Feature dependency may reference only another Feature in the same Plan Set.
-Implementation workflows project a same-repository edge as mandatory stack
-intent and a cross-repository edge as scheduling-only because Git ancestry
-cannot cross repositories. Preferred order is prose, not `blocked_by`.
-
-A Macro dependency may reference only another Macro Task owned by the same
-`parent_feature_id`. Macro edges are planning context; an implementation
-workflow may combine, reorder, or internalize them while preserving their
-outcomes and F-AC coverage. Cross-Feature Task-to-Task edges are invalid.
-
-For an existing-source revision, retain the exact Plan Set, Feature, Macro, and
-hosted issue identities. Apply the smallest semantic patch, increment the
-revision, preserve every unaffected field and executor-owned progress, and
-state what a later Delivery Features run must reconsider. Never
-silently create a replacement plan.
-
-Use [plan.md](templates/plan.md) for the canonical plan,
-[macro-task.md](templates/macro-task.md) for child projections, and
-[plan-report.md](templates/plan-report.md) for the terminal report.
+Feature edges stay within the Plan Set: same-repository edges imply stack
+intent, cross-repository edges imply scheduling only. Macro edges stay within
+one parent Feature and do not define execution units or PR boundaries.
 
 ## Questions and review
 
-Do not author consolidated question batches. When analysis or review leaves a
-material product decision unresolved, compose `$se:grilling` and let it select
-the highest-leverage question. Supply the admitted inputs, repository evidence,
-candidate interpretation, explicit unknowns, and constraints as the starting
-brief. Grilling is a nonterminal wait inside Feature planning; when it returns,
-record `user-decision`, `delegated-choice`, safe `assumption` values, and
-provenance before returning to Analysis. Technical implementation choices belong
-to the later implementation workflow. A validation seam becomes a Clarification
-decision only when it changes an observable contract, compatibility boundary,
-safety property, or rollout obligation; otherwise prefer the highest practical
-existing seam or defer the seam to implementation.
+Route material product decisions through `se:grilling` in the same planner.
+Supply admitted evidence, candidate interpretation, constraints, and unknowns;
+record decision provenance before returning to Analysis. Safe assumptions or
+explicitly delegated choices do not require an interview.
 
-Clarification is a nonterminal wait. After answers arrive, return to Analysis
-and incorporate them. If the user declines a required decision, report the
-smallest unresolved blocker rather than guessing.
-
-Review every complete draft. Use an independent read-only helper when useful
-and available, otherwise a separate serial review lens. Review must verify the
-semantic content and these structural invariants:
-
-- stable identities and monotonic revisions/high-water marks;
-- genuinely distinct Feature boundaries and no container Feature;
-- observable, non-duplicative, falsifiable F-ACs covered by the closed Macro
-  registries;
-- an observable verification path or explicit integrated-verification rationale
-  for every Macro, with no scope added by Macro Tasks;
-- valid, acyclic Feature and same-parent Macro dependency graphs;
-- complete decision and source provenance, repository mapping, validation-seam
-  adequacy, and publication projections;
-- correct same-repository stack and cross-repository scheduling semantics;
-- preservation of existing identities, unaffected content, and executor-owned
-  progress during maintenance.
-
-Return correctable findings to Plan while revisions are making progress. A
-newly exposed material decision returns to Clarification. Repeated unresolved
-findings, no-progress revision, or a genuinely unavailable required decision
-blocks publication. A separate Plan Validation node or review-round state
-machine is not required.
+Review every complete draft under [Review](steps/review.md), using an optional
+independent helper or a separate serial lens. Correctable findings return to
+Plan while progress is made; new material decisions return to Clarification.
+Repeated unresolved findings or missing required decisions block publication.
 
 ## Workflow graph
 
