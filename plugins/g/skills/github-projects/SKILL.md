@@ -1,6 +1,6 @@
 ---
 name: github-projects
-description: Manage user- or organization-owned GitHub Projects, fields, items, links, templates, and lifecycle. Use focused G skills for issue or pull-request content outside Project membership and fields.
+description: "Manage GitHub Projects, fields, items, links, and lifecycle for users or organizations."
 ---
 
 # GitHub Projects
@@ -65,16 +65,9 @@ underlying draft-issue node ID.
 
 ## Reads
 
-Support bounded structured reads for:
-
-- open or closed Projects owned by one user or organization;
-- one exact Project and its settings;
-- the Project's fields, option IDs, and iteration IDs;
-- Project items and their field values, with an optional provider-native item
-  query and an explicit result limit.
-
-Pure reads omit `project_operation` and `mutation_mode`. An empty successful
-collection is a valid result, not evidence that Projects access is unavailable.
+Read Projects, settings, fields, options, iterations, or bounded item collections
+with their field values. Pure reads omit `project_operation` and `mutation_mode`.
+An empty collection is valid evidence, not an access failure.
 
 ## Mutations
 
@@ -120,11 +113,9 @@ link is unavailable.
 
 ## Composition
 
-When a request crosses domains, finish and verify the owning operation first,
-then pass only its exact provider identity into this workflow. For example,
-create an issue through GitHub Issues, verify its canonical URL, add that URL
-to the exact Project, and only then apply separately authorized Project field
-updates. This workflow does not change SE behavior or configuration.
+For cross-domain work, verify the owning operation before passing its exact
+provider identity to Projects. Creating an issue, adding its Project item, and
+setting fields are separately verified operations within the authorized request.
 
 ## Result
 
