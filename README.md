@@ -79,7 +79,7 @@ for Apple's native headless MCP server:
 | `okf` | Write, scaffold, inspect, and validate Open Knowledge Format markdown bundles with the shipped OKF CLI. |
 | `skill-cli-creator` | Build host-aware embedded CLIs that live inside a skill or plugin under `scripts/`. |
 | `tanstack` | Review, build, debug, and migrate TanStack apps with Query, Router, Start, and related packages. |
-| `focus` | Create a focused new Codex task from a compact handoff of the latest substantive discussion. |
+| `focus` | Create one new Codex task with a compact handoff of the current discussion. Use only when explicitly invoked. |
 | `postgres` | Connect to Postgres, run SQL/diagnostics, inspect schemas/migrations, and apply version-aware SQL, PostGIS, pgvector, pg_cron, pgmq, or pg_durable patterns. |
 | `plugins-reload` | Explicitly refresh the repo-local G, SE, and Xcode plugin caches after source changes. |
 | `skill-audit` | Audit installed Codex skills and plugins from historical evidence or live App task monitoring with defect annotations. |
