@@ -1,6 +1,6 @@
 ---
 name: github-review-threads
-description: Handle hosted pull-request review feedback by checking or waiting for automated reviews, inspecting threads, and implementing verified fixes. Reply to or resolve threads only when explicitly requested.
+description: "Inspect hosted review feedback and implement requested fixes. Posting replies or resolving threads requires authorization."
 ---
 
 # GitHub Review Threads
