@@ -1,92 +1,44 @@
 # G Plugin Maintenance
 
-`plugins/g/` is the repo-local source package for Git and GitHub provider
-primitives plus read-only active-session monitoring. Runtime behavior belongs
-in each bundled `SKILL.md` and its references; this file governs the plugin
-package and its shared artifact.
+G owns Git/GitHub provider primitives and explicit read-only task monitoring.
+Composing workflows own product planning, delivery policy, and orchestration.
 
-## Ownership map
+## Ownership
 
-- `.codex-plugin/plugin.json` owns plugin identity, discovery metadata, bundled
-  skill exposure, dependency-free provider declaration, and the plugin version.
-- `scripts/g` is the shipped shared artifact. Its maintenance source,
-  tests, build, and version-alignment rules live in
-  `projects/g/AGENTS.md`.
-- The shared artifact's `attachment upload` command owns the plugin's single
-  binary transport to GitHub's user-attachment upload host. The
-  `github-issues` skill owns authorization, Markdown placement, publication,
-  and readback policy around that primitive.
-- `references/options.md` owns shared canonical invocation fields;
-  `references/network-execution.md` owns shell network and authentication
-  handling.
-- `skills/audit/` owns explicit, read-only Codex App monitoring of active tasks
-  that use G skills; it does not own Git/GitHub transport.
-- Each skill that defines workflow or result states owns one
-  `references/states.md`; procedure and schema references route to that file
-  instead of defining a second semantic registry.
-- `skills/github-tagger/` owns evidence-backed selection from current
-  repository-owned labels and enabled native issue types, plus explicitly
-  requested read-only proposals for missing labels and organization issue
-  types. It delegates exact issue mutations to `skills/github-issues/` and
-  never mutates taxonomy from proposal mode.
-- `skills/github-projects/` owns user- and organization-owned GitHub Projects,
-  their fields, items, links, templates, and lifecycle. It uses direct `gh`
-  rather than adding Projects commands to the shared G artifact.
-- `skills/<name>/` owns only its narrow provider-primitive contract and local
-  adapters or reference summaries.
+- `.codex-plugin/plugin.json` owns identity, exposure, and version.
+- `scripts/g` is the shared artifact; `projects/g/AGENTS.md` owns its source,
+  build, tests, and version alignment. Do not add another provider transport.
+- `references/options.md` owns invocation fields;
+  `references/network-execution.md` owns shell network/auth handling.
+- Each skill owns its narrow runtime contract and state registry. Keep package
+  maintenance out of runtime entrypoints.
+- `github-issues` owns issue mutation/readback and attachment placement.
+  Shared `attachment upload` is the only binary upload transport.
+- `github-tagger` owns metadata selection and read-only taxonomy proposals;
+  it delegates exact writes to `github-issues`.
+- `github-projects` uses direct authenticated `gh`, not new shared CLI commands.
+- `audit` observes active G tasks and adds no Git/GitHub transport.
 
-## Stacked PR upstream
+Keep provider access independent of app connectors. Skills use authenticated
+`gh` directly or through the shared artifact; the manifest declares no GitHub
+app dependency. Preserve file-backed provider text, exact identities, and
+independent mutation readback. Provider projections do not become planning
+policy.
 
-The stack domain wraps the official [`github/gh-stack`](https://github.com/github/gh-stack)
-GitHub CLI extension. The current compatibility reference is upstream `v0.0.9`;
-this is a validation baseline, not a runtime pin. The wrapper currently installs
-the latest upstream version because its explicit installation path uses
-`gh extension install github/gh-stack` without `--pin`.
+## Stack compatibility
 
-When the upstream extension changes, revalidate the typed command surface,
-non-interactive behavior, JSON output, extension status/version detection, and
-the stacked-PR lifecycle workflows before treating the new version as
-compatible. The wrapper must fail closed when the extension is missing,
-unversioned, or belongs to another repository.
+The stack wrapper owns compatibility with official `github/gh-stack`. Upstream
+`v0.0.9` is the current validation baseline, not an installation pin; explicit
+installation currently selects latest upstream.
 
-## Maintenance contract
-
-- Keep the manifest, `projects/g/pyproject.toml`, package version,
-  rebuilt artifact, and installed/cache verification surfaces aligned after a
-  shared runtime change.
-- Keep Git/GitHub bundled skills provider-primitive and workflow-agnostic.
-  `skills/audit/` is the explicit read-only App-monitoring exception and must
-  not add Git/GitHub transport. Caller-owned planning, orchestration, project
-  context, queue state, issue-body, and label policy must remain in composing
-  skills or provider-owned metadata. GitHub Tagger may interpret the current
-  provider-owned taxonomy or propose a minimal evidence-backed extension when
-  explicitly requested, but proposal mode must remain read-only.
-- Keep native issue dependencies in `github-issues` as exact provider-identity
-  operations. One operation owns one directed blocked-issue/blocker edge,
-  supports cross-repository blockers by URL, and verifies both `blockedBy` and
-  reciprocal `blocking` readback. Composing planners own why the edge exists.
-- Keep GitHub Projects operations in `github-projects`. Preserve exact owner,
-  project, field, option, iteration, item, and content identities; keep
-  free-form provider text in reviewed GraphQL request files; and verify every
-  mutation independently before continuing with dependent operations.
-- Do not duplicate the attachment upload transport in a skill or add another
-  Git/GitHub transport. Do not move issue or pull-request publication policy
-  into the shared helper. Preserve explicit authority for every GitHub
-  mutation.
-- Keep GitHub provider access independent from app connectors. Bundled skills
-  use authenticated `gh` directly or through `scripts/g`; the plugin manifest
-  must not declare a GitHub app dependency.
-- Treat plugin caches as verification surfaces, never editable sources.
+For an upstream change, verify typed commands, noninteractive behavior, JSON,
+version/repository detection, and affected stack workflows. Missing, unversioned,
+or wrong-repository extensions must fail closed. Never install during tests.
 
 ## Validation
 
-- Do not test Markdown wording, headings, table shape, section placement, or
-  moved prose. Python tests protect executable provider behavior; validate
-  bundled-skill metadata with the canonical metadata validator.
-- Use the project-scoped guide for tests and artifact rebuilds; do not execute
-  maintenance source as the normal runtime.
-- For bundled-skill changes, validate the narrow workflow contract and use
-  shared artifact checks when the provider transport is affected.
-- For GitHub Tagger changes, validate the explicit mode boundary, canonical
-  states, minimal-proposal rules, repository-versus-organization scope, and the
-  prohibition on taxonomy writes from proposal mode.
+Validate changed skill metadata, reference routing, and affected contracts.
+Do not test Markdown wording or moved prose. Executable changes use the
+project-scoped tests and rebuilt-artifact checks. Keep manifest, package
+version, version assertions, and shipped artifact aligned for each versioned
+commit. Installed caches are verification surfaces, not source.
