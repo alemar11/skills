@@ -1,6 +1,6 @@
 ---
 name: implement
-description: "Use when the user asks to implement a selected local spec, ticket, issue, or directly described unit of work without SE orchestration, repository claims, pull-request publication, or deployment."
+description: "Implement selected local work without orchestration or PR publication. Use se:deliver-features for published SE Features."
 ---
 
 # Implement
@@ -15,11 +15,10 @@ skill's instructions.
 
 Use test-driven development where practical, especially at pre-agreed seams.
 
-Run targeted validation during implementation and the appropriate full
-validation suite once before completion.
+Run checks that cover the changed behavior and any repository-required gates.
+Broaden validation only for unresolved risks or failures.
 
-Request an independent code review of the completed change where one is
-available.
+Use an independent review for substantial or risky changes when available.
 
 Commit only the files required for the selected work to the current branch.
 Preserve unrelated work, and do not push, publish a pull request, merge,

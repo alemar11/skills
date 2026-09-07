@@ -105,7 +105,7 @@ Its skills are deliberately separated by responsibility:
 - skills/implement/ is the implicit local-only implementation entry point.
   It implements one selected spec, ticket, or directly described unit of work in
   the current repository, uses TDD where practical, runs targeted and full
-  validation, requests an independent review where available, and commits only
+  validation, uses independent review for substantial or risky changes, and commits only
   required files. It creates no orchestrator, repository claim, worktree, pull
   request, or publication effect. It may also be invoked explicitly as
   `se:implement`.
