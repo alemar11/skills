@@ -1,204 +1,125 @@
 # Repository Guidelines
 
-## Overview
+Reusable skills live in `skills/`, maintainer skills in `.agents/skills/`,
+plugins in `plugins/`, and MCP helpers in `mcps/`. Each skill has `SKILL.md`;
+each plugin has `.codex-plugin/plugin.json`.
 
-This repository hosts reusable Codex skills, project-maintainer skills,
-repo-local plugins, and MCP installation helpers. Reusable skills live under
-`skills/`, maintainer skills under `.agents/skills/`, plugins under `plugins/`,
-and MCP helpers under `mcps/`. Every skill has a `SKILL.md` entrypoint and
-every plugin has a `.codex-plugin/plugin.json` manifest.
+For cross-package purpose or ownership, consult `CONTEXT.md` and its relevant
+scoped context. Read the nearest package `AGENTS.md` before maintaining that
+package. A narrow edit does not require a repository-wide documentation pass.
 
-Follow the [Agent Skills specification](https://agentskills.io/specification)
-and the [Codex skills reference](https://developers.openai.com/codex/skills/)
-when the package is intended for Codex.
+## Instruction design
 
-## Agent skills
+- User instructions take precedence over skill guidelines. Preserve established
+  authorization and complete the requested work; ask only for a material
+  unresolved decision or an action outside that authorization.
+- If a skill causes a pause or departure from the request, link the exact file,
+  quote the responsible instruction, and distinguish its requirement from your
+  interpretation. Continue unaffected authorized work.
+- Keep instructions that change decisions: selection boundaries, non-obvious
+  constraints, ownership, and completion criteria. Remove generic coaching,
+  duplicated rules, and fixed itineraries without a correctness reason.
+- Keep descriptions short and selective. Put shared constraints and conditional
+  routing in `SKILL.md`; put branch-specific procedures in one linked reference
+  with a read condition. Do not repeat deferred content or add a router to a
+  self-contained skill.
+- Prefer concise prose and proportionate outputs; require a format only when
+  the consumer needs it. Stop verification when relevant checks pass unless
+  new evidence justifies more work.
 
-### Domain memory
+## Identity and contracts
 
-`CONTEXT.md` is the shared-context entry point. Read it first, then follow its
-`Scoped Contexts` table when relevant. When the project evolves, update only
-evidence-backed shared purpose, vocabulary, durable project rules, boundaries,
-known state, explicit unknowns, scope routing, and topic/ADR indexes; route
-conditional detail to indexed `project-context/` topics and accepted
-load-bearing decisions to indexed ADRs. Keep always-active agent rules in
-`AGENTS.md`; exclude tentative plans, secrets, and raw logs.
+- Use lower-kebab-case for directories, public identifiers, slugs, and assigned
+  enum values; use `snake_case` for machine-readable fields. Preserve
+  externally owned syntax such as Git refs, URLs, environment variables, and
+  provider names. Document compatibility exceptions at the owning contract.
+- Prefer explicit or path-derived identities over display titles. Use one
+  canonical spelling; do not add aliases for retired identifiers.
+- Give field registries, templates, protocols, and result shapes one owner.
+  Link to it rather than duplicating its definitions.
+- Skills with workflow states must route to `references/states.md`, defining
+  their namespace, meanings, transitions, and persisted versus transient or
+  external state. Update it with behavioral changes; do not invent a state
+  machine merely to describe an ordinary sequence of work.
+- Separate configuration from caller inputs, execution facts, and derived
+  results. Observing a value does not make it a persisted option.
+- Keep skill-owned model and reasoning roles indexed in
+  [codex-model-index.md](references/codex-model-index.md), one row per profile,
+  including intentional default inheritance. Update affected rows with the
+  runtime owner; the index must not duplicate its policy.
+- Use lowercase Markdown filenames under `references/`, except `README.md`
+  and `AGENTS.md`.
 
-## Global Naming and Identity
+## Codex integration
 
-- Use lower-kebab-case for skill and plugin directory names, public identifiers,
-  repository-local slugs, and generated names. Use `snake_case` only for
-  machine-readable field names; use lower-kebab values for behavior-affecting
-  enums.
-- Preserve syntax owned by an external system, including GitHub refs, UUIDs,
-  URLs, environment variables, and provider-native names. Do not derive
-  ownership from display-title casing or create compatibility aliases for a
-  retired identifier.
-- Prefer explicit or path-derived slugs over title-derived slugs. Normalize
-  them deterministically and keep one canonical spelling throughout metadata,
-  references, artifacts, and generated output.
+Describe runtime interactions with Codex by outcome, authorization, execution
+location, lifecycle, verification, and recovery. Runtime skills and references
+must not encode Codex tool names, API signatures, payloads, or response schemas.
+Use the live interface for mechanics. Report an unavailable required capability
+without claiming success or substituting a different outcome.
 
-## Creating and Maintaining Skills
+Distinguish requested state, creation receipts, and independently observed
+state. Titles are metadata, not identity. Reconcile uncertain effects before
+retrying a mutation.
 
-- Use `$skill-creator` for a new skill or substantial public reshape, then
-  apply repository integration and validation rules here.
-- Create reusable skills under `skills/<name>/` and maintainer skills under
-  `.agents/skills/<name>/`. Give each a stable lower-kebab name, `SKILL.md`,
-  and `agents/openai.yaml` when it is a discoverable Codex skill.
-- After creating a reusable skill under `skills/`, run `./skills-link.sh` before
-  handoff and verify that `~/.agents/skills/<name>` resolves to the repository
-  source. Do not apply this local-link step to maintainer skills or
-  plugin-bundled skills.
-- Keep `skills/plugins-reload/SKILL.md` synchronized with the repo-local plugin
-  set in `.agents/plugins/marketplace.json` and update its reload commands when
-  a project plugin is added, removed, renamed, or its installation workflow
-  changes.
-- Keep selection metadata, trigger rules, load-bearing workflow order,
-  mutation boundaries, and output contracts in `SKILL.md`. Keep branch-specific
-  detail in directly routed lowercase `references/*.md` files.
-- Every skill that defines or observes workflow nodes, statuses, checkpoints,
-  modes, dispositions, or other behavior-affecting states must own a canonical
-  `references/states.md` and route to it from `SKILL.md`. That reference must
-  list every state in its owning namespace with a plain-language description,
-  distinguish persisted state from transient or external state, and be updated
-  in the same change whenever a state is added, renamed, removed, or changes
-  meaning.
-- Use a package's `SKILL.md` to decide when the runtime skill is applicable;
-  use its nearest `AGENTS.md`, when present, for maintenance rules while
-  improving, editing, updating, or removing that package. Do not copy either
-  contract into the root file.
-- Keep `README.md`, `agents/openai.yaml`, install prompts, and any dependency
-  declarations synchronized when a skill is added, renamed, reshaped, or
-  removed. Keep a `Skill Dependencies` section only when runtime skill
-  dependencies actually exist.
-- When a package has maintenance rules that are not global and cannot be
-  inferred from its tree, manifest, `SKILL.md`, or references, create or update
-  the nearest package-local `AGENTS.md`. Do not create a local file that merely
-  repeats the runtime skill contract or a root rule.
-- When removing a skill, remove its source, metadata, README/install entries,
-  registries, and repository-owned installation links together, then scan for
-  the retired name and paths. Never edit cache copies as migration targets.
-- If `brand_color` is absent, choose a hex color not already used by another
-  skill in this repository.
+## Skill maintenance
 
-## Creating and Maintaining Plugins
+- Use skill-creator for new skills or substantial reshapes. Follow the
+  [Agent Skills specification](https://agentskills.io/specification) and
+  [Codex skill reference](https://developers.openai.com/codex/skills/).
+- Discoverable skills need `agents/openai.yaml`. Keep it, README entries,
+  installation prompts, and actual dependencies aligned with public behavior.
+  Preserve invocation policy unless its change is requested. Include a Skill
+  Dependencies section only for real runtime dependencies.
+- After adding a reusable skill, run `./skills-link.sh` and verify its
+  `~/.agents/skills/<name>` link. This helper links only `skills/`; it does not
+  install maintainer skills or change plugin marketplaces.
+- Remove retired source, metadata, catalog/install entries, registries, and
+  repository-owned installation links together, then scan for stale references.
+- Choose an unused repository color when adding `brand_color`.
+- Keep `skills/plugins-reload/SKILL.md` aligned with the local marketplace's
+  plugin set and supported installation workflow.
 
-- Use `$plugin-creator` for a new plugin or substantial plugin reshape.
-- Create plugins under `plugins/<name>/` with a lower-kebab name and a
-  `.codex-plugin/plugin.json` manifest as the source of truth for identity,
-  version, assets, and bundled-skill exposure.
-- Register every repo-local plugin in
-  `.agents/plugins/marketplace.json` in the same change that adds, renames, or
-  removes it. Keep manifest paths repository-relative and valid from the
-  plugin root.
-- Put bundled skills under `plugins/<name>/skills/<skill>/`, shared runtime
-  artifacts under `plugins/<name>/scripts/`, and maintenance-only source under
-  `plugins/<name>/projects/<tool>/`. Add a nearer `AGENTS.md` only when that
-  child has a distinct maintenance contract.
-- Any committed change under `plugins/<plugin>/` requires a semantic version
-  update in the plugin manifest. Keep any embedded CLI version aligned with
-  the owning plugin unless an intentional independent policy is documented.
-- Keep plugin README and marketplace descriptions synchronized with the
-  manifest and bundled-skill layout. Treat installed plugin caches as
-  verification surfaces, never editable sources.
+## Plugin maintenance
 
-## Repository-Wide Rules
+- Use plugin-creator for new plugins or substantial reshapes. The manifest owns
+  identity, version, assets, and bundled-skill exposure; keep paths valid from
+  the plugin root.
+- Register additions, renames, and removals in
+  `.agents/plugins/marketplace.json`; align README and marketplace descriptions.
+- Place bundled skills in `skills/<skill>/`, shared artifacts in `scripts/`,
+  and maintenance source in `projects/<tool>/` under the plugin root.
+- Every committed plugin change requires a semantic version update. Align an
+  embedded CLI's version unless the package documents independent versioning.
+- Installed caches are verification surfaces, never editable source.
 
-### Codex Integration
+## Knowledge and maintenance boundaries
 
-- Specify every runtime-skill interaction with Codex semantically in natural
-  language: define the intended outcome, topology, authorization, lifecycle,
-  verification, and recovery behavior. Runtime skills and their references
-  must not name Codex APIs or tools or duplicate their operations, parameters,
-  response fields, signatures, enums, target forms, or payloads.
-- The model uses the current live Codex capabilities directly. Skills may
-  require semantic runtime properties, such as a saved project, local or
-  isolated execution, a model profile, or independently verified task state,
-  but must not encode how the live interface represents them. If the required
-  outcome cannot be established, report the incompatibility instead of
-  guessing, substituting another operation, or claiming success.
-- Keep requested state, immediate receipts, and independently observed state
-  distinct. Treat display metadata as non-identity evidence and reconcile
-  uncertain effects before any retry.
+Keep `AGENTS.md` focused on maintenance ownership and durable repository rules;
+keep invocation behavior in skills. Add package-local guidance only for rules
+not inferable from its tree, manifest, or runtime contract. Put distinct build
+or artifact rules nearest their owner and remove redundant local guidance.
 
-### Documentation and Contract Ownership
+Update `CONTEXT.md` only for evidence-backed shared purpose, vocabulary,
+boundaries, known state, unknowns, and routing. Put conditional detail in
+indexed `project-context/` topics and accepted decisions in indexed ADRs.
+Exclude tentative plans, secrets, and raw logs.
 
-- Keep `AGENTS.md` files focused on repository structure, ownership boundaries,
-  maintenance routing, portability, and durable maintenance learnings. Keep
-  user-facing invocation behavior in `SKILL.md` and references.
-- Keep one canonical owner for every behavior-affecting field registry,
-  template, protocol, and result shape. Cross-reference it instead of copying
-  detailed doctrine into multiple packages.
-- Keep [`references/codex-model-index.md`](references/codex-model-index.md) as
-  the repository-wide inventory of skill-level Codex model and reasoning
-  behavior. When a skill or plugin skill adds, removes, renames, or changes a
-  model, reasoning value, role, or intentional ambient/default inheritance,
-  update the index in the same change. Use one row per skill/model/reasoning
-  role, including separate rows when a skill creates multiple profiles. The
-  index points to runtime owners and must not duplicate their full policies.
-- In `references/` folders, use lowercase Markdown filenames except
-  `README.md` and `AGENTS.md`.
+Runtime skills must not route to maintainer-only skills or perform incidental
+self-upgrade, metadata synchronization, or reference refresh. A skill whose
+explicit purpose is maintenance may perform the requested maintenance. Keep
+maintenance implementations outside shipped runtime artifacts and install lists.
 
-### Runtime Contract Design
+## Validation and delivery
 
-- Use canonical `snake_case` fields and lower-kebab assigned values. Reject
-  noncanonical fields and values unless the owning contract explicitly defines
-  an external-syntax exception.
-- Separate selectable options from execution facts, derived state, prose,
-  and references. Do not turn caller-owned inputs or result state into durable
-  configuration merely because a workflow needs to report them.
-- Apply progressive disclosure as an exclusive placement rule: if content is
-  not required on first load to select the skill, preserve safety or mutation
-  boundaries, choose the next workflow branch, or satisfy the immediate output
-  contract, it must not live in `SKILL.md`. Move it to one canonical directly
-  routed reference, state an explicit read condition in `SKILL.md`, and do not
-  duplicate or summarize the deferred content there.
+Validate changed discovery metadata, reference paths, and representative usage
+contracts. Do not add Markdown-only tests. For executable changes, use affected
+behavioral tests and verify the shipped artifact. Use forward model tests only
+when static checks cannot establish the changed behavior.
 
-### Testing and Validation
+Scope rebuildable caches to `~/.cache/dotagents/skills/<skill>/` or
+`~/.cache/dotagents/plugins/<plugin>/`; bundled-skill caches belong under the
+plugin's `skills/<skill>/` subdirectory. Do not store user configuration there.
 
-- Validate representative usage paths and always-loaded metadata, not package
-  size or moved-text volume.
-- Do not add tests for Markdown-only packages. For executable scripts, add
-  focused tests only when they protect meaningful behavior or a high-risk
-  invariant, and verify the shipped artifact when one exists.
-- Use forward model tests only when static checks cannot provide enough
-  confidence for the changed behavior.
-
-### Runtime and Maintenance Boundaries
-
-- Runtime skills must not reference `.agents/skills/maintainer`, its runbooks,
-  or maintainer-only routing. Repository-level guidance may route explicit
-  maintenance work there.
-- Runtime skills may surface durable guidance candidates but must not perform
-  self-upgrade, metadata synchronization, reference refresh, or repository
-  maintenance from runtime instructions.
-- Keep maintenance-only implementations and refresh helpers outside reusable
-  runtime artifacts and install lists.
-
-### Cache, Tooling, and Git
-
-- Scope per-user caches under `~/.cache/dotagents/skills/<skill-name>/` or
-  `~/.cache/dotagents/plugins/<plugin-name>/`; bundled plugin skill caches use
-  `~/.cache/dotagents/plugins/<plugin-name>/skills/<skill-name>/`.
-- Keep `skills-link.sh` as the local install helper: it links `skills/` into
-  `~/.agents/skills` only and never rewrites plugin marketplace entries.
-- If a change affects multiple skills or plugins, use separate meaningful
-  commits by responsibility. Run `git diff --check` before handoff.
-
-## Package-Local AGENTS Contracts
-
-- The root `AGENTS.md` contains only repository-wide rules for creating,
-  editing, updating, and removing skills or plugins. Read it before any such
-  change, then read the nearest package-local `AGENTS.md` when it exists;
-  package behavior and ownership belong to that local contract or the
-  package's runtime documentation.
-- A package-local `AGENTS.md` is warranted only for maintenance contracts such
-  as owned surfaces, authority boundaries, generated-artifact/version rules,
-  or package-specific validation. It must not duplicate `SKILL.md`, reference
-  prose, manifests, or this root file.
-- Before creating or retaining one, inspect the package and its consumers;
-  remove local files that contain no actionable package-specific contract or
-  merely repeat runtime instructions.
-- Keep nested guidance nearest to the surface it governs. A maintenance
-  project or bundled plugin skill gets its own file only when its contract
-  differs from the parent package.
+Preserve unrelated work. When commits are requested, separate responsibilities
+across skills or plugins. Run `git diff --check` before handoff.
