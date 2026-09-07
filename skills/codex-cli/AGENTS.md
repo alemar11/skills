@@ -23,3 +23,6 @@ suite from the repository root, then verify the shipped artifact with --help,
 --version, --json doctor, and a dry-run fixture.
 A live Codex run is not required for the offline contract tests and must not
 be used to bypass an unavailable or unauthorized runtime.
+
+Keep the launcher standard-library-only and use semantic versioning: major
+for breaking invocation/result changes, minor for capabilities, patch for fixes.
