@@ -86,7 +86,7 @@ for Apple's native headless MCP server:
 | `swift-api-design` | Design or review Swift APIs using local summaries and the bundled official Swift API Design Guidelines. |
 | `swift-docc` | Write, structure, review, and publish Swift-DocC docs using local summaries and bundled DocC sources. |
 | `youtube` | Search YouTube videos and playlists, retrieve timestamped transcripts, and search spoken content across playlists. |
-| `ghostty` | Inspect and arrange Ghostty windows, tabs, split panes, commands, titles, configuration, and keybindings. |
+| `ghostty` | Inspect or arrange Ghostty terminals and edit configuration or keybindings when explicitly requested. |
 
 ### TanStack References
 
