@@ -1,6 +1,6 @@
 # Study State Contract
 
-This reference is the canonical owner of Study's surface, capacity, Grilling,
+This reference is the canonical owner of Study's surface, capacity, Grilling Session,
 App controller setup, App controller title, subagent slot, subagent execution,
 and overall outcome states.
 
@@ -14,7 +14,7 @@ observed settings remain separate facts.
 
 - [Surface and transport](#surface-and-transport)
 - [Capacity mode](#capacity-mode)
-- [Grilling state](#grilling-state)
+- [Grilling Session state](#grilling-session-state)
 - [App controller setup state](#app-controller-setup-state)
 - [App title state](#app-title-state)
 - [Worker slot state](#worker-slot-state)
@@ -51,15 +51,15 @@ These counts are run facts rather than workflow states:
 request was normalized to five, and `controller-selected` means an unspecified
 request justified five.
 
-## Grilling state
+## Grilling Session state
 
 | Value | Meaning | Effect |
 | --- | --- | --- |
-| `not-started` | The active Study controller has not begun Grilling. | Initial state only. |
-| `awaiting-answer` | Grilling has asked one current question and needs the user's answer. | Nonterminal; create no workers. |
+| `not-started` | The active Study controller has not begun Grilling Session. | Initial state only. |
+| `awaiting-answer` | Grilling Session has asked one current question and needs the user's answer. | Nonterminal; create no workers. |
 | `refined` | The user confirmed the refined handoff. | Continue to worker planning. |
-| `user-stopped` | The user ended Grilling before confirmation. | Continue from the best-supported handoff and preserve unconfirmed items. |
-| `blocked` | Grilling or its Learn context dependency could not run responsibly. | Create no workers; overall outcome is `failed`. |
+| `user-stopped` | The user ended Grilling Session before confirmation. | Continue from the best-supported handoff and preserve unconfirmed items. |
+| `blocked` | Grilling Session or its Learn context dependency could not run responsibly. | Create no workers; overall outcome is `failed`. |
 
 Question count, answers, the refined handoff, and unconfirmed items are run
 data. A controller waiting for the next answer remains nonterminal even when
@@ -74,7 +74,7 @@ Use `not-applicable` for every CLI run.
 | --- | --- | --- |
 | `not-started` | No App controller creation attempt has begun. | Initial state; a failed saved-project preflight may terminate from here. |
 | `pending-setup` | The creation effect or stable identity remains uncertain. | Reconcile before any retry or worker creation. |
-| `ready` | Stable identity, exact project and host, direct local environment, operational state, and Sol/medium profile were independently established. | Begin App Grilling and later worker planning. |
+| `ready` | Stable identity, exact project and host, direct local environment, operational state, and Sol/medium profile were independently established. | Begin App Grilling Session and later worker planning. |
 | `creation-failed` | Authoritative evidence proves no controller task exists after the allowed attempt. | Preserve evidence, create no workers, and fail Study. |
 | `structural-verification-failed` | A real controller exists, but its project, host, direct local environment, or operational state is missing, mismatched, or unavailable. | Preserve it, create no workers, and fail Study. |
 | `settings-drift` | A real controller exists, but observed model or reasoning differs from Sol/medium. | Preserve it, create no workers, and fail Study. |
@@ -161,5 +161,5 @@ abandonment of a worker that requires attention.
 
 `awaiting-answer`, `pending-setup`, `needs-attention`, and
 `monitoring-unavailable` are nonterminal and must not be reported as an overall
-outcome. Grilling `blocked` maps to `failed`. Any terminal App controller setup
+outcome. Grilling Session `blocked` maps to `failed`. Any terminal App controller setup
 failure maps to `failed`; a CLI run has no App controller setup gate.

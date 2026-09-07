@@ -1,14 +1,14 @@
 # SE Workflow Graph Contract
 
 This reference owns the shared structural vocabulary for graph-first SE
-workflows. It applies to Learn, Grilling, Idea, Spec, Delivery Features, and Audit
+workflows. It applies to Learn, Grilling Session, Idea, Spec, Delivery Features, and Audit
 without turning every skill into the same implementation graph.
 
 The existing workflow-contract.md remains the canonical owner of the Idea
 hosted shape. This reference owns workflow structure only.
 Spec owns the [specification and task contract](../skills/spec/references/specification.md).
 Delivery Features owns transient task-to-unit mapping, scheduling, integration,
-and PR topology. Learn, Grilling, Idea, and Audit own their local graphs.
+and PR topology. Learn, Grilling Session, Idea, and Audit own their local graphs.
 
 Every graph-owning skill routes to `references/states.md`. Its registry is the
 structural source of truth for nodes and edges; the state reference explains
@@ -86,7 +86,7 @@ as the source of truth. Explanatory prose may clarify a condition but must not
 add an unregistered edge.
 
 Spec keeps its spec-authoring step files and registry as its local source of truth.
-Learn, Grilling, Idea, Delivery Features, and Audit keep their registries in their
+Learn, Grilling Session, Idea, Delivery Features, and Audit keep their registries in their
 SKILL.md files while branch-specific details remain in routed references.
 
 ## Common terminal meanings
@@ -103,7 +103,7 @@ complete and blocked terminal contract. Learn uses all four meanings. Idea
 uses reported, deferred, complete, and blocked.
 Delivery Features uses complete, deferred, and blocked.
 Audit uses reported and blocked.
-Grilling uses complete for a confirmed refined handoff, reported for a
+Grilling Session uses complete for a confirmed refined handoff, reported for a
 user-stopped best-effort handoff, and blocked when responsible questioning
 cannot continue.
 

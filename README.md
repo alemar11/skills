@@ -51,7 +51,7 @@ audits active work:
 | Skill | Purpose |
 | --- | --- |
 | `se:learn` | Maintain durable project knowledge, decisions, localization guidance, and code review rules. |
-| `se:grilling` | Refine a topic or handoff through repository-grounded questions with concrete recommended answers. |
+| `se:grilling-session` | Refine a topic or handoff through repository-grounded questions with concrete recommended answers. |
 | `se:study` | Grill one curated handoff, then run read-only analysis in one App controller or the current CLI session with optional Luna subagents. |
 | `se:adversarial-review` | Pressure-test a software change with an independent read-only review and evidence-backed findings. |
 | `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |
@@ -104,7 +104,7 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
 
 ## Skill Dependencies
 
-- `se:study` builds one curated handoff, starts Grilling immediately, and then
+- `se:study` builds one curated handoff, starts Grilling Session immediately, and then
   runs a strictly read-only investigation on the active Codex surface. In the
   App it creates one separate visible Sol/medium controller in the exact saved
   local project without a worktree. In the CLI the current session and its
@@ -120,8 +120,8 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
   no worker count is specified, focused analysis uses no subagent, one is
   reserved for a large or noisy evidence surface, and multiple subagents
   require genuinely independent tracks; five is a cap, not the default.
-- `se:study`, `$se:grilling`, and `$se:learn` ship together in the SE plugin.
-  Study invokes its sibling Grilling workflow directly, which uses Learn for a
+- `se:study`, `$se:grilling-session`, and `$se:learn` ship together in the SE plugin.
+  Study invokes its sibling Grilling Session workflow directly, which uses Learn for a
   read-only Project Context pass. The separate App Study task or current CLI
   session asks the user one question with a recommended answer per turn and
   cannot plan workers until the handoff is confirmed or the user stops
@@ -130,7 +130,7 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
 - The G-dependent SE skills run a read-only Codex plugin preflight before their first required G handoff and fail closed when G is unavailable; Feature publication requires `$g:github-issues`; its optional classification branch never gates semantic publication, while no SE skill installs G automatically.
 - `se:idea` traverses a graph-first in-memory capture workflow and publishes to GitHub by default; an explicitly requested preview stays entirely local. Its durable output is the hosted issue, not project memory, and its optional idea-source handoff remains transient.
 - `se:learn` runs in the invoking task and performs only authorized local-repository context changes; it has no external dependency preflight, task profile, GitHub transport, publication, or worker delegation contract.
-- `se:grilling` is read-only and explicit or parent-composed. It depends on
+- `se:grilling-session` is read-only and explicit or parent-composed. It depends on
   `$se:learn` for context inspection, returns a transient refined handoff, and
   never creates tasks or captures durable knowledge automatically.
 - `se:spec` saves one coherent spec with stable task identities, recommended

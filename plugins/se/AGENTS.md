@@ -27,8 +27,8 @@ When ownership changes, update affected consumers and remove obsolete routes.
 
 - Learn owns local durable context, localization, review rules, and managed
   AGENTS pointers. It does not own tracker, task, or delivery state.
-- Grilling owns read-only interview refinement and composes Learn for context.
-- Study owns read-only study topology, its curated handoff, Grilling, worker cap,
+- Grilling Session owns read-only interview refinement and composes Learn for context.
+- Study owns read-only study topology, its curated handoff, Grilling Session, worker cap,
   and synthesis. App/CLI details and worker operations live in its references.
 - Idea owns tentative proposal capture, preview/publication, and the typed Idea
   source handoff. It does not define Feature requirements or durable memory.
@@ -66,7 +66,7 @@ full protocols into this file:
 - GitHub and Markdown preserve one spec/task contract and one authoritative
   destination. Exports are explicit snapshots. Native edges are projections;
   preserve body-backed meaning, per-edge results, and foreign provider edges.
-- Material spec questions compose Grilling in the planner. Safe assumptions
+- Material spec questions compose Grilling Session in the planner. Safe assumptions
   and explicitly delegated decisions do not require extra interviews. Every
   complete draft passes Review, with progress-bounded correction.
 - Keep Spec planner setup independent of Delivery Features claims and task

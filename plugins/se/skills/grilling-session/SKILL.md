@@ -1,21 +1,21 @@
 ---
-name: grilling
+name: grilling-session
 description: "Refine a topic or handoff one question at a time when explicitly requested or composed by SE."
 ---
 
-# Grilling
+# Grilling Session
 
 Follow the shared [execution scope](../../references/execution-scope.md) for
 standalone and composed invocation.
 
 ## Purpose and boundary
 
-Use `$se:grilling` to turn a topic, proposal, plan, or composed handoff into a
+Use `$se:grilling-session` to turn a topic, proposal, plan, or composed handoff into a
 clearer decision-ready brief through a demanding but constructive interview.
 Infer the topic from the invoking prompt or supplied handoff when it is clear;
 ask the user to choose only when multiple materially different topics remain.
 
-Grilling is conversational and read-only. It may inspect repository context,
+Grilling Session is conversational and read-only. It may inspect repository context,
 source, documentation, and other read-only evidence, but it never edits project
 files, persists the transcript, creates tasks, or delegates work. If the user
 asks to preserve an accepted rule or decision, return it as a durable-knowledge
@@ -74,7 +74,7 @@ the separate visible Study task; the invoking parent may point the user there
 but must not relay the interview turn by turn. For
 `study_surface=cli-session`, keep every question and answer directly in the
 invoking CLI session. On either surface, do not plan or create Study workers
-until the Grilling outcome is `refined` or `user-stopped`.
+until the Grilling Session outcome is `refined` or `user-stopped`.
 
 ## Workflow graph
 

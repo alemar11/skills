@@ -1,7 +1,7 @@
-# Grilling State Reference
+# Grilling Session State Reference
 
-This reference is the canonical inventory of state used by `$se:grilling`.
-All state is transient in the invoking conversation. Grilling has no persisted
+This reference is the canonical inventory of state used by `$se:grilling-session`.
+All state is transient in the invoking conversation. Grilling Session has no persisted
 checkpoint, run ledger, write preference, or repository-owned state.
 
 ## Workflow nodes

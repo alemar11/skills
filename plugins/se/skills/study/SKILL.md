@@ -10,7 +10,7 @@ standalone and composed invocation.
 
 ## Purpose and boundary
 
-Build one curated handoff, refine it through `se:grilling`, optionally delegate
+Build one curated handoff, refine it through `se:grilling-session`, optionally delegate
 bounded evidence gathering, and return a Markdown study report.
 
 Study is not an implementation workflow:
@@ -67,7 +67,7 @@ it. A shared result of `unresolved` stops Study with the incompatibility.
 Never substitute the other surface after setup or worker creation fails.
 
 Read [references/states.md](references/states.md) before interpreting any
-surface, controller, capacity, Grilling, worker, lifecycle, or outcome state.
+surface, controller, capacity, Grilling Session, worker, lifecycle, or outcome state.
 
 ## Curated Study handoff
 
@@ -95,11 +95,11 @@ current session and do not save it.
 1. Build the curated handoff and select `study_surface`.
 2. Continue according to the selected runtime reference. App creates exactly
    one separate Study controller; CLI keeps the current session as controller.
-3. Compose `$se:grilling` immediately with the curated handoff. Its first
+3. Compose `$se:grilling-session` immediately with the curated handoff. Its first
    question must be the controller's first substantive Study response: in the
    separate App task for `app-task`, or directly in the invoking CLI session
    for `cli-session`.
-4. Ask one question per turn until Grilling returns `refined`, the user stops
+4. Ask one question per turn until Grilling Session returns `refined`, the user stops
    with `user-stopped`, or the interview is `blocked`. Create no workers while
    the interview is awaiting an answer. A blocked interview fails Study before
    worker creation.
@@ -123,7 +123,7 @@ Five is an absolute cap across the entire Study run:
 - A request above five is capped to five without another confirmation. Record
   the original and normalized counts, tell the user before worker creation,
   and report the cap in the result.
-- An unspecified count is chosen only after Grilling, using the smallest
+- An unspecified count is chosen only after Grilling Session, using the smallest
   useful number from zero through five. Do not default to five.
 - Setup failure may lower `created_worker_count`, but it never changes the
   planned count, frees a reserved slot, or authorizes a replacement.

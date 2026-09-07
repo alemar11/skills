@@ -6,7 +6,7 @@ task plans, reviewed PR delivery, durable project knowledge, and read-only audit
 | Skill | Responsibility |
 | --- | --- |
 | `se:learn` | Maintain explicitly authorized local project knowledge and review rules. |
-| `se:grilling` | Refine a topic through one focused question and recommendation at a time. |
+| `se:grilling-session` | Refine a topic through one focused question and recommendation at a time. |
 | `se:study` | Refine a curated handoff, then conduct a read-only investigation. |
 | `se:idea` | Save a tentative proposal to GitHub or preview it locally. |
 | `se:spec` | Create or revise a coherent spec with an ordered actionable task plan; save to GitHub or one Markdown file. |
@@ -34,7 +34,7 @@ See the canonical [specification contract](skills/spec/references/specification.
 and [revision/migration rules](skills/spec/references/existing-specs.md).
 
 Spec uses one directly placed planner with its existing explicit profile and
-stable-receipt startup. It asks only material questions through Grilling,
+stable-receipt startup. It asks only material questions through Grilling Session,
 retains accepted technical decisions, distinguishes them from suggestions, and
 reviews the whole spec/task bundle before saving. Its `steps/` own workflow
 nodes; templates are output resources. Planning never writes implementation

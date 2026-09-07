@@ -1,7 +1,7 @@
 interface:
   display_name: "🔬 Study"
   short_description: "Grill a handoff, then study with native subagents."
-  default_prompt: "Use $se:study to refine my handoff through $se:grilling, then run read-only analysis on the current Codex surface."
+  default_prompt: "Use $se:study to refine my handoff through $se:grilling-session, then run read-only analysis on the current Codex surface."
   brand_color: "#0E7490"
 policy:
   allow_implicit_invocation: false

@@ -1,7 +1,7 @@
 ---
 node_id: clarification
 kind: action
-purpose: resolve-material-decisions-through-grilling
+purpose: resolve-material-decisions-through-grilling-session
 entry_conditions:
   - material-decision-remains
 inputs:
@@ -25,7 +25,7 @@ terminal_states: []
 
 # Clarification
 
-Compose [Grilling](../../grilling/SKILL.md) inside this planner with the admitted
+Compose [Grilling Session](../../grilling-session/SKILL.md) inside this planner with the admitted
 evidence, accepted decisions, constraints, and material uncertainty. Ask one
 focused question at a time; wait nonterminally for an answer. Do not introduce
 another planner or Study controller.

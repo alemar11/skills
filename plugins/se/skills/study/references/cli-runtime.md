@@ -1,7 +1,7 @@
 # Study CLI Runtime
 
 Read this reference only when `study_surface=cli-session`. It owns same-session
-control, current-directory context, immediate Grilling, and surface-specific
+control, current-directory context, immediate Grilling Session, and surface-specific
 subagent context.
 
 ## Current-session controller
@@ -15,7 +15,7 @@ task, fork the session, or transfer the handoff elsewhere.
   repository context. A saved App project is not required.
 - Retain the curated handoff transiently as the authoritative Study brief. Do
   not write it to disk.
-- Compose `$se:grilling` immediately and ask its first question directly in
+- Compose `$se:grilling-session` immediately and ask its first question directly in
   the current CLI session. There is no parent relay or setup-only turn.
 
 Continue the interview in this session until its state is `refined`,
@@ -29,7 +29,7 @@ saved-project task placement, or App task telemetry. Mark those state fields
 
 ## Subagent context
 
-After Grilling is refined or stopped, apply the shared native-subagent contract
+After Grilling Session is refined or stopped, apply the shared native-subagent contract
 in [orchestration.md](orchestration.md). Every subagent remains under the
 current CLI controller lineage and uses the current working-directory context.
 Subagents have no App task title, saved-project placement, or archival fields.

@@ -10,7 +10,7 @@ identities. Workflow position and operation results are transient.
 | --- | --- | --- |
 | `intake` | action | Resolve bounded inputs, repository scope, source authority, and destination/operation. |
 | `analysis` | action | Establish behavior, decisions, constraints, and credible verification. |
-| `clarification` | action | Resolve only material decisions through Grilling; ordinary answer waits are nonterminal. |
+| `clarification` | action | Resolve only material decisions through Grilling Session; ordinary answer waits are nonterminal. |
 | `plan` | action | Draft the coherent main spec and its feature acceptance criteria. |
 | `decompose` | action | Produce the complete actionable task plan with stable identities, order, and real prerequisites. |
 | `review` | validation | Review the whole spec/task contract, correcting with progress or returning a material question. |

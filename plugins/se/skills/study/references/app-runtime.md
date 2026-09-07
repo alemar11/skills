@@ -27,8 +27,8 @@ Create exactly one visible App task as the Study controller:
 - Place it directly in the resolved project and local environment.
 - Supply the complete curated handoff, the read-only boundary, the recursion
   prohibition, and the applicable Study protocol.
-- Require its first substantive action to compose `$se:grilling` and ask the
-  first interview question. Do not insert a setup-only turn before Grilling.
+- Require its first substantive action to compose `$se:grilling-session` and ask the
+  first interview question. Do not insert a setup-only turn before Grilling Session.
 
 Treat an immediate creation response as a receipt, not proof of final task
 state. Bind the controller only to a stable task identity. When the result is
@@ -58,17 +58,17 @@ A title warning does not block an otherwise verified controller unless the
 user explicitly required an exact visible title. Never recreate a task or
 perform repeated renames to repair title drift.
 
-## Parent monitoring and Grilling
+## Parent monitoring and Grilling Session
 
 Keep the invoking parent active after controller creation and monitor the exact
-controller through bounded observations. When its Grilling state is
+controller through bounded observations. When its Grilling Session state is
 `awaiting-answer`, point the user to the separate visible Study task. Do not
 copy the question into the parent or relay interview answers turn by turn.
 
-The controller must remain in Grilling until the handoff is `refined`, the
+The controller must remain in Grilling Session until the handoff is `refined`, the
 user stops with `user-stopped`, or the interview is `blocked`. It creates no
 workers while awaiting an answer. Relay only meaningful milestones: the first
-question is ready, Grilling finished or stopped, scope and worker count were
+question is ready, Grilling Session finished or stopped, scope and worker count were
 fixed, a material blocker appeared, the first worker finished, and synthesis
 finished.
 
@@ -79,7 +79,7 @@ result.
 
 ## Subagent context
 
-After Grilling is refined or stopped, apply the shared native-subagent contract
+After Grilling Session is refined or stopped, apply the shared native-subagent contract
 in [orchestration.md](orchestration.md). Every subagent remains under the stable
 App controller lineage and uses its working-directory context. Subagents have
 no App task title, saved-project placement, or archival fields. Keep the Study

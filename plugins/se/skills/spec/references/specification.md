@@ -103,7 +103,7 @@ architecture, migration, and testing decisions when they constrain the outcome.
 Record the decision, consequence, and evidence or authority. Existing accepted
 decisions, choices explicitly delegated to the planner, and safe explicit
 assumptions may proceed without a new interview. Material unresolved choices
-return through Grilling before saving a ready spec.
+return through Grilling Session before saving a ready spec.
 
 Distinguish binding decisions from implementation suggestions. Binding
 decisions are part of the spec contract; suggestions are optional approaches

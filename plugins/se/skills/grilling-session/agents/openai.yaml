@@ -1,0 +1,7 @@
+interface:
+  display_name: "🔥 Grilling Session"
+  short_description: "Sharpen a topic through focused questions."
+  brand_color: "#B91C1C"
+  default_prompt: "Use $se:grilling-session to refine this topic one focused question and recommended answer at a time."
+policy:
+  allow_implicit_invocation: false

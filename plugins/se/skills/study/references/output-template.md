@@ -12,8 +12,8 @@ placeholders.
 - **Worker transport:** `<subagent/none>`
 - **Controller location:** `<separate visible App Study task/current CLI session>`
 - **Controller profile:** `<gpt-5.6-sol / medium/current CLI profile inherited or unavailable>`
-- **Grilling outcome:** `<refined/user-stopped/blocked>`
-- **Grilling question count:** `<count>`
+- **Grilling Session outcome:** `<refined/user-stopped/blocked>`
+- **Grilling Session question count:** `<count>`
 - **Original requested worker count:** `<count or unspecified>`
 - **Planned worker count after cap:** `<0-5>`
 - **Created worker count:** `<0-5 stable identities>`
@@ -64,7 +64,7 @@ State the question, planning goal, or research target that Study analyzed.
 
 Summarize the user-confirmed or best-supported objective, outcome, scope,
 non-goals, constraints, decisions, terminology, success criteria, evidence
-expectations, and any unconfirmed items carried forward after Grilling. Do not
+expectations, and any unconfirmed items carried forward after Grilling Session. Do not
 reproduce the raw interview transcript.
 
 ## Observations

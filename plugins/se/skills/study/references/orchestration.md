@@ -1,6 +1,6 @@
 # Study Orchestration
 
-Read this reference after Grilling returns `refined` or `user-stopped`. It owns
+Read this reference after Grilling Session returns `refined` or `user-stopped`. It owns
 the shared subagent selection, assignment, setup, monitoring, synthesis, and
 failure policy for both Study surfaces. Surface references own only controller
 placement and the subagent's surface-specific working context.
@@ -147,7 +147,7 @@ Use these overall outcomes:
 - `partial`: the controller produced a usable synthesis, but at least one
   planned slot failed, drifted, remained unresolved, was abandoned, or lacked
   terminal evidence.
-- `failed`: no usable synthesis can be returned, including a blocked Grilling
+- `failed`: no usable synthesis can be returned, including a blocked Grilling Session
   phase or failed App controller setup.
 
 Read [output-template.md](output-template.md) immediately before reporting and

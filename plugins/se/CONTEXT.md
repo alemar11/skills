@@ -7,7 +7,7 @@ Scope: `plugins/se/`
 ## Project Purpose Delta
 
 SE is the repository's graph-first software-delivery plugin. Its bundled Learn,
-Grilling, Study, Idea, Spec, Adversarial Review, Review PR, Delivery Features,
+Grilling Session, Study, Idea, Spec, Adversarial Review, Review PR, Delivery Features,
 Implement, and Audit skills have distinct runtime contracts, while `AGENTS.md`
 and `README.md` define package maintenance ownership and routing.
 
