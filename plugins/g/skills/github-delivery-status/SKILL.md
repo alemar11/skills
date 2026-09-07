@@ -1,6 +1,6 @@
 ---
 name: github-delivery-status
-description: Inspect one pull request's exact-head GitHub delivery readiness read-only, including mergeability, policy, required checks and reviews, unresolved threads, queue, and automation state.
+description: "Inspect one pull request’s exact-head checks, reviews, merge policy, and delivery readiness read-only."
 ---
 
 # GitHub Delivery Status
@@ -67,12 +67,3 @@ Preserve unfamiliar provider enum values in the evidence and classify them as
 `unknown` rather than guessing. A successful read with a non-ready disposition
 still exits successfully; transport, authentication, invalid input, and
 unreadable provider responses are command failures.
-
-## CLI maintenance
-
-Normal execution uses `<plugin-root>/scripts/g`. Open
-`<plugin-root>/projects/g/` only to extend or repair the shared runtime, then
-run its standard-library tests, rebuild the shipped artifact, and verify
-`--help`, `--version`, `--json doctor`, and one read-only delivery-status call.
-`projects/g/pyproject.toml` is the version source of truth; runtime changes use
-semantic versioning and keep the plugin manifest and shipped artifact aligned.
