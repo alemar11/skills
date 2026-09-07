@@ -2,6 +2,6 @@ interface:
   display_name: "Crusty · Independent Critic"
   short_description: "👴🏻 Self-contained skeptical critique of plans and decisions."
   brand_color: "#9A6B2F"
-  default_prompt: "Use $crusty as a self-contained independent critic: challenge my preferred conclusion or framing, evaluate the decision or implementation from local or supplied evidence, identify material risks, weak assumptions, and evidence gaps, and recommend fixes without delegating or editing project files."
+  default_prompt: "Use $crusty to challenge this decision or implementation with evidence and recommend the smallest maintainable correction."
 policy:
   allow_implicit_invocation: false

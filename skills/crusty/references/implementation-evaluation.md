@@ -5,20 +5,11 @@ implementation's correctness, resilience, or test strategy.
 
 ## Contract
 
-Crusty's advisory-only boundary applies unchanged. Inspect the implementation
-and its tests, and run safe existing verification when it adds evidence, but do
-not modify the target project or real external state. Mutation wording in the
-request does not authorize changes or a later implementation phase in the same
-task. Return recommended changes for a separate non-Crusty workflow and stop.
-
-Before running existing verification, inspect the command and its fixtures. Run
-it in the target checkout only when it is known not to write project files or
-external state. When its only effects are local checkout or build artifacts,
-use an isolated disposable copy if the current scope permits it. Do not run a
-command that may reach shared databases, services, networks, home-directory
-caches, or other external state unless every dependency is separately isolated
-and disposable. Otherwise recommend the command without executing it. Ensure
-disposable artifacts are absent before returning.
+Inspect code and existing tests; run focused verification when it adds useful
+evidence and fits the authorized environment. Ordinary disposable build
+artifacts do not require a separate copy. Do not run tests against shared or
+production state without authorization. Report failures without repairing them
+during the critique; follow an explicit fix request after presenting findings.
 
 Do not execute destructive, unbounded, or host-endangering stress and resource
 exhaustion scenarios. Recommend bounded and isolated verification for those
@@ -81,8 +72,7 @@ Use this specialized output instead of the general output shape in `SKILL.md`:
 
 - a concise verdict on the implementation and its verification quality;
 - prioritized confirmed defects and risky assumptions;
-- a test-gap matrix covering the failure mode, evidence, impact, recommended
-  verification, and priority;
+- material test gaps with the recommended verification and priority;
 - weak, fragile, or redundant existing tests and the reason for the judgment;
 - required corrections separated from optional improvements;
 - commands run and relevant results;
