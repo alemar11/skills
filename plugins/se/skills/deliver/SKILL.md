@@ -34,8 +34,11 @@ required CI. Ordinary phase transitions need no coordinator approval round trip.
 
 ## Authority and worker work
 
-Invocation authorizes scoped worktrees, branches, implementation, commits, pushes,
-PR creation/readiness and CI corrections. Explicit user restrictions win: no-push
+Invocation, explicit or implicit, authorizes creating visible App worker tasks
+or native CLI subagents for the selected scope, along with scoped worktrees,
+branches, implementation, commits, pushes, PR creation/readiness and CI corrections.
+Do not ask for separate worker-task creation permission or renew that permission
+when continuing the same delivery. Explicit user restrictions win: no-push
 work ends with a local handoff and PR delivery explicitly incomplete. Never ask
 to override that restriction. Merge, deployment, releases, production actions,
 direct issue closure, destructive recovery and scope expansion are not authorized.

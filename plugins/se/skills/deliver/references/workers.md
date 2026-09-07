@@ -10,11 +10,9 @@ On the App, use a visible task in the exact matching saved repository project
 and an isolated worktree. On CLI, use a native subagent with an isolated worktree.
 An unresolved surface or unavailable required transport/target blocks affected
 work. Do not substitute the other surface, an external process, or implementation
-in the orchestrator. Runtime authorization rules still apply: when App task
-creation requires the user's explicit request to create worker tasks and that
-request is absent, report the missing authorization before creation. Skill
-invocation does not override that runtime restriction. Never create a replacement
-coordinator.
+in the orchestrator. Apply the entrypoint's invocation authority for worker
+creation; implicit invocation needs no separate permission prompt. Higher-priority
+runtime restrictions still apply. Never create a replacement coordinator.
 
 Workers default to `gpt-5.6-luna` with `max` reasoning; explicit user overrides
 win. Request those settings, but do not gate editing on effective-model telemetry

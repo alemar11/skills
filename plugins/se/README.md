@@ -47,6 +47,8 @@ bounded requests. The current task orchestrates workers with isolated worktrees
 and branches: visible App tasks or native CLI subagents. Each worker owns
 implementation, self-checks, publication and required CI in one assignment.
 The orchestrator owns scope, dependencies, optional stacks and assembled outcomes.
+Explicit or implicit invocation authorizes the scoped worker tasks without a
+separate task-creation permission prompt, subject to explicit user restrictions.
 
 Delivery finishes with all required PRs non-draft, current required CI passing,
 and selected outcomes verified. Merge and deployment are separate. There are no
