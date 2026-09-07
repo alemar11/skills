@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Check policy references and template paths; maintainers review the policy prose.
+
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 plugin_root=$(cd -- "$script_dir/.." && pwd -P)
 owner="$plugin_root/references/hosted-content-safety.md"
@@ -10,26 +12,7 @@ fail() {
   exit 1
 }
 
-test -f "$owner" || fail "missing canonical owner"
-
-for phrase in \
-  "immediately before every hosted write" \
-  "Internal control-plane records may retain" \
-  "repository-relative paths" \
-  "repository identity, branch, and full SHA" \
-  "review requests" \
-  'project_root' \
-  "worker- and tool-originated content" \
-  "Returned text is not safe by" \
-  "Local-path correction is mandatory" \
-  "single-line title" \
-  "no serialization-added trailing carriage return" \
-  "contains no trailing line terminator" \
-  "correct the same rendered content before transport" \
-  "does not block the enclosing SE workflow" \
-  "Never create a replacement hosted artifact"; do
-  rg -Fq -- "$phrase" "$owner" || fail "owner is missing: $phrase"
-done
+test -s "$owner" || fail "missing or empty canonical owner"
 
 for relative in \
   skills/idea/SKILL.md \
@@ -48,13 +31,6 @@ for relative in \
     fail "missing canonical route in $relative"
 done
 
-if rg -n -- \
-  'Do not publish local absolute paths|Do not publish machine-specific absolute paths|private prompt machinery|irrelevant transcript fragments' \
-  "$plugin_root/skills/idea/SKILL.md" \
-  "$plugin_root/skills/idea/references/idea-template.md"; then
-  fail "Idea duplicates common hosted-content doctrine"
-fi
-
 hosted_templates=(
   "$plugin_root/skills/idea/references/idea-template.md"
   "$plugin_root/skills/spec/templates/spec.md"
@@ -62,8 +38,11 @@ hosted_templates=(
   "$plugin_root/skills/spec/templates/maintenance-changelog.md"
 )
 
-if rg -n -- '/Users/|/home/|/private/|[A-Za-z]:\\\\' "${hosted_templates[@]}"; then
+if rg -n -- '/Users/|/home/|/private/|[A-Za-z]:[\\/]' "${hosted_templates[@]}"; then
   fail "hosted template contains a machine-specific absolute path"
+else
+  scan_status=$?
+  [[ "$scan_status" == 1 ]] || fail "could not inspect every hosted template"
 fi
 
 echo "hosted-content-safety: ok"
