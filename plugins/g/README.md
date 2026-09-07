@@ -12,8 +12,7 @@ extension for stacked pull requests. It has no GitHub connector dependency.
 | `g:github` | Route general or mixed GitHub requests to the focused G owner. |
 | `g:git-commit` | Create or push explicitly staged regular and targeted commits without opening a pull request. |
 | `g:github-repository-triage` | Inspect issue and pull-request queues read-only. |
-| `g:github-tagger` | Classify one issue against existing metadata or propose missing taxonomy read-only. |
-| `g:github-issues` | Manage exact issue lifecycle, metadata, attachments, and relationships. |
+| `g:github-issues` | Manage issue lifecycle, classify labels and types, and propose taxonomy. |
 | `g:github-projects` | Manage GitHub Projects, fields, items, links, templates, and lifecycle. |
 | `g:github-investigation` | Investigate issues, pull requests, root causes, and fix quality from repository evidence. |
 | `g:github-actions` | Inspect, diagnose, or explicitly repair GitHub Actions failures. |

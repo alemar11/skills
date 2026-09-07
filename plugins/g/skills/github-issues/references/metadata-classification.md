@@ -1,7 +1,28 @@
-# GitHub Tagger Classification
+# Issue Metadata Classification
 
-Read this reference only after the target issue and the current assignable
-metadata catalog have both been resolved.
+Read for content-based label/type selection for one exact issue. For a batch,
+freeze the issue identities and classify each separately. Reject pull requests,
+missing issues, and ambiguous targets.
+
+## Request and authority
+
+Evaluate labels and native type unless the request narrows the dimensions.
+An explicit tag, label, apply-classification, or set-type request authorizes
+`mutation_mode=apply`; classify, categorize, recommend, suggest, preview, or
+explain without an application request selects `dry-run`. Existing exact
+metadata selections use the lifecycle branch directly.
+
+A composed classification handoff needs an exact repository and issue identity
+and canonical `mutation_mode`. It cannot import tracker, planning, or
+orchestration policy. Classification authority permits adding supported labels
+and setting one supported type only; it never permits removals or changes to
+contextual fields or taxonomy.
+
+Read [metadata-provider-reads.md](metadata-provider-reads.md) for the issue and
+complete assignable catalogs before selecting values. Read relevant comments
+and contextual fields only as evidence. Use `$g:github-investigation` when
+selection requires code, root-cause, fix-quality, or acceptance evidence beyond
+the issue text. Read [states.md](states.md) before returning or applying results.
 
 ## Catalog Boundaries
 
@@ -16,7 +37,7 @@ metadata across issues or runs.
   read are different facts. Report which one was observed.
 - Visible issue fields, milestone, assignees, projects, parent/sub-issue links,
   dependencies, and current workflow state may explain context but are outside
-  this skill's mutation surface.
+  this classification branch's mutation surface.
 - Label color is presentation metadata. Never translate a color into severity,
   priority, status, or category.
 
@@ -84,6 +105,14 @@ An unavailable type catalog with a usable label catalog yields `partial-match`
 when type was requested. Record the skipped type dimension explicitly.
 
 ## Application
+
+For authorized changes, read [lifecycle.md](lifecycle.md). Normalize missing
+labels into one `issue_operation=add-label` operation and a changed type into
+a separate `issue_operation=set-type` operation. These are internal operations
+of this skill, not a second skill handoff. Re-read the issue and selected catalog
+entries immediately before writes; after each receipt, independently read the
+exact issue back. Reconcile an uncertain or partial failure before retrying and
+never repeat a change already applied.
 
 - In `dry-run`, return a proposal only and set `application_status=previewed`
   when at least one change is proposed.

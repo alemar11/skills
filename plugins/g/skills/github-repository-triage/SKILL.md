@@ -21,7 +21,7 @@ and require its host and authentication checks.
 
 ## Role
 
-Return a concise, URL-first queue assessment. Use `g:github-tagger` for
+Return a concise, URL-first queue assessment. Use `g:github-issues` for
 classification, `g:github-investigation` for disposition analysis, and
 `g:github-issues` for decided mutations. Triage itself is read-only.
 
@@ -58,7 +58,7 @@ per-repository failures, and writes no implicit config.
    blocking CI, release gaps, and next actions per repository. Preserve
    per-repository failures instead of hiding the rest of the scan.
 4. When queue work identifies one exact issue that needs content-based label or
-   type selection, route it to `$g:github-tagger`; do not choose metadata from a
+   type selection, route it to `$g:github-issues`; do not choose metadata from a
    queue summary.
    When the user instead requests a taxonomy proposal, route the exact
    repository and corpus context to that skill; do not invent new labels from

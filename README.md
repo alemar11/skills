@@ -28,8 +28,7 @@ G is the repo-local Git and GitHub workflow plugin. It uses authenticated `gh`, 
 | `g:github` | Handle general or mixed GitHub requests through the appropriate focused workflows. |
 | `g:git-commit` | Create or push explicit regular, fixup, or amend-fixup commits without publishing a PR. |
 | `g:github-repository-triage` | Triage issue and pull request queues across one or more repositories read-only. |
-| `g:github-tagger` | Classify one issue against existing metadata or explicitly analyze a repository and its issues to propose minimal new labels and organization issue types without mutation. |
-| `g:github-issues` | Manage GitHub issue lifecycle, attachments, metadata, relationships, and dry-runs. |
+| `g:github-issues` | Manage GitHub issues, attachments, relationships, label/type classification, and taxonomy proposals. |
 | `g:github-projects` | Manage GitHub Projects, fields, items, repository or team links, templates, and lifecycle. |
 | `g:github-investigation` | Investigate issues, pull requests, and proposed fixes using repository evidence. |
 | `g:github-actions` | Diagnose or explicitly fix failing GitHub Actions checks. |
@@ -125,7 +124,7 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
   cannot plan workers until the handoff is confirmed or the user stops
   grilling.
 - `maintainer` uses `$skill-audit` conditionally when health diagnosis or workflow hardening needs portfolio, prompt-quality, overlap, or session evidence; requires `$skill-creator` or `$plugin-creator` for substantial package reshapes; and requires native `codex review` for non-trivial implementation closeout.
-- The G-dependent SE skills run a read-only Codex plugin preflight before their first required G handoff and fail closed when G is unavailable; Feature publication requires both `$g:github-issues` and `$g:github-tagger`, while no SE skill installs G automatically.
+- The G-dependent SE skills run a read-only Codex plugin preflight before their first required G handoff and fail closed when G is unavailable; Feature publication requires `$g:github-issues`; its optional classification branch never gates semantic publication, while no SE skill installs G automatically.
 - `se:idea` traverses a graph-first in-memory capture workflow and publishes to GitHub by default; an explicitly requested preview stays entirely local. Its durable output is the hosted issue, not project memory, and its optional idea-source handoff remains transient.
 - `se:learn` runs in the invoking task and performs only authorized local-repository context changes; it has no external dependency preflight, task profile, GitHub transport, publication, or worker delegation contract.
 - `se:grilling` is read-only and explicit or parent-composed. It depends on

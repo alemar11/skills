@@ -1,5 +1,0 @@
-interface:
-  display_name: "GitHub Tagger"
-  short_description: "Classify issues or propose missing taxonomy"
-  brand_color: "#15803D"
-  default_prompt: "Use $g:github-tagger to classify an existing issue with the smallest relevant existing label set and at most one type, or, only when explicitly requested, analyze a repository and its issues to propose missing labels and organization issue types without mutation."

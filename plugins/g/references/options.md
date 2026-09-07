@@ -50,12 +50,24 @@ must use only the applicable registry fields; reject unknown fields or values.
 Factual envelope fields such as `ok: true`, GitHub API fields, CLI flags, and
 other externally owned syntax are not option values and remain unchanged.
 
+## Issue metadata classification
+
+A request to select suitable labels or a type uses the conditional
+[classification workflow](../skills/github-issues/references/metadata-classification.md).
+An exact caller-selected metadata operation bypasses classification.
+Classification resolves `mutation_mode` before selection and derives separate
+`add-label` and `set-type` operations only for supported changes. A composed
+classification request supplies the exact repository, issue, optional requested
+dimensions, and `mutation_mode`; it need not preselect an `issue_operation`.
+Taxonomy proposals are read-only and omit both operation and mutation fields.
+
 ## Caller-owned authorization
 
 G does not own planning or orchestration authority. When another
 workflow calls a G mutating skill, that caller must normalize
 its own policy to `mutation_mode=apply`, the exact target, and one canonical
-G operation before invocation. G rejects caller-owned planning,
+G operation before invocation, except for the classification branch above.
+G rejects caller-owned planning,
 tracker, orchestration, delivery, publication, permission, or phase fields
 instead of interpreting them. `mutation_mode=apply` authorizes only the named
 operation and target.

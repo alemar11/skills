@@ -1,4 +1,4 @@
-# GitHub Tagger Provider Reads
+# Issue Metadata Provider Reads
 
 Read this reference after the shared GitHub CLI dependency preflight has
 succeeded. These commands are read-only and do not authorize later mutations.
@@ -45,14 +45,15 @@ gh api "orgs/<org>/issue-types"
 ```
 
 Use only exact names and descriptions returned by the provider. A not-found or
-permission response does not prove an empty catalog. Report
-`metadata-unavailable`, continue with a usable label catalog when possible, and
-do not expand OAuth scopes or change authentication unless the user separately
+permission response does not prove an empty catalog. Report the type catalog
+as unavailable, continue with usable labels, and derive the overall disposition
+from [states.md](states.md) and the selected branch. Do
+not expand OAuth scopes or change authentication unless the user separately
 authorizes that credential mutation.
 
 ## Read Taxonomy Proposal Evidence
 
-For `tagger_mode=taxonomy-proposal`, collect a bounded open-and-closed issue
+For an explicit taxonomy proposal, collect a bounded open-and-closed issue
 corpus after resolving the exact repository:
 
 ```sh
@@ -79,6 +80,6 @@ without separate authority.
 
 ## Readback
 
-After an authorized GitHub Issues handoff, repeat the exact issue read without
+After an authorized metadata operation, repeat the exact issue read without
 reusing the pre-write response. Verify label names and `issueType` from the new
 provider observation before assigning a terminal application status.

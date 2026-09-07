@@ -1,8 +1,13 @@
-# GitHub Tagger Taxonomy Proposals
+# Issue Taxonomy Proposals
 
-Read this reference only when an explicit user request selected
-`tagger_mode=taxonomy-proposal`. This branch is read-only even when the
+Read this reference only when an explicit user request requested
+repository taxonomy analysis. This branch is read-only even when the
 provider exposes taxonomy-management APIs.
+
+Read [metadata-provider-reads.md](metadata-provider-reads.md) for catalogs and
+issue-corpus access, and [states.md](states.md) for the result disposition. Use
+`$g:github-investigation` when analysis requires deeper code or history evidence.
+Do not derive `mutation_mode` or `issue_operation` for a read-only proposal.
 
 ## Target And Evidence Boundary
 
@@ -86,7 +91,7 @@ this mode. Provider API availability and caller write permissions are reported
 facts, not mutation authority.
 
 A later explicit request may route an exact accepted label definition to
-`$g:github-issues` as one `issue_operation=create-label` operation. Applying an
+[lifecycle.md](lifecycle.md) as one `issue_operation=create-label` operation. Applying an
 organization issue-type proposal is outside this workflow and requires a
 separately owned, explicitly authorized organization-taxonomy operation. Never
 improvise that write from a proposal.

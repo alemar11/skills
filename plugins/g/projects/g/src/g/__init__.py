@@ -1,3 +1,3 @@
 """G shared CLI."""
 
-__version__ = "2.18.20"
+__version__ = "3.0.0"

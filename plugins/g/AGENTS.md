@@ -12,10 +12,10 @@ Composing workflows own product planning, delivery policy, and orchestration.
   `references/network-execution.md` owns shell network/auth handling.
 - Each skill owns its narrow runtime contract and state registry. Keep package
   maintenance out of runtime entrypoints.
-- `github-issues` owns issue mutation/readback and attachment placement.
-  Shared `attachment upload` is the only binary upload transport.
-- `github-tagger` owns metadata selection and read-only taxonomy proposals;
-  it delegates exact writes to `github-issues`.
+- `github-issues` owns issue mutation/readback, attachment placement, metadata
+  classification, and read-only taxonomy proposals. Keep selection separate
+  from exact operations within that skill; shared `attachment upload` remains
+  the only binary upload transport.
 - `github-projects` uses direct authenticated `gh`, not new shared CLI commands.
 - `audit` observes active G tasks and adds no Git/GitHub transport.
 
