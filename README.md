@@ -78,7 +78,7 @@ for Apple's native headless MCP server:
 | `socrates` | Offer opt-in exercises about meaningful recent engineering work, or quiz the user when explicitly requested. |
 | `okf` | Write, scaffold, inspect, and validate Open Knowledge Format Markdown bundles with the shipped CLI. |
 | `skill-cli-creator` | Create or refactor CLIs shipped inside a skill or plugin bundle. |
-| `tanstack` | Review, build, debug, and migrate TanStack apps with Query, Router, Start, and related packages. |
+| `tanstack` | Build, debug, review, or migrate applications using TanStack packages. |
 | `focus` | Create one new Codex task with a compact handoff of the current discussion. Use only when explicitly invoked. |
 | `postgres` | Inspect Postgres databases, design or run SQL, and manage migrations through the shipped Postgres CLI. |
 | `plugins-reload` | Reload this repository’s G, SE, and Xcode plugin installations when explicitly requested. |
