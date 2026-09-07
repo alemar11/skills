@@ -60,6 +60,7 @@ includes delivery workflow retrospectives:
 | `se:deliver` | Orchestrate isolated workers for specs, issues or bounded work through validated ready PRs. |
 | `se:deliver-features` | Deliver saved specs or selected tasks through surface-aware isolated workers, reviewed ready PRs, and verified outcomes from the current task. |
 | `se:implement` | Implement selected local work from a spec, ticket, issue, or direct request, validate it, and commit only the required files without orchestration or publication. |
+| `se:deslop` | Explicit-only audit and minimal safe cleanup of low-value code across every major directory. |
 
 Xcode is the repository's Apple developer-tools plugin. It preserves the
 official stable and beta release-note resolver and adds safe launch guidance
@@ -74,7 +75,6 @@ for Apple's native headless MCP server:
 
 | Skill | Purpose |
 | --- | --- |
-| `codex-cli` | Launch one complete prompt in an isolated Codex CLI run when explicitly requested. |
 | `crusty` | Skeptical, evidence-backed critique of work decisions and implementations. Use only when explicitly asked for Crusty. |
 | `ms-roberts` | Silently track substantive grammar errors in medium or complex user-authored English; report on request or session close. |
 | `socrates` | Offer opt-in exercises about meaningful recent engineering work, or quiz the user when explicitly requested. |
@@ -257,16 +257,16 @@ This helper only links reusable skills. It does not install, mirror, or rewrite 
 Inside Codex, install all reusable skills with:
 
 ```text
-Use $skill-installer to install skills from alemar11/dotagents --path skills/codex-cli skills/crusty skills/ms-roberts skills/socrates skills/okf skills/skill-cli-creator skills/tanstack skills/focus skills/postgres skills/plugins-reload skills/skill-audit skills/swift-api-design skills/swift-docc skills/youtube
+Use $skill-installer to install skills from alemar11/dotagents --path skills/crusty skills/ms-roberts skills/socrates skills/okf skills/skill-cli-creator skills/tanstack skills/focus skills/postgres skills/plugins-reload skills/skill-audit skills/swift-api-design skills/swift-docc skills/youtube
 ```
 
 Install one reusable skill by passing only its path:
 
 ```text
-Use $skill-installer to install skills from alemar11/dotagents --path skills/codex-cli
+Use $skill-installer to install skills from alemar11/dotagents --path skills/crusty
 ```
 
-Replace `skills/codex-cli` with any path listed in the reusable skills table.
+Replace `skills/crusty` with any path listed in the reusable skills table.
 
 ### Install Reusable Skills With `npx skills`
 
@@ -282,7 +282,6 @@ Install all reusable skills globally for Codex:
 
 ```sh
 npx skills add alemar11/dotagents -a codex -g -y \
-  --skill codex-cli \
   --skill crusty \
   --skill ms-roberts \
   --skill socrates \
@@ -302,9 +301,9 @@ npx skills add alemar11/dotagents -a codex -g -y \
 Install one reusable skill globally for Codex:
 
 ```sh
-npx skills add alemar11/dotagents -a codex -g -y --skill codex-cli
+npx skills add alemar11/dotagents -a codex -g -y --skill crusty
 ```
 
-Replace `codex-cli` with any skill name from the reusable skills table. Omit `-g` to install into the current project's `.agents/skills/` instead of your global `~/.codex/skills/`.
+Replace `crusty` with any skill name from the reusable skills table. Omit `-g` to install into the current project's `.agents/skills/` instead of your global `~/.codex/skills/`.
 
 Restart Codex after installing or updating skills.

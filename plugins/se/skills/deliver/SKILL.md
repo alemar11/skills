@@ -6,6 +6,9 @@ description: "Orchestrate isolated workers to deliver specs, issues, or bounded 
 # Deliver
 
 Keep the current task as orchestrator with its configured model and reasoning.
+Once scope is known, rename that task to `🚚 Deliver · <scope>` when supported.
+Reserve 🚚 for the orchestrator; worker titles follow their own contract.
+Titles are metadata and never gate execution.
 Even a single bounded change uses a worker. Follow shared
 [execution scope](../../references/execution-scope.md); this skill's worker
 contract is local, not the shared developer role used by Deliver Features.

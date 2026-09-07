@@ -8,7 +8,7 @@ Scope: `plugins/se/`
 
 SE is the repository's graph-first software-delivery plugin. Its bundled Learn,
 Grilling Session, Study, Idea, Spec, Adversarial Review, Review PR, Delivery Features,
-Deliver, and Implement skills have distinct runtime contracts, while `AGENTS.md`
+Deliver, Deslop, and Implement skills have distinct runtime contracts, while `AGENTS.md`
 and `README.md` define package maintenance ownership and routing.
 
 Spec owns one coherent spec and actionable task plan, saved to GitHub or one

@@ -1,7 +1,0 @@
-interface:
-  display_name: "Codex CLI"
-  short_description: "Launch a complete prompt in a separate Codex CLI task"
-  default_prompt: "Use $codex-cli for one delegated task with my complete prompt and the documented model-selection policy."
-  brand_color: "#14B8A6"
-policy:
-  allow_implicit_invocation: false

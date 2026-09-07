@@ -16,8 +16,9 @@ runtime restrictions still apply. Never create a replacement coordinator.
 
 Workers default to `gpt-5.6-luna` with `max` reasoning; explicit user overrides
 win. Request those settings, but do not gate editing on effective-model telemetry
-or claim that requested settings were independently observed. A concise worker
-title such as `🚚 <repository> · <scope>` is metadata, not target identity.
+or claim that requested settings were independently observed. Use the worker
+title `🛠 <repository> · <assignment>` when supported, naming its bounded work.
+Do not use the orchestrator's 🚚 prefix. Titles are metadata, not target identity.
 
 Create with the complete initial assignment, not a bootstrap followed by a second
 permission message. Pending worktree setup must finish before mutation; the
