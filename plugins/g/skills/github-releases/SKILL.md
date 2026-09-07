@@ -1,6 +1,6 @@
 ---
 name: github-releases
-description: Manage GitHub Release content and lifecycle, including notes, assets, packages, drafting, publication, and validation. Use $g:versioning for new versions, tags, release lines, or tag workflows.
+description: "Inspect, draft, publish, or update GitHub Releases, notes, assets, and package availability."
 ---
 
 # GitHub Releases
@@ -17,7 +17,6 @@ or other free-form provider text.
 Before the first provider-facing direct `gh` or shared CLI operation, load
 [`../../references/gh-dependency-preflight.md`](../../references/gh-dependency-preflight.md)
 and require its host and authentication checks.
-
 
 ## Role
 
@@ -49,15 +48,15 @@ GitHub Releases, and package availability confirmation.
    `mutation_mode=apply|dry-run` before using `gh release create
    --generate-notes` or another mutating command.
 7. Apply these creation defaults:
-   - `create a release` first produces the exact notes preview, then asks for
-     approval and creates a draft with `release_operation=draft`;
+   - `create a release` prepares the exact notes and creates a draft with
+     `release_operation=draft`; ask only when a material choice is unresolved;
    - an explicit `create and publish` request resolves directly to
      `release_operation=publish` and `mutation_mode=apply`; it skips the notes
      preview and draft stage without skipping readiness or verification;
-   - creating a draft is itself a mutation and still requires approval.
+   - a preview-only request creates no draft; draft creation is a mutation.
 8. For `release_operation=update-notes`, inspect the existing title and body,
-   prepare the exact replacement or diff, obtain approval, update only the
-   authorized text fields, and verify exact readback. Direct create-and-publish
+   prepare the exact replacement or diff, honor authorization for the
+   requested update, change only those text fields, and verify exact readback. Direct create-and-publish
    authority does not carry over to a later notes update.
 9. After a mutation, verify the resulting tag, GitHub Release, notes, asset
    state, and any package registry availability requested by the user.

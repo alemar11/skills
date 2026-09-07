@@ -2,4 +2,4 @@ interface:
   display_name: "GitHub Releases"
   short_description: "Draft, publish, and improve GitHub releases"
   brand_color: "#7C3AED"
-  default_prompt: "Use $g:github-releases to inspect, draft, directly publish, improve, or validate GitHub Releases, defaulting ordinary creation to an approved draft and honoring explicit create-and-publish authority."
+  default_prompt: "Use $g:github-releases to inspect, draft, directly publish, improve, or validate GitHub Releases, defaulting ordinary creation to a draft and honoring explicit create-and-publish authority."

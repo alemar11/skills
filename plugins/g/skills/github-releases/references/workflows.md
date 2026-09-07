@@ -87,8 +87,8 @@ git ls-remote --tags origin <tag>
 ## Default Draft
 
 A plain request to create a release does not authorize immediate publication.
-Generate and show the exact tag, title, comparison range, prerelease/latest
-state, and Markdown body. After approval, create a draft with
+Resolve the exact tag, title, comparison range, prerelease/latest state, and
+Markdown body. The creation request authorizes a draft with
 `release_operation=draft`, then read it back. Draft creation is a remote
 mutation and is never part of the preview.
 
@@ -139,8 +139,10 @@ Use `release_operation=update-notes` for an existing release description:
 
 1. Read the exact release identity, title, body, draft/prerelease/latest state,
    tag, and assets.
-2. Prepare a complete replacement body and show the exact replacement or diff.
-3. Ask for approval of that exact text update.
+2. Prepare a complete replacement body or diff.
+3. Apply an explicitly requested notes update; for a review-only request,
+   return the proposed text without writing. Ask only for unresolved material
+   choices or additional authority.
 4. Update only the authorized title or notes. Preserve tag, target, draft,
    prerelease, latest, discussion, and asset state unless separately requested.
 5. Read the release back and require the returned title and body to match.

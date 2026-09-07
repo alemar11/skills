@@ -23,10 +23,10 @@ are not mutually exclusive lifecycle stages.
 | State | Kind | Meaning |
 | --- | --- | --- |
 | `target-unresolved` | Mutation gate | The repository, tag, or comparison range is ambiguous or missing. Stop before a release mutation. |
-| `notes-preview-ready` | Derived | An ordinary create or improve request has an exact proposed title and body that must be approved before mutation. |
+| `notes-preview-ready` | Derived | An exact proposed title and body are prepared; mutation depends on the request's existing authorization. |
 | `draft-creation-authorized` | Mutation gate | The user approved the exact ordinary-create preview; create one draft and verify it. |
 | `direct-publish-authorized` | Mutation gate | The user explicitly requested create and publish for one resolved release; skip preview and draft, then verify the published release. |
-| `notes-update-authorized` | Mutation gate | The user approved the exact replacement title or body for an existing release. |
+| `notes-update-authorized` | Mutation gate | The user authorized the notes/title update for the exact existing release. |
 | `verified` | Derived | Provider readback matches the authorized tag, lifecycle state, and text or asset fields. |
 
 The `release_operation` values are selectable invocation options owned by
