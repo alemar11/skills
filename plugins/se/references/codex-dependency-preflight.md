@@ -52,10 +52,10 @@ checks pass but the current session cannot reach the explicit handoff, report
 
 For Idea, the required workflow set contains `$g:github-issues`. Every Feature
 hosted source read or publication, including maintenance, requires
-`$g:github-issues` for exact issue lifecycle operations. Check
-`$g:github-tagger` only when optional repository-owned classification is
-actually attempted; its absence or failure never blocks semantic publication.
-The Feature preview route for a new local source requires neither workflow
+`$g:github-issues` for exact issue lifecycle operations. Optional repository-owned
+classification uses that skill's classification branch; classification failure
+never blocks semantic publication.
+The Feature preview route for a new local source requires no G workflow
 because it performs no hosted access.
 
 For Delivery Features, the required workflow set includes the G

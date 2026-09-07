@@ -159,8 +159,8 @@ Its skills are deliberately separated by responsibility:
   missing attempt or result does. Existing-source maintenance removes only
   prior SE-owned native edges explicitly retired from the revised plan and
   preserves foreign edges. Optional
-  label and native type classification may then use `g:github-tagger`. The
-  tagger chooses the smallest relevant existing label set, including none, and
+  label and native type classification may then use the classification branch
+  of `g:github-issues`. That branch chooses the smallest relevant existing label set, including none, and
   zero or one available native type; Feature never presets `Feature`, `Task`,
   or any other metadata value. Classification never gates semantic publication.
   Explicit
