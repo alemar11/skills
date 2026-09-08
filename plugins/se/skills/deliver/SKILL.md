@@ -81,12 +81,28 @@ transition, not Send behavior or a request for automated review. Use G GitHub
 Actions for current checks and CI fixes. Missing readiness capability blocks
 completion; do not report a draft as delivered.
 
-The orchestrator supplies exact justified closing references, or an empty set.
-A PR may close an issue only if its merge completes that issue's entire outcome
-with prerequisites already incorporated. Several unmerged contributions get
-ordinary references, not premature closing keywords. Preserve foreign content
-and verify actual PR references after publication. Source spec/issue progress
-is report-only unless the user requests a separate progress update.
+## Task issue closure
+
+The orchestrator maps completed task issues to their owning PRs and supplies
+each worker the exact issue identities and repository-qualified references.
+It supplies every task issue fully completed by the assigned PR
+as a closing reference. Require one canonical `Closes` line per task under
+`## Issues`; ordinary links do not satisfy task linkage. Keep parent specs as
+ordinary references for manual closure unless the user explicitly authorizes
+their automatic closure. An open parent spec or another unmerged task does not
+justify omitting a completed task's closing reference. For a task split across
+PRs, assign its closing reference to the PR that completes the whole task with
+its prerequisites incorporated; partial contributions use ordinary references.
+An empty set is valid only when no task issue is completed by that PR.
+
+The worker passes that set to G Send, preserves foreign content and verifies
+the exact closing lines and GitHub's issue references after publication. If
+provider linkage lags a correct body, refresh the readback before retrying any
+write. Missing or incorrect task references must be repaired before delivery;
+do not silently accept an empty set for completed task issues. Follow
+[integration.md](references/integration.md#task-closure-through-integration-and-stacks)
+for combined or stacked landing paths. Do not close issues directly as a substitute.
+Other source spec/issue progress is report-only unless separately requested.
 
 ## Coordinate and finish
 
@@ -105,6 +121,8 @@ affected evidence. A worker's completed turn alone is not delivery proof.
 
 Finish when every PR required for the selected scope is non-draft, required CI
 passes, and selected outcomes and any explicitly required reviews are verified.
+Verify that every completed task issue has the required closing reference on
+its owning PR and that parent specs retain the selected manual-closure policy.
 No required CI must be established from current evidence, not missing results.
 Already-incorporated work needs current outcome proof, not a duplicate PR.
 Draft, pending, partial and blocked results are not successful delivery. Ready

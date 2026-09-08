@@ -34,7 +34,8 @@ A creation receipt establishes a known creation effect, not a verified checkout.
 Include the selected outcome and constraints, exact repository and intended
 worktree/branch/base, prerequisite commits, relevant source contracts with spec
 identity/revision when applicable, validation,
-publication authority and justified closing references. After checkout verification,
+publication authority and the task-to-PR closing references required by
+[Task issue closure](../SKILL.md#task-issue-closure). After checkout verification,
 the worker's first progress report to the orchestrator includes its permanent
 worker/task identity when available and the resolved worktree path. A pending
 creation handle or title is not that identity. This report is informational:
@@ -65,7 +66,9 @@ reconcile affected dependencies before conflicting work continues. The
 orchestrator is the normal coordination point, not a barrier to user authority.
 
 Return selected source references and, for a spec, its identity and revision;
-verified outcomes and outstanding scope; PR URLs when applicable and exact HEAD/base; checks and
+verified outcomes and outstanding scope; PR URLs when applicable and exact HEAD/base;
+task-closing references and their body/provider verification, including any pending
+stack activation; checks and
 required CI state; worker/worktree/branch identities, preserved dirty content,
 blockers and the next bounded action when work remains. Finish mutation before
 returning completion. The orchestrator verifies current facts without asking for

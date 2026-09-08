@@ -48,6 +48,22 @@ the repository's default/release branches as part of integration. If the target
 is an existing PR branch, reconcile its writer before reassignment. Preserve
 contribution branches and worktrees; integration does not authorize their cleanup.
 
+## Task closure through integration and stacks
+
+Apply the entrypoint's [task issue closure](../SKILL.md#task-issue-closure) rule
+to the chosen landing path. An integration PR carries the closing references
+for every task it completes, including tasks supplied as commit-only contributions.
+
+Each stacked PR keeps its own task-closing lines even when its base is another
+feature branch. A visible issue link is not proof that merging into that branch
+will close the issue. Record the default-branch landing step: if PRs land
+individually, recheck each child's closing references after retargeting; if one
+PR lands the combined result, that PR must carry all completed task references.
+Include this requirement in the merge handoff without performing an unauthorized
+merge or changing topology solely to activate issue links. Pending default-branch
+activation does not block an otherwise verified ready stack; missing closing
+lines do.
+
 ## Stacks and parent changes
 
 The orchestrator may choose standalone or stacked PRs. For a stack, identify each
