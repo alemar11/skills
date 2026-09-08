@@ -5,7 +5,8 @@ Composing workflows own product planning, delivery policy, and orchestration.
 
 ## Ownership
 
-- `.codex-plugin/plugin.json` owns identity, exposure, and version.
+- `.codex-plugin/plugin.json` owns Codex identity, exposure, and version; the
+  root `plugin.json` mirrors its portable Agent Plugins identity and metadata.
 - `scripts/g` is the shared artifact; `projects/g/AGENTS.md` owns its source,
   build, tests, and version alignment. Keep executable helpers for fragile
   mutation and receipt protocols; direct reads and simple operations belong in

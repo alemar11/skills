@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "xcode",
+  "version": "1.2.0",
+  "description": "Read official stable and beta Xcode release notes and safely launch Apple's native headless Xcode MCP server.",
+  "author": {
+    "name": "alemar11",
+    "url": "https://github.com/alemar11"
+  },
+  "homepage": "https://github.com/alemar11/dotagents",
+  "repository": "https://github.com/alemar11/dotagents",
+  "license": "MIT",
+  "keywords": [
+    "xcode",
+    "apple",
+    "release-notes",
+    "mcp",
+    "developer-tools"
+  ]
+}

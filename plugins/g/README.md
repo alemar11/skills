@@ -25,8 +25,9 @@ extension for stacked pull requests. It has no GitHub connector dependency.
 
 ## Runtime and development
 
-- `.codex-plugin/plugin.json` owns plugin identity, version, discovery metadata,
-  and bundled-skill exposure.
+- `.codex-plugin/plugin.json` owns Codex package identity, version, discovery
+  metadata, and bundled-skill exposure. The root `plugin.json` mirrors the
+  portable Agent Plugins identity and metadata for other clients.
 - `scripts/g` ships attachment uploads, verified PR publication, review
   requests/receipts, worktree fingerprints, guarded stack execution, and
   star-list membership updates. Other workflows use direct `git`/`gh`.

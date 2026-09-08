@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "g",
+  "version": "5.1.0",
+  "description": "Manage Git and GitHub work from commits, issues, and Projects through delivery status, reviewed pull-request delivery, and consistent SemVer versioning.",
+  "author": {
+    "name": "alemar11",
+    "url": "https://github.com/alemar11"
+  },
+  "homepage": "https://github.com/alemar11/dotagents",
+  "repository": "https://github.com/alemar11/dotagents",
+  "license": "MIT",
+  "keywords": ["git", "github", "workflow", "codex", "issues", "projects", "labels", "issue-types", "taxonomy", "semver", "versioning"]
+}
