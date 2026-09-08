@@ -29,12 +29,19 @@ Inspect risks supported by the change, including correctness, authorization,
 state integrity, concurrency, compatibility, and failure recovery. Do not
 manufacture findings to satisfy the posture.
 
+Review for unnecessary complexity, avoidable duplication, and missed reuse of
+established repository patterns. Recommend simplifications only when they
+materially improve correctness, readability, or maintenance. Prefer the simplest
+design that satisfies the requirements; do not flag stylistic preferences or
+introduce abstractions solely to eliminate repetition.
+
 ## Result
 
 Return one disposition selected by the calling workflow, normally `clean`,
 `findings`, or `indeterminate`, plus severity-ordered findings. Each finding
-identifies the concrete failure mode, affected file and tight line range when
-available, supporting evidence, confidence, and a focused recommendation.
+identifies the concrete failure mode or maintenance cost, affected file and tight
+line range when available, supporting evidence, confidence, and a focused
+recommendation.
 State the reviewed target and any material coverage or execution limitation.
 
 The reviewer never fixes its own findings. A caller may use findings to decide
