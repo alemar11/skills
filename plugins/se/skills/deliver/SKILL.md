@@ -47,12 +47,13 @@ Ordinary phase transitions need no coordinator approval round trip.
 
 ## Authority and worker work
 
-Delivery authorizes scoped worktrees, branches, implementation, commits, pushes,
-PR creation/readiness and CI corrections within the selected scope. Worker
-creation must also satisfy the active runtime's authorization rules; skill
-invocation cannot replace an explicit task-creation request where the runtime
-requires one. Reuse established authority across assignments and continuations;
-ask only for missing required authority. Explicit user restrictions win: no-push
+Explicit invocation of this skill requests and authorizes creation of the workers
+needed for selected delivery: visible tasks in matching saved repository projects
+with isolated worktrees on the App, or native subagents with isolated worktrees
+on CLI. Do not ask for separate task-creation confirmation. This authority covers
+scoped branches, implementation, commits, pushes, PR creation/readiness and CI
+corrections. Reuse established authority across assignments and continuations;
+ask only for material unresolved scope or authority. Explicit user restrictions win: no-push
 work ends with a local handoff and PR delivery explicitly incomplete. Never ask
 to override that restriction. Integrating assigned commits into an owned delivery
 branch is authorized under the integration contract. Landing PRs, deployment,
