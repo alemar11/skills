@@ -392,7 +392,10 @@ def execute(command: str, args: Sequence[str], *, json_mode: bool, raw: bool = F
     _validate_noninteractive(command, forwarded)
     ensure(json_mode=json_mode)
 
-    if json_mode and command == "view" and not _has_enabled_flag(forwarded, "--json"):
+    view_json = command == "view" and not any(
+        _has_enabled_flag(forwarded, flag) for flag in ("--help", "-h")
+    )
+    if json_mode and view_json and not _has_enabled_flag(forwarded, "--json"):
         forwarded.append("--json")
 
     upstream_command = ["gh", "stack", command, *forwarded]
@@ -415,7 +418,7 @@ def execute(command: str, args: Sequence[str], *, json_mode: bool, raw: bool = F
             command,
             result.stdout,
             result.stderr,
-            parse=command == "view",
+            parse=view_json,
         )
         label = ["stack", "raw"] if raw else ["stack", command]
         print(json.dumps(envelope(label, data), indent=2))

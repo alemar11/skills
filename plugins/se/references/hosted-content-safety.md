@@ -1,25 +1,20 @@
 # Hosted Content Safety
 
-This reference is the canonical SE owner for portable-content projection,
-single-line title normalization, and mandatory local-path correction
-immediately before every hosted write, plus bounded post-write repair. It
-applies to issue titles and bodies, comments, pull-request titles and bodies,
-review requests, review text, and Feature maintenance changelogs produced by
-Spec, Deliver, or Delivery Features.
+This is SE's canonical owner for portable content, single-line titles, pre-write
+correction and bounded post-write repair. Apply it to every hosted issue, PR,
+comment, review request, review and Feature maintenance changelog produced by
+Spec, Deliver or Delivery Features. It also governs commit messages
+prepared for publication under an SE assignment, as described below.
 
-The invoking SE skill owns semantic content and must deliver a safe final
-projection. G owns transport, provider mutation, receipts, and readback. G does
-not infer repository context or sanitize meaning. When readback exposes unsafe
-SE content, SE computes the corrected projection and routes the update of that
-same hosted artifact through the owning G workflow.
+SE owns the semantic projection; G owns transport, mutation, receipts and readback.
+G does not infer repository context or sanitize meaning. SE computes corrections
+and updates the same hosted artifact through its owning G workflow.
 
 ## Internal records and hosted content
 
-Internal control-plane records may retain exact local facts when their owning
-workflow requires them, including `project_root`, worktree paths, host and task
-identity, task dialogue, prompt references, and tool output. These records are
-not hosted-content candidates and must remain separate from rendered titles,
-bodies, comments, and review requests.
+Internal records may retain workflow-required local facts such as `project_root`,
+worktree paths, host/task identity, prompts, dialogue and tool output. Keep them
+separate from hosted content.
 
 Hosted content may include only the portable facts required by its semantic
 purpose. Prefer:
@@ -75,34 +70,29 @@ from the frozen semantic value and inspect it again instead of flattening
 unknown file content. This rule applies only to single-line titles and does not
 strip intentional body, comment, or review formatting.
 
+## Commit messages prepared for publication
+
+When an assignment includes later publication, apply portable projection to
+new commit subjects and bodies before creating the commit. Validation prose
+should name relevant checks and results without copying machine-specific
+environment assignments or command paths. Keep exact local execution details
+in the private handoff when needed.
+
+Inspect existing commit messages before publishing the assigned range. This
+content policy does not authorize rewriting existing commits or force-pushing.
+Report a discovered local path against the full commit SHA; do not create a
+replacement commit merely to hide it. Already-published commit messages use
+this warning path, not the mutable-artifact repair procedure below.
+
 ## Final pre-write correction
 
-Immediately before each hosted write, inspect the exact final title and body or
-comment/review text that will be handed to G. Require all of the following:
-
-- no absolute or machine-specific path remains;
-- every repository path is repository-relative;
-- external checkout context is represented by repository identity, branch, and
-  full SHA rather than `project_root` or worktree path;
-- no internal prompt, host identity, local task identity, or irrelevant
-  transcript content remains;
-- every hosted title artifact exactly matches its frozen non-empty single-line
-  title and contains no trailing line terminator;
-- worker- and tool-originated content has passed the same checks;
-- the portable representation preserves the evidence needed by the hosted
-  operation.
-
-If any condition is false, correct the same rendered content before transport
-and run the complete inspection again. Repository-owned paths become relative;
-known external checkout context becomes repository identity, branch, and full
-SHA; irrelevant or unrepresentable machine-specific fragments are removed.
-Never hand a known local absolute path to G.
-
-Local-path correction is required but does not block the enclosing SE workflow.
-It does not create a plan question or terminal blocker solely because optional
-local evidence had to be omitted. Record a warning when correction removes
-evidence that could not be represented portably. If the final content changes
-after this inspection, run the complete inspection again.
+Immediately before every write, inspect the exact final title and body, comment
+or review handed to G against the projection and title rules above. Check copied
+content too, and ensure the evidence needed by the operation remains intact.
+Correct failures in the same rendered content and repeat the complete check;
+any later content change requires another check. Never hand a known local
+absolute path to G. Omitting optional local evidence follows the warning rule
+above and does not require a planning question or block the enclosing workflow.
 
 ## Post-write readback and repair
 

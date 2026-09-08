@@ -18,7 +18,8 @@ creation. Never create a replacement coordinator.
 Workers default to `gpt-5.6-luna` with `max` reasoning; explicit user overrides
 win. Request those settings, but do not gate editing on effective-model telemetry
 or claim that requested settings were independently observed. Use the worker
-title `🛠 <repository> · <assignment>` when supported, naming its bounded work.
+title `🤖 <assignment>` when supported, naming its bounded work. Include the
+repository name only when needed to distinguish otherwise ambiguous tasks.
 Do not use the orchestrator's 🚚 prefix. Titles are metadata, not target identity.
 
 Create with the complete initial assignment, not a bootstrap followed by a second
@@ -33,10 +34,13 @@ A creation receipt establishes a known creation effect, not a verified checkout.
 Include the selected outcome and constraints, exact repository and intended
 worktree/branch/base, prerequisite commits, relevant source contracts with spec
 identity/revision when applicable, validation,
-publication authority and justified closing references. Where the runtime
-allocates the worktree path, the worker reports the resolved path after verifying
-the intended project and isolated checkout. Give only needed context, not the
-full orchestration conversation. Carry the entrypoint's G preflight and
+publication authority and justified closing references. After checkout verification,
+the worker's first progress report to the orchestrator includes its permanent
+worker/task identity when available and the resolved worktree path. A pending
+creation handle or title is not that identity. This report is informational:
+editing does not wait for acknowledgment or unavailable identity metadata.
+Give only needed context, not the full orchestration conversation.
+Carry the entrypoint's G preflight and
 [hosted-content safety](../../../references/hosted-content-safety.md) obligations.
 
 The worker owns implementation, self-inspection, tests, PR publication/readiness
@@ -72,7 +76,12 @@ the worker's checkout moves to another assignment.
 ## Serial reuse and concurrent work
 
 Prefer the same worker and worktree for compatible serial assignments in the
-same repository. Before switching branches, finish the previous assignment,
+same repository. On every reassignment, update the existing worker's title to
+the current bounded assignment using the title format above, including repair
+and integration work. Verify the rename when supported; unavailable title
+updates do not block execution or justify a replacement worker.
+
+Before switching branches, finish the previous assignment,
 preserve its commits and PR reference, and stop its branch-dependent processes.
 Resolve dirty content without discarding it or carrying it into another
 assignment; if safe reuse is unavailable, use another isolated worker/worktree.

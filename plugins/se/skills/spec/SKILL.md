@@ -38,14 +38,15 @@ Ordinary answer waits are not terminal blockers.
 
 Use [spec.md](templates/spec.md) and [task.md](templates/task.md) to draft the
 complete artifact. Read [task-decomposition.md](references/task-decomposition.md)
-when deriving or changing tasks. Keep the smallest useful task plan and leave
-worker, branch, and PR topology to Delivery.
+when deriving or changing tasks. Keep the smallest useful task plan.
 
 Review the complete draft against the specification contract before saving:
 requested outcomes and accepted decisions are preserved, every acceptance
 criterion has task coverage and credible verification, dependencies are real
 and feasible, and each task is understandable with the main spec in a fresh
-session. Revisions must preserve identities and executor-owned progress.
+session. Acceptance checks describe feature behavior and prerequisite evidence;
+worker, branch and PR topology choices belong to Delivery. Revisions preserve
+identities and executor-owned progress.
 Correct findings across the whole artifact; ask only about new material
 choices. Stop with an exact blocker if essential evidence or a responsible
 resolution remains unavailable. Resume from the saved content and current

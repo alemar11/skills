@@ -268,6 +268,36 @@ class StackContractTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, "provider_response_invalid")
         self.assertEqual(raised.exception.exit_code, 65)
 
+    def test_view_help_returns_text_in_json_envelope_without_requesting_stack_data(self) -> None:
+        for raw in (False, True):
+            for flag in ("--help", "-h"):
+                with self.subTest(raw=raw, flag=flag):
+                    output = io.StringIO()
+                    with mock.patch.object(stack, "ensure", return_value={"status": "ready"}), mock.patch.object(
+                        stack, "run", return_value=Result(0, "Usage: gh stack view [flags]\n", "")
+                    ) as run, contextlib.redirect_stdout(output):
+                        if raw:
+                            code = stack.execute_raw(["--", "view", flag], json_mode=True)
+                        else:
+                            code = stack.execute("view", [flag], json_mode=True)
+
+                    self.assertEqual(code, 0)
+                    self.assertEqual(
+                        json.loads(output.getvalue())["data"],
+                        {"stdout": "Usage: gh stack view [flags]\n", "stderr": None},
+                    )
+                    self.assertEqual(run.call_args.args[0], ["gh", "stack", "view", flag])
+
+    def test_disabled_help_flag_still_requests_and_parses_stack_json(self) -> None:
+        output = io.StringIO()
+        with mock.patch.object(stack, "ensure", return_value={"status": "ready"}), mock.patch.object(
+            stack, "run", return_value=Result(0, '{"branches": []}\n', "")
+        ) as run, contextlib.redirect_stdout(output):
+            stack.execute("view", ["--help=false"], json_mode=True)
+
+        self.assertEqual(json.loads(output.getvalue())["data"], {"branches": []})
+        self.assertEqual(run.call_args.args[0], ["gh", "stack", "view", "--help=false", "--json"])
+
     def test_non_view_json_is_wrapped_without_parsing_provider_output(self) -> None:
         output = io.StringIO()
         with mock.patch.object(stack, "ensure", return_value={"status": "ready"}), mock.patch.object(
@@ -406,6 +436,9 @@ class StackContractTests(unittest.TestCase):
                 "if args == ['stack', 'view', '--json']:\n"
                 "    print('{\"branches\": []}')\n"
                 "    raise SystemExit(0)\n"
+                "if args == ['stack', 'view', '--help']:\n"
+                "    print('Usage: gh stack view [flags]')\n"
+                "    raise SystemExit(0)\n"
                 "if args in (\n"
                 "    ['stack', 'init', '--base', 'main', 'layer-a', 'layer-b'],\n"
                 "    ['stack', 'rebase', '--upstack'],\n"
@@ -432,6 +465,14 @@ class StackContractTests(unittest.TestCase):
             )
             viewed = subprocess.run(
                 [str(SCRIPT), "--json", "stack", "view", "--json"],
+                cwd=root,
+                env=environment,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            help_result = subprocess.run(
+                [str(SCRIPT), "--json", "stack", "raw", "--", "view", "--help"],
                 cwd=root,
                 env=environment,
                 capture_output=True,
@@ -484,6 +525,11 @@ class StackContractTests(unittest.TestCase):
         self.assertEqual(installed_payload["data"]["publisher_verification"], "not-verified")
         self.assertEqual(viewed.returncode, 0, viewed.stderr)
         self.assertEqual(json.loads(viewed.stdout)["data"], {"branches": []})
+        self.assertEqual(help_result.returncode, 0, help_result.stdout or help_result.stderr)
+        self.assertEqual(
+            json.loads(help_result.stdout)["data"],
+            {"stdout": "Usage: gh stack view [flags]\n", "stderr": None},
+        )
         for command in (initialized, rebased, submitted):
             self.assertEqual(command.returncode, 0, command.stderr)
             self.assertEqual(json.loads(command.stdout)["data"], {"stdout": "ok\n", "stderr": None})
@@ -511,6 +557,9 @@ class StackContractTests(unittest.TestCase):
         self.assertEqual(view_call["git_pager"], "cat")
         self.assertEqual(view_call["gh_pager"], "cat")
         self.assertEqual(view_call["git_prompt"], "0")
+        help_call = next(call for call in calls if call["args"] == ["stack", "view", "--help"])
+        self.assertEqual(help_call["cwd"], str(root.resolve()))
+        self.assertEqual(help_call["git_prompt"], "0")
 
 
 if __name__ == "__main__":

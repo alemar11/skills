@@ -16,6 +16,7 @@ test -s "$owner" || fail "missing or empty canonical owner"
 
 for relative in \
   skills/spec/SKILL.md \
+  skills/implement/SKILL.md \
   skills/deliver/SKILL.md \
   skills/deliver/references/workers.md \
   skills/deliver-features/SKILL.md \

@@ -49,6 +49,15 @@ This is distinct from `send`: `send` owns the current branch publication, while
 this skill owns the explicit parent/current relationship. Do not use `link` to
 guess a stack from branch names or ambiguous PRs.
 
+Linking existing PRs can create a remote stack without local tracking. In that
+case, `view --json` cannot inspect it from the current branch. Verify the remote
+relationship through authenticated `gh` by reading each PR's stack identity and
+the complete ordered entries, including full heads and PR bases. Missing local
+tracking is not evidence that linking failed; do not repeat the link or create
+another stack. Use `checkout <exact-stack>` only when local adoption is needed
+and the owning worker has preserved its current work. Local base refs may lag
+the remote PR base; report and verify them separately.
+
 ## Publish a complete stack
 
 Use this only when the user explicitly requests multi-branch publication:

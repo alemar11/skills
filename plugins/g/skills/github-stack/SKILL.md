@@ -72,8 +72,9 @@ express an explicitly requested non-interactive operation.
 - Keep each branch a cohesive, independently reviewable unit.
 - When changing a lower or middle branch, work on that branch, commit there,
   then run `rebase --upstack` before returning to the higher branch.
-- Use `view --json` before and after consequential operations and preserve the
-  exact branch/PR state in the handoff.
+- Use `view --json` for a locally tracked stack; remote-only links use the
+  relationship readback in `references/workflows.md`. Verify before and after
+  consequential operations and preserve exact branch/PR state in the handoff.
 - For conflicts, resolve and stage files, then use `rebase --continue`; use
   `rebase --abort` to restore the pre-rebase state.
 - After a lower PR merges, use `sync` to fetch, reconcile, rebase, push, and

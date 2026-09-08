@@ -43,6 +43,9 @@ Local checks and self-inspection do not satisfy a caller-required independent
 review gate. This boundary is the same for standalone and composed work.
 
 Commit only files required for the selected work to the verified target branch.
+When the assignment includes later publication, apply
+[hosted-content safety](../../references/hosted-content-safety.md) to the commit
+message before creating it.
 Return the committed HEAD and base, changed scope, validation evidence, worktree
 state, any reserved batch identity/count, and blockers. Become quiescent before
 handoff so the owner can review a stable candidate. Preserve unrelated dirty

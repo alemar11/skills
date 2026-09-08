@@ -78,12 +78,20 @@ G envelope:
 }
 ```
 
-`stack view` asks the upstream command for JSON and returns the parsed object.
+`stack view` inspects the current locally tracked stack; it takes no positional
+stack number. It asks upstream for JSON and returns the parsed object. An explicit
+`--help` or `-h` instead returns help text in the usual `stdout`/`stderr` envelope,
+without adding the upstream JSON flag or parsing help as stack data.
 Other successful commands return `{ "stdout": "...", "stderr": "..." }`.
 `stack ensure` reports the detected repository, version, and publisher
 verification state. Wrapper failures use stable G error codes; upstream
 command failures preserve the upstream exit code and expose only safe command,
 exit-code, and reason details in the JSON error envelope.
+
+JSON failures intentionally omit free-form provider diagnostics. For a failed
+read, the same noninteractive raw read without the outer G `--json` can expose
+the sanitized diagnostic, for example `g stack raw -- view --json`. Do not
+repeat a mutation just to obtain its diagnostic; reconcile its effect first.
 
 ## Maintenance
 
