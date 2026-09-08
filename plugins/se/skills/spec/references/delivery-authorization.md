@@ -1,27 +1,24 @@
 # Delivery Authorization
 
 Read after a verified authoritative save and when preserving or changing delivery
-metadata. This reference owns the pickup marker; output references own its storage
-and provider operations. The marker authorizes delivery of the agreed spec scope
+metadata. The shared [readiness states](../../../references/states.md) own values,
+storage, transitions and canonical GitHub label colors; this reference owns the pickup
+decision. The agent-ready marker authorizes delivery of the agreed spec scope
 through validated ready PRs. It does not authorize landing PRs, deployment or
 scope expansion, create a monitor, or prove that execution has started.
 Existing caller restrictions and runtime authorization rules still apply.
 
-## Marker
+## Readiness
 
-| Destination | Authorized | Inactive |
-| --- | --- | --- |
-| Main GitHub spec issue | `ready-for-agent` label | Label absent |
-| Markdown spec frontmatter | `delivery: ready-for-agent` | `delivery:` empty, null or absent |
-
-Only the exact marker enables pickup. It applies to the authoritative main spec,
-not individual task issues or exported snapshots. Dependencies and the complete
-current spec/task contract must still be checked before execution. The marker is
-authorization metadata, not an execution state or part of semantic `spec_revision`.
+Only the shared agent-ready state enables pickup of the authoritative main spec.
+Dependencies, current contracts and existing work must still be reconciled.
+Human-ready specs remain open for manual handling and are not eligible for pickup.
+The metadata does not advance semantic `spec_revision`.
 
 ## Post-save decision
 
-After the whole authoritative spec is saved and verified, ask: **Should this spec
+For a spec without an established readiness decision, after the whole
+authoritative spec is saved and verified, ask: **Should this spec
 be available for automatic delivery to ready PRs?** Reuse an explicit answer or
 existing authorization; a request to publish and deliver already grants it.
 Publication alone does not. Preview/no-write operations and exports do not prompt
@@ -36,16 +33,17 @@ even when publication itself succeeded.
 
 ## Revision and handoff
 
-Preserve the marker and prior decision during ordinary revisions; do not renew
-authorization merely because the artifact was saved again. Reconcile material
+Preserve either readiness state and the prior decision during ordinary revisions;
+do not renew authorization merely because the artifact was saved again. Reconcile material
 scope changes with active work and the authority already granted under
 [existing-specs.md](existing-specs.md). An unchanged marker does not grant new
 authority for work outside that agreement.
 
 Exports remain inactive snapshots even when the source is authorized. Transfer
 of authority must reconcile the old and new pickup locations before enabling the
-new one; never create two active authoritative copies. Explicit revocation removes
-the GitHub marker or empties the Markdown field, preserving other metadata.
+new one; never create two active authoritative copies. Explicit revocation clears
+readiness under the shared states contract, preserving other metadata. A human-ready spec requires explicit renewed authorization before
+agent pickup; saving it again does not requeue it.
 
 Report the saved source and observed pickup authorization separately. Setting the
 marker does not invoke Deliver; only an explicitly requested downstream handoff

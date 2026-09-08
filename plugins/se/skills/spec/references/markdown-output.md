@@ -52,7 +52,9 @@ path before any retry.
 
 After verifying the whole authoritative file, apply the post-save decision under
 [delivery-authorization.md](delivery-authorization.md). For approval, set the
-frontmatter marker to its exact authorized value; for explicit revocation, empty
+frontmatter marker to the agent-ready value under the shared
+[readiness states](../../../references/states.md); preserve human-ready metadata
+unless renewed pickup is explicitly authorized. For explicit revocation, empty
 the field. Reread before the scoped metadata edit and verify the resulting marker
 and preservation of the spec body, other frontmatter and execution progress.
 This edit does not increment `spec_revision` or authorize a commit. A failed marker

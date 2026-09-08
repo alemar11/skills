@@ -14,6 +14,8 @@ Titles are metadata and never gate execution.
 Even a single bounded change uses a worker. Follow shared
 [execution scope](../../references/execution-scope.md); this skill's worker
 contract is local, not the shared developer role used by Deliver Features.
+For saved specs, follow the shared [readiness states](../../references/states.md)
+for eligibility, duplicate-pickup reconciliation and the final human handoff.
 Deliver selected scope and return its result to the caller. Backlog discovery,
 recurring monitoring and queue persistence belong to the caller.
 
@@ -102,7 +104,8 @@ write. Missing or incorrect task references must be repaired before delivery;
 do not silently accept an empty set for completed task issues. Follow
 [integration.md](references/integration.md#task-closure-through-integration-and-stacks)
 for combined or stacked landing paths. Do not close issues directly as a substitute.
-Other source spec/issue progress is report-only unless separately requested.
+Other source spec/issue progress is report-only unless separately requested,
+except the required readiness handoff below.
 
 ## Coordinate and finish
 
@@ -128,6 +131,14 @@ Already-incorporated work needs current outcome proof, not a duplicate PR.
 Draft, pending, partial and blocked results are not successful delivery. Ready
 PRs remain unmerged; merge/deployment prerequisites needing further authority
 remain blockers rather than being silently weakened.
+
+After the whole current spec meets these criteria, the orchestrator transitions
+its authoritative readiness marker to the human-ready state under
+[readiness states](../../references/states.md), using G GitHub Issues or a scoped
+Markdown metadata edit. Verify the transition before reporting the source handoff
+complete. Leave the parent open for human handling; do not transition partial or
+blocked specs or requeue delivered work after a failed metadata update. Direct
+requests without a saved spec need no readiness artifact.
 
 Return a concise result for the selected scope using the worker result contract;
 combine contributions without claiming unselected outcomes. On interruption or

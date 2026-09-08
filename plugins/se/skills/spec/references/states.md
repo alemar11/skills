@@ -36,9 +36,9 @@ additional source access or implementation authority.
 A saved spec may contain its semantic revision, explicit assumptions, acceptance
 baselines, and a record of retired identities. It does not persist a current
 workflow node, worker assignment, execution status, review receipt, or operation
-journal. The delivery marker is permitted authorization metadata, with its values
-owned by the linked authorization contract. Task progress and GitHub issue state
-belong to their execution/provider owners; Spec preserves them during revision.
+journal. Delivery readiness is permitted lifecycle metadata, with its values and
+transitions owned by the shared [readiness states](../../../references/states.md).
+Task progress and GitHub issue state belong to their execution/provider owners; Spec preserves them during revision.
 
 Keep save and authorization results separate. A saved spec with an unanswered
 pickup question is awaiting the user's decision, not authorized. A declined

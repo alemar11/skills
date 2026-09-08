@@ -6,6 +6,13 @@ provider operations, and readback; Spec owns the semantic projections.
 
 ## Projection
 
+GitHub issue titles use `Spec: <spec title>` for the parent and
+`Task: <task title>` for each subtask. Apply the prefix exactly once in previews,
+creates, exports and updates of selected issues; preserve the descriptive title.
+These prefixes are GitHub display metadata, not spec/task identity or dispatch
+signals. Keep Markdown titles and body headings unprefixed; a prefix-only change
+does not increment `spec_revision`.
+
 Save one main spec issue in its `owner_repository` and one associated issue per
 task. Put a single-repository task in that repository. Put a multi-repository
 task in the spec's owner repository unless the caller explicitly chooses another
@@ -51,7 +58,7 @@ exact final title/body, including worker- or provider-originated content.
    Classification must not add or remove the delivery marker. Optional
    classification failure does not block semantic save or imply execution order.
 
-Every required issue identity, body, task association, and task prerequisite
+Every required issue identity, prefixed title, body, task association, and task prerequisite
 must be verified. Native relationship/dependency failures are warnings when
 the complete body-backed representation is verified; absent result coverage
 is not success. Preserve foreign provider edges and metadata. On revision,
@@ -71,18 +78,10 @@ requested effect before completion.
 
 After the complete authoritative bundle is verified, apply the decision from
 [delivery-authorization.md](delivery-authorization.md) through `g:github-issues`.
-For approval, inspect the main issue's exact repository label catalog. Reuse the
-existing label without changing its color or description. If missing, create
-the owned label with description "Fully specified and queue-ready; listed
-dependencies still gate start" and the repository's workflow-label color
-convention, or `0E8A16` when none exists. The user's pickup approval covers this
-creation and application; no taxonomy proposal or second permission is required.
-
-Verify label existence, apply it only to the main spec issue, and read back its
-presence while preserving all other labels. A task issue or an export must never
-receive the pickup marker from this workflow. For explicit revocation, remove
-only this marker from the main issue and verify absence; do not delete the
-repository label.
+Apply the shared [readiness states](../../../references/states.md) contract for
+label creation, canonical colors, mutually exclusive state replacement and
+readback. Pickup approval covers the scoped label operations. Apply readiness
+only to the authoritative main spec; preserve other labels and the issue state.
 
 Marker operations follow the same G preflight, hosted-content safety and
 uncertain-effect reconciliation as other writes. A failed or ambiguous marker

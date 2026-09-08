@@ -9,7 +9,8 @@ their exact logical and saved identities, retired IDs, unrelated
 content, and executor-owned status, checkboxes, comments, and progress. Record
 the smallest semantic change; increment `spec_revision` once for the accepted
 semantic bundle revision. A save retry or unchanged export does not increment it.
-Preserve pickup authorization under [delivery-authorization.md](delivery-authorization.md);
+Preserve agent-ready or human-ready metadata under
+[delivery-authorization.md](delivery-authorization.md);
 ordinary revisions do not reset its marker or repeat an answered pickup question.
 Before reshaping active work, reconcile material changes against existing delivery
 assignments and the user's granted scope. Marker-only edits are nonsemantic.

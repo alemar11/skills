@@ -47,7 +47,8 @@ if missing, or sets `delivery: ready-for-agent` in Markdown frontmatter. New spe
 remain inactive without approval; Markdown keeps an empty `delivery:` field.
 Ordinary revisions preserve authorization, exports remain inactive, and setting
 the marker does not start a monitor. The [authorization contract](skills/spec/references/delivery-authorization.md)
-owns marker semantics and separates publication from authorization results.
+owns the pickup decision; shared [readiness states](references/states.md) own
+the GitHub label catalog, Markdown values and lifecycle transitions.
 
 The templates use a compact ordered task list; each task owns its repository
 scope, acceptance links, prerequisites, and paired verification checks. GitHub
@@ -74,7 +75,10 @@ authority is preserved across assignments and continuations.
 Delivery finishes with all required PRs non-draft, current required CI passing,
 and selected outcomes verified. Merge and deployment are separate. There are no
 mandatory adversarial/hosted reviews, claims, repair-round ledgers or audits;
-repository/user requirements still apply. Source-progress writes are opt-in.
+repository/user requirements still apply. Complete saved specs transition from
+agent-ready to human-ready using the shared states contract, leaving parent
+closure to the user and preventing automatic requeue. Other source-progress
+writes are opt-in.
 Worker setup/recovery and integration details are loaded only when applicable.
 The skill returns the selected outcome and resume context to its caller; backlog
 monitoring, scheduling and queue persistence remain outside Deliver. It has no

@@ -13,6 +13,7 @@ When ownership changes, update affected consumers and remove obsolete routes.
 
 | Shared owner | Contract |
 | --- | --- |
+| `references/states.md` | Shared spec-delivery readiness states, GitHub label colors, authorization and verified human handoff. |
 | `references/workflow-graph.md` | Graph vocabulary, registry structure, terminal meanings, authority, and validation. |
 | `references/codex-dependency-preflight.md` | Availability of required G workflows before hosted access. |
 | `references/codex-runtime-surface.md` | Read-only App/CLI classification; capability checks are not surface evidence. |
@@ -38,7 +39,8 @@ When ownership changes, update affected consumers and remove obsolete routes.
   task contracts, recommended order, real prerequisites, accepted decisions,
   review, and GitHub/single-file Markdown projections. Its specification
   reference owns content, and templates project it. Its delivery-authorization
-  reference owns pickup metadata and the post-save decision, not queue execution.
+  reference owns the post-save authorization decision; shared readiness states
+  own metadata and Deliver owns the human handoff, not queue execution.
 - Adversarial Review owns independent read-only critique and generic findings;
   composed callers own target identity, lifecycle, and disposition mapping.
 - Delivery Features owns selected-spec/task scheduling, integration and acceptance,
