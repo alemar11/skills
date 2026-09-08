@@ -1,7 +1,0 @@
-interface:
-  display_name: "Focus"
-  short_description: "Create a focused new task from the latest discussion."
-  brand_color: "#E11D48"
-  default_prompt: "Use $focus to create one focused new task from a compact handoff of the latest substantive discussion. This invocation explicitly authorizes using the uniquely matching saved project directly for repository work, or a standalone task when no repository context exists."
-policy:
-  allow_implicit_invocation: false

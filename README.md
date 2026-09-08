@@ -79,7 +79,6 @@ for Apple's native headless MCP server:
 | `okf` | Write, scaffold, inspect, and validate Open Knowledge Format Markdown bundles with the shipped CLI. |
 | `skill-cli-creator` | Create or refactor CLIs shipped inside a skill or plugin bundle. |
 | `tanstack` | Build, debug, review, or migrate applications using TanStack packages. |
-| `focus` | Create one new Codex task with a compact handoff of the current discussion. Use only when explicitly invoked. |
 | `postgres` | Inspect Postgres databases, design or run SQL, and manage migrations through the shipped Postgres CLI. |
 | `plugins-reload` | Reload this repository’s G, SE, and Xcode plugin installations when explicitly requested. |
 | `skill-audit` | Audit skill or plugin instructions and usage evidence read-only. Use only when explicitly invoked as $skill-audit. |
@@ -254,7 +253,7 @@ This helper only links reusable skills. It does not install, mirror, or rewrite 
 Inside Codex, install all reusable skills with:
 
 ```text
-Use $skill-installer to install skills from alemar11/dotagents --path skills/crusty skills/ms-roberts skills/socrates skills/okf skills/skill-cli-creator skills/tanstack skills/focus skills/postgres skills/plugins-reload skills/skill-audit skills/swift-api-design skills/swift-docc skills/youtube
+Use $skill-installer to install skills from alemar11/dotagents --path skills/crusty skills/ms-roberts skills/socrates skills/okf skills/skill-cli-creator skills/tanstack skills/postgres skills/plugins-reload skills/skill-audit skills/swift-api-design skills/swift-docc skills/youtube
 ```
 
 Install one reusable skill by passing only its path:
@@ -285,7 +284,6 @@ npx skills add alemar11/dotagents -a codex -g -y \
   --skill okf \
   --skill skill-cli-creator \
   --skill tanstack \
-  --skill focus \
   --skill study \
   --skill postgres \
   --skill plugins-reload \

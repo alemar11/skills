@@ -10,7 +10,6 @@ active runtime.
 
 | skill | model | reason | description |
 | --- | --- | --- | --- |
-| [`$focus`](../skills/focus/SKILL.md) | `configured/default` | `configured/default` | Creates one focused Codex App task and intentionally omits `model` and `thinking`, so the caller's configured defaults apply. |
 | [`$se:study`](../plugins/se/skills/study/SKILL.md) | `gpt-5.6-sol` | `medium` | Separate visible read-only Study controller on the App surface in the exact saved local project. |
 | [`$se:study`](../plugins/se/skills/study/SKILL.md) | `configured/default` | `configured/default` | Current CLI session acting as the read-only Study controller; its active model and reasoning are intentionally retained. |
 | [`$se:study`](../plugins/se/skills/study/SKILL.md), [`$se:spec`](../plugins/se/skills/spec/SKILL.md), [`$se:deliver-features`](../plugins/se/skills/deliver-features/SKILL.md) | `gpt-5.6-luna` | `max` | Shared [`evidence-researcher`](../plugins/se/references/subagents/evidence-researcher.md) role. Delivery also uses it for optional bounded [closeout analysis](../plugins/se/skills/deliver-features/references/closeout.md). Calling skills own selection, concurrency, lifecycle, and fallback. |
