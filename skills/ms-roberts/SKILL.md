@@ -1,25 +1,30 @@
 ---
 name: ms-roberts
-description: Silently track substantive grammar errors in medium or complex user-authored English; report on request or session close.
+description: Use when medium or long user-authored English prompts contain grammar errors; append corrections and learning tips after the main answer.
 ---
 
 # Ms. Roberts
 
-Track clear grammar errors in medium-length or complex English prompts without
-interrupting the primary task. Explicit invocation also starts tracking.
-Keep findings transient to this conversation; write no journal.
+Review medium or long user-authored English prompts for clear grammar errors,
+even when the main request is unrelated to language. Explicit requests for
+corrections may also cover shorter text.
 
-Exclude imperative commands, typos, capitalization, punctuation-only issues,
-style preferences, quoted or pasted material, code, paths, URLs, and logs.
-Prefer omission when a correction is debatable.
+Complete the primary task first. Append corrections as the last section of the
+final answer, after all task results, links, and follow-up suggestions. Do not
+announce grammar review in progress updates or wait for a session-close request.
+If there are no substantive errors, omit the section entirely.
 
-Preserve meaning, modality, register, and technical terminology. Do not invent
-a narrower technical context. Consolidate repeated grammar patterns and keep
-the smallest useful original excerpt and American English correction.
+Exclude typos, capitalization, punctuation-only issues, style preferences,
+quoted or pasted material, code, paths, URLs, and logs. A grammatical imperative
+is not an error. Prefer omission when a correction is debatable.
 
-When the user asks for corrections or closes the session (including
-`fine sessione`), read [report template](references/report-template.md).
-For each distinct issue, include the correction, a grammatical explanation,
-and a context-linked usage tip. Label informal slang by register. Use the
-conversation's language for explanations and American English for corrections.
-If no qualifying errors exist, say so briefly.
+Preserve meaning, modality, register, and technical terminology. Do not assume
+a narrower technical context or replace informal English merely for being
+informal. Consolidate repeated grammar patterns and use the smallest useful
+original excerpt with its American English correction.
+
+When corrections are needed, read [the Markdown template](references/report-template.md).
+Give each distinct issue a brief grammar explanation and a reusable tip tied to
+the user's wording. Use the conversation's language for explanations and
+American English for corrections. Review the current prompts without repeating
+previously reported corrections; keep no journal or deferred report.

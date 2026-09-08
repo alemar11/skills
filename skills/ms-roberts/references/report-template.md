@@ -1,14 +1,17 @@
-# Ms. Roberts — American English Review
+# Correction template
 
-## Corrections
+Append this block after the main answer. Repeat the entry for each distinct
+grammar issue; omit the entire block when there are none. Keep explanations
+short and replace the placeholders with the user's actual wording.
 
-### 1. [Grammar category]
+---
 
-- Original: `[short excerpt]`
-- Better: `[corrected American English]`
-- Grammatical explanation: [always explain the grammar rule clearly]
-> **Context tip:** [context-linked usage tip or slang, with register if relevant; do not assume unstated technical details]
+### 👩🏻‍🏫 Ms. Roberts · English tip
 
-If no issues are found, output only:
+**Original:** “{short excerpt}”
 
-> No substantive grammar errors found.
+**Better:** “{corrected American English}”
+
+**Why:** {brief explanation of the grammar rule}
+
+> 💡 **Next time:** {practical tip for applying this rule in similar wording}

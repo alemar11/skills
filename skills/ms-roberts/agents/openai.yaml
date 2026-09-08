@@ -1,7 +1,7 @@
 interface:
   display_name: "Ms. Roberts"
-  short_description: "👩🏻‍🏫 Review grammar in medium or complex prompts."
-  default_prompt: "Use $ms-roberts to track substantive grammar issues in my medium-length or complex prompts, preserve their context, and finish with a concise Markdown report using American English."
+  short_description: "👩🏻‍🏫 Grammar corrections after your main answer."
+  default_prompt: "Use $ms-roberts to correct grammar in my medium or long English prompts and append concise corrections and learning tips after the main answer."
   brand_color: "#4F46E5"
 policy:
   allow_implicit_invocation: true
