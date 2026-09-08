@@ -1,14 +1,13 @@
 # SE Workflow Graph Contract
 
 This reference owns the shared structural vocabulary for graph-first SE
-workflows. It applies to Learn, Grilling Session, Idea, Spec, and Delivery Features
+workflows. It applies to Learn, Grilling Session, Spec, and Delivery Features
 without turning every skill into the same implementation graph.
 
-The existing workflow-contract.md remains the canonical owner of the Idea
-hosted shape. This reference owns workflow structure only.
+This reference owns workflow structure only.
 Spec owns the [specification and task contract](../skills/spec/references/specification.md).
 Delivery Features owns transient task-to-unit mapping, scheduling, integration,
-and PR topology. Learn, Grilling Session, and Idea own their local graphs.
+and PR topology. Learn and Grilling Session own their local graphs.
 
 Every graph-owning skill routes to `references/states.md`. Its registry is the
 structural source of truth for nodes and edges; the state reference explains
@@ -86,7 +85,7 @@ as the source of truth. Explanatory prose may clarify a condition but must not
 add an unregistered edge.
 
 Spec keeps its spec-authoring step files and registry as its local source of truth.
-Learn, Grilling Session, Idea, and Delivery Features keep their registries in their
+Learn, Grilling Session, and Delivery Features keep their registries in their
 SKILL.md files while branch-specific details remain in routed references.
 
 ## Common terminal meanings
@@ -99,8 +98,7 @@ SKILL.md files while branch-specific details remain in routed references.
   reconciliation result is unavailable.
 
 Each skill declares the subset it supports. Spec retains its existing
-complete and blocked terminal contract. Learn uses all four meanings. Idea
-uses reported, deferred, complete, and blocked.
+complete and blocked terminal contract. Learn uses all four meanings.
 Delivery Features uses complete, deferred, and blocked.
 Grilling Session uses complete for a confirmed refined handoff, reported for a
 user-stopped best-effort handoff, and blocked when responsible questioning
@@ -127,11 +125,6 @@ durable configuration.
 A handoff is a typed transient artifact, not an implicit runtime invocation or
 a graph edge between skills. The receiving skill must validate the handoff,
 reload its own repository context, and derive its own planning fields.
-
-The Idea-to-Spec handoff is owned by
-skills/idea/references/idea-source.md. It preserves tentative source evidence
-and open questions while excluding Feature spec requirements, acceptance
-criteria, execution dependencies, implementation plans, and readiness claims.
 
 ## Validation
 

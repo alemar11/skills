@@ -15,13 +15,11 @@ fail() {
 test -s "$owner" || fail "missing or empty canonical owner"
 
 for relative in \
-  skills/idea/SKILL.md \
   skills/spec/SKILL.md \
   skills/deliver/SKILL.md \
   skills/deliver/references/workers.md \
   skills/deliver-features/SKILL.md \
   skills/review-pr/SKILL.md \
-  skills/idea/references/publishing.md \
   skills/spec/references/github-output.md \
   skills/deliver-features/references/completion.md \
   skills/deliver-features/references/progress.md \
@@ -33,7 +31,6 @@ for relative in \
 done
 
 hosted_templates=(
-  "$plugin_root/skills/idea/references/idea-template.md"
   "$plugin_root/skills/spec/templates/spec.md"
   "$plugin_root/skills/spec/templates/task.md"
   "$plugin_root/skills/spec/templates/maintenance-changelog.md"

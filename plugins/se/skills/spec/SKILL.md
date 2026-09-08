@@ -6,7 +6,7 @@ description: "Create or revise feature specs and task plans on explicit request;
 # Feature Specification
 
 Produce one coherent spec and an ordered, verifiable task plan from the current
-discussion, supplied references, an Idea handoff, or an existing spec. One
+discussion, supplied references, or an existing spec. One
 outcome may span repositories. Planning does not implement code, create branches
 or PRs, change execution progress, or start Delivery implicitly.
 
@@ -28,8 +28,7 @@ unavailable or prohibited.
 
 Read [specification.md](references/specification.md) for the saved content and
 identity contract. Inspect relevant code and repository instructions, preserving
-source attribution, caller scope, and accepted decisions. For an Idea handoff,
-read [idea-source.md](../idea/references/idea-source.md). For revisions or exports,
+source attribution, caller scope, and accepted decisions. For revisions or exports,
 read [existing-specs.md](references/existing-specs.md) before changing the draft.
 
 Compose [Grilling Session](../grilling-session/SKILL.md) in this session only for

@@ -13,7 +13,6 @@ When ownership changes, update affected consumers and remove obsolete routes.
 
 | Shared owner | Contract |
 | --- | --- |
-| `references/workflow-contract.md` | Idea hosted shape. |
 | `references/workflow-graph.md` | Graph vocabulary, registry structure, terminal meanings, authority, and validation. |
 | `references/codex-dependency-preflight.md` | Availability of required G workflows before hosted access. |
 | `references/codex-runtime-surface.md` | Read-only App/CLI classification; capability checks are not surface evidence. |
@@ -35,8 +34,6 @@ When ownership changes, update affected consumers and remove obsolete routes.
 - Grilling Session owns read-only interview refinement and composes Learn for context.
 - Study owns read-only study topology, its curated handoff, Grilling Session, worker cap,
   and synthesis. App/CLI details and worker operations live in its references.
-- Idea owns tentative proposal capture, preview/publication, and the typed Idea
-  source handoff. It does not define Feature requirements or durable memory.
 - Spec owns coherent specs, stable spec/F-AC/task identities, actionable
   task contracts, recommended order, real prerequisites, accepted decisions,
   review, and GitHub/single-file Markdown projections. Its specification

@@ -8,7 +8,6 @@ task plans, reviewed PR delivery with workflow retrospectives, and durable proje
 | `se:learn` | Maintain explicitly authorized local project knowledge and review rules. |
 | `se:grilling-session` | Refine a topic through one focused question and recommendation at a time. |
 | `se:study` | Refine a curated handoff, then conduct a read-only investigation. |
-| `se:idea` | Save a tentative proposal to GitHub or preview it locally. |
 | `se:spec` | Create or revise a coherent spec with an ordered actionable task plan; save to GitHub or one Markdown file. |
 | `se:adversarial-review` | Independently pressure-test a fixed software change without editing it. |
 | `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |

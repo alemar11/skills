@@ -12,9 +12,7 @@ this gate never changes that authoritative result.
 
 ## When to run
 
-For Learn, do not load this gate: Learn has no hosted dependency. Idea runs it
-before its first hosted read/write on the publish branch; Idea preview remains
-local. Spec runs it before any hosted source read or GitHub save. A local
+For Learn, do not load this gate: Learn has no hosted dependency. Spec runs it before any hosted source read or GitHub save. A local
 source preview or Markdown save needs no G workflow. A Markdown destination or
 preview does not waive the gate for an explicitly admitted hosted source read.
 
@@ -60,7 +58,7 @@ require source and installed versions to match as part of this gate. When local
 checks pass but the current session cannot reach the explicit handoff, report
 `codex-dependency-unresolved`.
 
-Idea and Spec hosted operations require `$g:github-issues` for issue
+Spec hosted operations require `$g:github-issues` for issue
 lifecycle and relationships. Optional classification uses that skill's
 classification branch; classification failure never blocks semantic save.
 Spec's approved delivery-marker creation, application or revocation uses the

@@ -7,7 +7,7 @@ Explicit user constraints and available capabilities still govern execution.
 
 | Skill | Delegation policy |
 | --- | --- |
-| Implement, Adversarial Review, Review PR, Grilling Session, Learn, Idea | Perform their work in the executing session/task; create no tasks or subagents. |
+| Implement, Adversarial Review, Review PR, Grilling Session, Learn | Perform their work in the executing session/task; create no tasks or subagents. |
 | Spec | Draft and review in the invoking session; optional research/review helpers use shared roles. |
 | Study | Own its controller and optional helpers under its surface and worker contracts. |
 | Deliver | Own isolated workers through PR publication and CI under its local worker contract; the current task owns orchestration. |

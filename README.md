@@ -54,7 +54,6 @@ includes delivery workflow retrospectives:
 | `se:study` | Grill one curated handoff, then run read-only analysis in one App controller or the current CLI session with optional Luna subagents. |
 | `se:adversarial-review` | Pressure-test a software change with an independent read-only review and evidence-backed findings. |
 | `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |
-| `se:idea` | Save a concrete proposal for later spec planning, or preview it locally. |
 | `se:spec` | Create or revise one coherent feature spec and actionable task plan, saving to GitHub or a single Markdown file. |
 | `se:deliver` | Orchestrate isolated workers for specs, issues or bounded work through validated ready PRs. |
 | `se:deliver-features` | Deliver saved specs or selected tasks through surface-aware isolated workers, reviewed ready PRs, and verified outcomes from the current task. |
@@ -127,7 +126,6 @@ This repository ships one broad reusable `tanstack` skill rather than separate u
   grilling.
 - `maintainer` uses `$skill-audit` conditionally when health diagnosis or workflow hardening needs portfolio, prompt-quality, overlap, or session evidence; requires `$skill-creator` or `$plugin-creator` for substantial package reshapes; and requires native `codex review` for non-trivial implementation closeout.
 - The G-dependent SE skills run a read-only Codex plugin preflight before their first required G handoff and fail closed when G is unavailable; Feature publication requires `$g:github-issues`; its optional classification branch never gates semantic publication, while no SE skill installs G automatically.
-- `se:idea` traverses a graph-first in-memory capture workflow and publishes to GitHub by default; an explicitly requested preview stays entirely local. Its durable output is the hosted issue, not project memory, and its optional idea-source handoff remains transient.
 - `se:learn` runs in the invoking task and performs only authorized local-repository context changes; it has no external dependency preflight, task profile, GitHub transport, publication, or worker delegation contract.
 - `se:grilling-session` is read-only and explicit or parent-composed. It depends on
   `$se:learn` for context inspection, returns a transient refined handoff, and

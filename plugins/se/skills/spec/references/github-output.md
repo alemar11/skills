@@ -63,7 +63,7 @@ unresolved ambiguity. Partial publication reports the exact completed and
 remaining artifacts; never replay the whole batch or substitute a local save.
 
 Saving the plan does not close tasks, the parent, or source issues. A separately
-requested source-Idea closure or downstream notification occurs only after the
+requested source-issue closure or downstream notification occurs only after the
 complete save is verified and through its authorized owner. Reconcile that
 requested effect before completion.
 
