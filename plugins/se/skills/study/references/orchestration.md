@@ -44,7 +44,7 @@ explicit report justification.
 ## Assignment contract
 
 Before assigning workers, read the shared
-[`evidence-researcher`](../../../references/subagents.md#evidence-researcher)
+[`evidence-researcher`](../../../references/subagents/evidence-researcher.md)
 role. It owns the worker's purpose, read-only boundary, model settings, and
 evidence memo; Study owns the refined assignment, slot lifecycle, and synthesis.
 

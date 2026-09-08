@@ -7,16 +7,17 @@ Explicit user constraints and available capabilities still govern execution.
 
 | Skill | Delegation policy |
 | --- | --- |
-| Implement, Adversarial Review, Review PR, Grilling Session, Learn | Perform their work in the executing session/task; create no tasks or subagents. |
+| Adversarial Review, Review PR, Grilling Session, Learn | Perform their work in the executing session/task; create no tasks or subagents. |
+| Implement | Execute local work in the current session/task; may delegate only its optional read-only UI designer under its own contract. |
 | Spec | Draft and review in the invoking session; optional research/review helpers use shared roles. |
 | Study | Own its controller and optional helpers under its surface and worker contracts. |
 | Deliver | Own isolated workers through PR publication and CI under its local worker contract; the current task owns orchestration. |
 | Deliver Features | Own its coordinator, implementation lanes and reviewers under its delivery contract. |
 
-An orchestrator may launch an agent and assign it a skill that creates no agents.
-That agent executes the skill; the skill does not launch another layer or change
-its own profile. For example, Delivery assigns Implement to a developer and
-Adversarial Review to a different reviewer. Standalone Implement also ends at
+An orchestrator may launch an agent and assign it a skill. The agent follows
+that skill's delegation boundary without changing its own profile. For example,
+Delivery assigns Implement to a developer, which may consult its optional UI
+designer, and Adversarial Review to a different reviewer, which creates no agents. Standalone Implement also ends at
 its implementation handoff; it does not acquire an independent-review workflow.
 
 Passing exact scope, target, evidence, and established action authority is

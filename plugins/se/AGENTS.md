@@ -6,8 +6,8 @@ Do not restore retired compatibility surfaces.
 
 ## Shared ownership
 
-A shared reference belongs in `references/` only when at least two skills
-consume its contract. Each consumer routes to it at the relevant read condition.
+A shared reference belongs in `references/` when at least two skills consume its
+contract, or when it defines a reusable role under `references/subagents/`. Each consumer routes to it at the relevant read condition.
 Keep skill-specific states, topology, templates, and branch detail with the skill.
 When ownership changes, update affected consumers and remove obsolete routes.
 
@@ -19,7 +19,7 @@ When ownership changes, update affected consumers and remove obsolete routes.
 | `references/codex-runtime-surface.md` | Read-only App/CLI classification; capability checks are not surface evidence. |
 | `references/review-repair-budget.md` | Delivery/Implement per-PR repair budget across local/hosted gates, reservations and recovery. |
 | `references/execution-scope.md` | Uniform standalone/composed responsibilities and delegation policies across SE skills. |
-| `references/subagents.md` | Reusable research, development and review roles with default profiles; callers own transport, orchestration and disposition. |
+| `references/subagents.md` and `references/subagents/` | Role index, common constraints and reusable role definitions with default profiles; callers own transport, orchestration and disposition. |
 | `references/hosted-content-safety.md` | Portable hosted content, title normalization, and bounded same-artifact repair. |
 | `scripts/validate-hosted-content-safety` | Static ownership, routing, and hosted-template checks. |
 
@@ -53,7 +53,8 @@ When ownership changes, update affected consumers and remove obsolete routes.
 - Review PR requests or resumes one hosted Codex review, waits, and returns the
   provider result to the calling task. It owns no subagents, repairs, CI or
   acceptance. G owns provider operations, lineage and bounded waiting.
-- Implement owns bounded local implementation/repairs and candidate handoff;
+- Implement owns bounded local implementation/repairs, optional read-only UI
+  design delegation, and candidate handoff;
   composed callers own independent review, orchestration, claims and publication.
 
 ## Maintenance invariants

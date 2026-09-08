@@ -2,7 +2,7 @@
 
 Read before local review, review-driven repair, or budget reconstruction.
 [states.md](states.md) owns dispositions; the shared
-[`code-reviewer`](../../../references/subagents.md#code-reviewer) owns the default
+[`code-reviewer`](../../../references/subagents/code-reviewer.md) owns the default
 model and role boundaries. Compose
 [`se:adversarial-review`](../../adversarial-review/SKILL.md) for its skeptical
 review and evidence-backed finding contract. Delivery owns the target,

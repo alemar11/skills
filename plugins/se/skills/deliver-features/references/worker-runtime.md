@@ -69,7 +69,9 @@ coordinator, never with a worker.
 The run and lane identities are transient history, not claim-registry or saved
 progress fields. Only the coordinator holds repository-claim fencing material.
 Workers never interview the caller, accept direct scheduling, operate claims,
-delegate recursively, or broaden their assignment.
+or broaden their assignment. Their only nested delegation is Implement's
+[optional UI designer](../../implement/SKILL.md#optional-ui-design); no other recursive
+delegation is permitted.
 
 ## Reuse, monitoring, and completion
 

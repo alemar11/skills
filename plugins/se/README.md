@@ -13,7 +13,7 @@ task plans, reviewed PR delivery with workflow retrospectives, and durable proje
 | `se:review-pr` | Request or resume a hosted Codex PR review, wait, and report the provider result to the calling task. |
 | `se:deliver` | Orchestrate isolated workers for specs, issues or bounded work through validated ready PRs. |
 | `se:deliver-features` | Deliver saved specs or selected tasks through reviewed ready PRs from the current task. |
-| `se:implement` | Implement selected local work, validate it, and commit scoped files without publication. |
+| `se:implement` | Implement selected local work, optionally consult a UI designer, validate it, and commit scoped files without publication. |
 | `se:deslop` | Explicit-only audit and minimal safe cleanup of low-value code across every major directory. |
 
 Learn, Implement and Review PR permit implicit selection within their descriptions. The

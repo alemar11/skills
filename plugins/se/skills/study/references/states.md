@@ -113,7 +113,7 @@ it. The same state vocabulary applies to native subagents on both surfaces.
 | `created` | A stable worker identity exists and structural verification passed. | Terminal slot state |
 | `creation-failed` | Authoritative evidence proves no worker exists, including an unavailable selected transport. | Terminal slot state |
 | `structural-verification-failed` | A real subagent exists, but its active controller lineage cannot be established. | Terminal slot state |
-| `settings-drift` | A real worker exists and observed model or reasoning differs from the requested [research role](../../../references/subagents.md#evidence-researcher) profile. | Terminal slot state |
+| `settings-drift` | A real worker exists and observed model or reasoning differs from the requested [research role](../../../references/subagents/evidence-researcher.md) profile. | Terminal slot state |
 | `unresolved-setup` | Bounded reconciliation cannot determine whether a worker exists. | Terminal slot state |
 
 Apply these rules:

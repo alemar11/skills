@@ -150,7 +150,7 @@ known competing work must still be reconciled before a conflicting write.
 
 ## Skill Dependencies
 
-Bundled [Implement](../implement/SKILL.md) owns local work without delegation or
+Bundled [Implement](../implement/SKILL.md) owns local work with optional UI design help, without
 publication. Installed `g@alemar11` owns Git/GitHub publication, required CI and
 optional stacks; load only the workflows needed for the selected operation.
 The orchestrator owns assignments, integration and acceptance.

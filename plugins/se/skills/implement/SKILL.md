@@ -24,8 +24,8 @@ an unresolved mismatch to the owner. Preserve unrelated work and never add
 unselected prerequisites or change requirements to make checks pass.
 
 The executing task or developer subagent retains the caller-selected profile.
-Implement never creates tasks or subagents and never operates claims, whether
-standalone or composed. For review-driven work, read the
+Implement creates no tasks and never operates claims. Its only delegation is
+the optional UI designer below, with the same policy standalone or composed. For review-driven work, read the
 [shared repair budget](../../references/review-repair-budget.md), require the
 owner's reserved batch, and preserve its identity/count; this skill cannot
 reserve or reset a round. Standalone implementation outside a managed SE review
@@ -34,6 +34,29 @@ loop does not acquire a review budget merely because it fixes a bug.
 Use test-driven development where practical, especially at pre-agreed seams.
 Run checks covering the changed behavior and repository-required gates. Broaden
 validation only for unresolved risks or failures.
+
+## Optional UI design
+
+For new screens, substantial redesigns, or unresolved visual and interaction
+choices, consider one read-only designer subagent under
+[shared designer role](../../references/subagents/designer.md). Skip routine component work, small fixes,
+and work with an already precise design. Implementation invocation authorizes
+this bounded helper when useful, subject to explicit caller constraints and
+available capabilities. The executing worker owns its selection and result;
+do not add a delivery-coordinator gate.
+
+Use one native helper and retain the implementation worker's own profile.
+Provide a self-contained brief, evaluate its proposal against the selected scope,
+and resolve routine choices locally. Reuse that helper for bounded clarification;
+do not fan out or invoke Implement recursively. Finish or stop it before candidate
+handoff. If delegation is unavailable or fails, continue with local design
+judgment and report the limitation. Reconcile an uncertain launch before replacing
+it; optional design help does not block otherwise feasible work.
+
+Implement owns the code and verifies the rendered UI in the browser or relevant
+native interface, including responsive behavior and accessibility appropriate
+to the change. A design proposal does not establish implementation quality;
+report any unavailable visual verification.
 
 ## Review and handoff
 

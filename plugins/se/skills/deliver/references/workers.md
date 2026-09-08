@@ -58,7 +58,9 @@ uses the same worker profile, transport and result contract under
 [integration.md](integration.md#integration-assignment). A contribution handoff
 completes that assignment, not the selected feature's delivery.
 
-Workers cannot create further agents, broaden scope, mutate another worker's
+Workers may delegate only Implement's
+[optional UI designer](../../implement/SKILL.md#optional-ui-design); other agent
+creation is prohibited. Workers cannot broaden scope, mutate another worker's
 branch/PR, land PRs, deploy or perform production actions. An integration assignment
 may combine assigned commits into its own delivery branch. Honor direct user stops
 and corrections; relay material scope/target changes to the orchestrator and
